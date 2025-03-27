@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estados Financieros - Cítricos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2 { color: #4CAF50; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        button { background-color: #4CAF50; color: white; padding: 10px; border: none; cursor: pointer; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <h1>Estados Financieros - Cítricos</h1>
+    <div id="financials">
+        <h2>Balance General</h2>
+        <table>
+            <tr><th>Activos</th><th>Monto (pesos)</th></tr>
+            <tr><td>Maquinaria y equipo</td><td id="assets1"></td></tr>
+            <tr><td>Dinero disponible</td><td id="assets2"></td></tr>
+            <tr><th>Total Activos</th><th id="totalAssets"></th></tr>
+            <tr><th>Pasivos</th><th>Monto (pesos)</th></tr>
+            <tr><td>Deudas</td><td id="liabilities"></td></tr>
+            <tr><th>Total Pasivos</th><th id="totalLiabilities"></th></tr>
+            <tr><th>Patrimonio</th><th id="equity"></th></tr>
+        </table>
+
+        <h2>Estado de Ingresos y Gastos</h2>
+        <table>
+            <tr><th>Ingresos</th><th>Monto (pesos)</th></tr>
+            <tr><td>Venta de cítricos</td><td id="income"></td></tr>
+            <tr><th>Gastos</th><th>Monto (pesos)</th></tr>
+            <tr><td>Insumos</td><td id="expense1"></td></tr>
+            <tr><td>Jornales</td><td id="expense2"></td></tr>
+            <tr><td>Servicios</td><td id="expense3"></td></tr>
+            <tr><td>Imprevistos</td><td id="expense4"></td></tr>
+            <tr><th>Total Gastos</th><th id="totalExpenses"></th></tr>
+            <tr><th>Utilidad Neta</th><th id="netProfit"></th></tr>
+        </table>
+    </div>
+    <button onclick="downloadPDF()">Descargar PDF</button>
+
+    <script>
+        const data = JSON.parse(localStorage.getItem("financialData"));
+        const productName = "Cítricos";
+
+        if (data) {
+            // Balance General
+            document.getElementById("assets1").innerText = data.assets1 || 0;
+            document.getElementById("assets2").innerText = data.assets2;
+            const totalAssets = (parseFloat(data.assets1) || 0) + parseFloat(data.assets2);
+            document.getElementById("totalAssets").innerText = totalAssets;
+            document.getElementById("liabilities").innerText = data.liabilities;
+            document.getElementById("totalLiabilities").innerText = data.liabilities;
+            document.getElementById("equity").innerText = totalAssets - parseFloat(data.liabilities);
+
+            // Estado de Ingresos y Gastos
+            document.getElementById("income").innerText = data.income;
+            document.getElementById("expense1").innerText = data.expense1;
+            document.getElementById("expense2").innerText = data.expense2;
+            document.getElementById("expense3").innerText = data.expense3;
+            document.getElementById("expense4").innerText = data.expense4;
+            const totalExpenses = parseFloat(data.expense1) + parseFloat(data.expense2) + parseFloat(data.expense3) + parseFloat(data.expense4);
+            document.getElementById("totalExpenses").innerText = totalExpenses;
+            document.getElementById("netProfit").innerText = parseFloat(data.income) - totalExpenses;
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById("financials");
+            html2pdf().from(element).save("estados_financieros_citricos.pdf");
+        }
+    </script>
+</body>
+</html>

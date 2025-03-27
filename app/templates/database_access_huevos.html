@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso a Base de Datos - Huevos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        button { background-color: #4CAF50; color: white; padding: 10px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Acceso a Base de Datos - Huevos</h1>
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>Pregunta</th>
+                <th>Respuesta</th>
+                <th>Fecha de Captura</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Filas generadas dinámicamente -->
+        </tbody>
+    </table>
+    <button onclick="modifyEntry()">Modificar Rubro</button>
+
+    <script>
+        const data = JSON.parse(localStorage.getItem("databaseData"));
+
+        if (data) {
+            const tbody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+            data.forEach(entry => {
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = entry.question;
+                row.insertCell(1).innerText = entry.answer;
+                row.insertCell(2).innerText = entry.date;
+                const actionsCell = row.insertCell(3);
+                const modifyButton = document.createElement('button');
+                modifyButton.innerText = 'Modificar';
+                modifyButton.onclick = () => {
+                    const username = prompt('Ingrese su usuario:');
+                    const password = prompt('Ingrese su contraseña:');
+                    // Lógica para validar usuario y contraseña y permitir modificación
+                };
+                actionsCell.appendChild(modifyButton);
+            });
+        }
+
+        function modifyEntry() {
+            const username = prompt('Ingrese su usuario:');
+            const password = prompt('Ingrese su contraseña:');
+            // Lógica para validar usuario y contraseña y permitir modificación
+        }
+    </script>
+</body>
+</html>

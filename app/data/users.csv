@@ -1,0 +1,3 @@
+username,telefono,email,password,fecha_nacimiento,genero,terminos
+Ernesto Juan,2134351355315,eduar_09483@gmail.com,pbkdf2:sha256:1000000$EFZnEgUIAx3zijG4$23c3e6a2a554de8c90e45d2839947ef1b6781dd57cfcbeba939f2849f5ce2651,12/01/2002,hombre,Aceptado
+erdne qeer,2134428428,juan0212_44@gmail.com,pbkdf2:sha256:1000000$wEvE3adjv9VMfaPB$87ff79410c9b5ce155482e5c9f34bb70342336d0084a67d041574fc75a4926da,12/12/2000,mujer,Aceptado

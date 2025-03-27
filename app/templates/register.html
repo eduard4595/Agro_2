@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Registro</title>
+</head>
+<body>
+    <h1>Formulario de Registro</h1>
+    <form action="{{ url_for('register') }}" method="POST">
+        <!-- Nombre completo -->
+        <label for="username">Nombre completo:</label><br>
+        <input type="text" id="username" name="username" placeholder="Juan Pérez" required><br>
+        
+        <!-- Número de teléfono -->
+        <label for="telefono">Número de teléfono:</label><br>
+        <input type="tel" id="telefono" name="telefono" placeholder="+52 123 456 7890" required><br>
+        
+        <!-- Correo electrónico -->
+        <label for="email">Correo electrónico:</label><br>
+        <input type="email" id="email" name="email" placeholder="juan.perez@example.com" required><br>
+        
+        <!-- Contraseña -->
+        <label for="password">Contraseña:</label><br>
+        <input type="password" id="password" name="password" placeholder="Contraseña123" minlength="8" required><br>
+        
+        <!-- Fecha de nacimiento -->
+        <label for="fecha_nacimiento">Fecha de nacimiento:</label><br>
+        <input type="number" id="dia" name="dia" placeholder="Día" min="1" max="31" required>
+        <input type="number" id="mes" name="mes" placeholder="Mes" min="1" max="12" required>
+        <input type="number" id="año" name="año" placeholder="Año" min="1900" required><br>
+        
+        <!-- Género -->
+        <label for="genero">Género:</label><br>
+        <select id="genero" name="genero" required>
+            <option value="mujer">Mujer</option>
+            <option value="hombre">Hombre</option>
+            <option value="personalizado">Personalizado</option>
+        </select><br>
+        
+        <!-- Términos y condiciones -->
+        <input type="checkbox" id="terminos" name="terminos" required>
+        <label for="terminos">Acepto los términos y condiciones</label><br>
+        
+        <!-- Botón de envío -->
+        <input type="submit" value="Registrar">
+    </form>
+</body>
+</html>

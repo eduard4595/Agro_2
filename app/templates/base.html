@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Flask App{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>iAgricola by CIDATMEX</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('financial_info.financial_info') }}">Información Financiera</a></li>
+                <li><a href="{{ url_for('climate_analysis.climate_analysis') }}">Análisis Climático</a></li>
+                <li><a href="{{ url_for('climate_analysis.climate_analysis') }}">Chat IA</a></li>
+                <li><a href="{{ url_for('user_management.user_management') }}">Gestión de Usuarios</a></li>
+                <li><a href="{{ url_for('register') }}">Registro de Cliente</a></li>
+                <li><a href="{{ url_for('login') }}">Iniciar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2025 Agro-CIDATMEX</p>
+    </footer>
+</body>
+</html>

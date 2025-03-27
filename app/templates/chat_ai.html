@@ -1,0 +1,80 @@
+<!-- {% extends 'base.html' %}
+
+{% block title %}Chat IA{% endblock %}
+
+{% block content %}
+<h2>Chat IA</h2>
+<p>Haz tus preguntas y recibe respuestas basadas en los manuales de expertos.</p> -->
+
+<!-- Contenedor para la conversación -->
+<!-- <div id="chat-container" style="border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; background-color: #f9f9f9;">
+    <!-- Aquí se agregarán dinámicamente las preguntas y respuestas -->
+<!--</div> -->
+
+<!-- Formulario para enviar preguntas -->
+<!-- <form id="chat-form" method="POST" style="margin-top: 10px;">
+    <label for="question">Pregunta:</label>
+    <input type="text" id="question" name="question" placeholder="Escribe tu pregunta aquí" required style="width: 80%;">
+    <button type="submit">Enviar</button>
+</form> -->
+
+<!-- <script>
+    // Manejar el envío del formulario sin recargar la página
+    document.getElementById('chat-form').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Evitar el envío tradicional del formulario
+
+        const questionInput = document.getElementById('question');
+        const chatContainer = document.getElementById('chat-container');
+
+        // Obtener la pregunta del usuario
+        const question = questionInput.value;
+
+        // Agregar la pregunta al contenedor de chat
+        const userMessage = document.createElement('div');
+        userMessage.textContent = `Tú: ${question}`;
+        userMessage.style.color = 'blue';
+        userMessage.style.marginBottom = '5px';
+        chatContainer.appendChild(userMessage);
+
+        // Limpiar el campo de entrada
+        questionInput.value = '';
+
+        // Enviar la pregunta al servidor
+        try {
+            const response = await fetch('{{ url_for("chat_ai.chat_ai") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question: question }), // Enviar la pregunta como JSON
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al procesar tu solicitud.');
+            }
+
+            const data = await response.json();
+
+            // Agregar la respuesta al contenedor de chat
+            const botMessage = document.createElement('div');
+            if (data.response) {
+                botMessage.textContent = `AgroChat: ${data.response}`;
+            } else if (data.error) {
+                botMessage.textContent = `Error: ${data.error}`;
+            }
+            botMessage.style.color = 'green';
+            botMessage.style.marginBottom = '10px';
+            chatContainer.appendChild(botMessage);
+
+            // Desplazar el contenedor hacia abajo para mostrar el último mensaje
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        } catch (error) {
+            const errorMessage = document.createElement('div');
+            errorMessage.textContent = `Error: ${error.message}`;
+            errorMessage.style.color = 'red';
+            chatContainer.appendChild(errorMessage);
+        }
+    });
+</script>
+{% endblock %} -->

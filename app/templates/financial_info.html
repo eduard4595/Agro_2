@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Información Financiera{% endblock %}
+
+{% block content %}
+<h2>Información Financiera</h2>
+<form method="POST">
+    <h3>Ingresos y Gastos</h3>
+    <label for="income">Ingresos:</label>
+    <input type="number" id="income" name="income" placeholder="Ingresos mensuales">
+    <label for="expenses">Gastos:</label>
+    <input type="number" id="expenses" name="expenses" placeholder="Gastos mensuales">
+    
+    <h3>Procesos Financieros</h3>
+    <label for="debts">Deudas:</label>
+    <input type="number" id="debts" name="debts" placeholder="Deudas actuales">
+    <label for="savings">Ahorros:</label>
+    <input type="number" id="savings" name="savings" placeholder="Ahorros actuales">
+    
+    <button type="submit">Enviar</button>
+</form>
+
+<div id="buttons">
+    <!-- Botones generados dinámicamente -->
+</div>
+
+<script>
+    const productType = "{{ general_data.actividad_principal }}"; // Supongamos que el tipo de producto está disponible en esta variable
+
+    const buttonsContainer = document.getElementById('buttons');
+
+    const buttons = [
+        { text: 'Estados Financieros', url: `/financial_statements_${productType}` },
+        { text: 'Dashboard', url: `/dashboard_${productType}` },
+        { text: 'Acceso a Base de Datos', url: `/database_access_${productType}` },
+    ];
+
+    buttons.forEach(button => {
+        const btn = document.createElement('button');
+        btn.textContent = button.text;
+        btn.onclick = () => {
+            window.location.href = button.url;
+        };
+        buttonsContainer.appendChild(btn);
+    });
+</script>
+{% endblock %}

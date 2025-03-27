@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estados Financieros - Café</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #FFFFFF;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2, h3 {
+      text-align: center;
+      color: #003366;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    table th, table td {
+      border: 1px solid #CCCCCC;
+      padding: 8px;
+      text-align: left;
+    }
+    table th {
+      background-color: #003366;
+      color: white;
+    }
+    .positive {
+      color: #000000; /* Negro para valores positivos */
+    }
+    .negative {
+      color: #FF0000; /* Rojo para valores negativos */
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px 0;
+      background-color: #0056B3;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .btn:hover {
+      background-color: #003366;
+    }
+    .note {
+      font-size: 12px;
+      color: #555555;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .producer-input {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .producer-input input {
+      width: 80%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #CCCCCC;
+      border-radius: 5px;
+    }
+
+    /* Estilo para impresión */
+    @media print {
+      @page {
+        size: letter; /* Tamaño carta */
+        margin: 1in; /* Márgenes de 1 pulgada */
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        box-shadow: none; /* Elimina sombras para impresión */
+        border: none; /* Elimina bordes innecesarios */
+      }
+
+      table {
+        font-size: 12px; /* Reduce el tamaño de fuente para ajustar contenido */
+      }
+
+      h1, h2, h3 {
+        font-size: 16px; /* Reduce el tamaño de los encabezados */
+      }
+
+      .btn, .producer-input {
+        display: none; /* Oculta botones y campos de entrada en la impresión */
+      }
+
+      .note {
+        font-size: 10px; /* Reduce el tamaño de la nota */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Estados Financieros - Café</h1>
+
+    <!-- Espacio para datos del productor -->
+    <div class="producer-input">
+      <label for="producer_name">Favor de colocar tu nombre como productor o el de tu empresa:</label><br>
+      <input type="text" id="producer_name" placeholder="Nombre del productor o empresa" required>
+    </div>
+
+    <form method="POST">
+      <label for="fecha_captura">Selecciona una fecha de captura:</label>
+      <select id="fecha_captura" name="fecha_captura" required>
+        <option value="">Selecciona una fecha</option>
+        {% for fecha in fechas %}
+        <option value="{{ fecha }}" {% if data and data.fecha_captura == fecha %}selected{% endif %}>{{ fecha }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn">Filtrar</button>
+    </form>
+
+    {% if data %}
+    <h2 id="financial-header" style="text-align: center; font-weight: bold; color: #000000;">
+      Estados financieros de "" a la fecha {{ data.fecha_captura }}
+    </h2>
+
+    <h2>Balance General</h2>
+    <table>
+      <tr>
+        <th>Activos</th>
+        <th>Monto (pesos)</th>
+      </tr>
+      <tr>
+        <td>Maquinaria y equipo</td>
+        <td class="positive" data-value="{{ data.activos.maquinaria_equipo }}"></td>
+      </tr>
+      <tr>
+        <td>Dinero disponible</td>
+        <td class="positive" data-value="{{ data.activos.dinero_disponible }}"></td>
+      </tr>
+      <tr>
+        <td><strong>Total Activos</strong></td>
+        <td class="positive" data-value="{{ data.activos.total_activos }}"></td>
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <th>Pasivos</th>
+        <th>Monto (pesos)</th>
+      </tr>
+      <tr>
+        <td>Deudas</td>
+        <td class="negative" data-value="{{ data.pasivos.deudas }}"></td>
+      </tr>
+      <tr>
+        <td><strong>Total Pasivos</strong></td>
+        <td class="negative" data-value="{{ data.pasivos.total_pasivos }}"></td>
+      </tr>
+    </table>
+
+    <h2>Patrimonio</h2>
+    <table>
+      <tr>
+        <th>Concepto</th>
+        <th>Monto (pesos)</th>
+      </tr>
+      <tr>
+        <td>Patrimonio</td>
+        <td class="positive" data-value="{{ data.patrimonio }}"></td>
+      </tr>
+    </table>
+
+    <h2>Estado de Ingresos y Gastos</h2>
+    <table>
+      <tr>
+        <th>Ingresos</th>
+        <th>Monto (pesos)</th>
+      </tr>
+      <tr>
+        <td>Venta de café</td>
+        <td class="positive" data-value="{{ data.ingresos.venta_cafe }}"></td>
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <th>Gastos</th>
+        <th>Monto (pesos)</th>
+      </tr>
+      <tr>
+        <td>Insumos</td>
+        <td class="negative" data-value="{{ data.gastos.insumos }}"></td>
+      </tr>
+      <tr>
+        <td>Jornales</td>
+        <td class="negative" data-value="{{ data.gastos.jornales }}"></td>
+      </tr>
+      <tr>
+        <td>Servicios</td>
+        <td class="negative" data-value="{{ data.gastos.servicios }}"></td>
+      </tr>
+      <tr>
+        <td>Imprevistos</td>
+        <td class="negative" data-value="{{ data.gastos.imprevistos }}"></td>
+      </tr>
+      <tr>
+        <td><strong>Total Gastos</strong></td>
+        <td class="negative" data-value="{{ data.gastos.total_gastos }}"></td>
+      </tr>
+    </table>
+
+    <h2>Utilidad Neta</h2>
+    <table>
+      <tr>
+        <th>Concepto</th>
+        <th>Monto (pesos)</th>
+      </tr>
+      <tr>
+        <td>Utilidad Neta</td>
+        <td class="positive" data-value="{{ data.utilidad_neta }}"></td>
+      </tr>
+    </table>
+
+    <h2>Razones Financieras</h2>
+    <table>
+      <tr>
+        <th>Razón</th>
+        <th>Valor</th>
+        <th>Referencia</th>
+      </tr>
+      <tr>
+        <td>Margen de Ganancia</td>
+        <td class="positive">{{ data.razones_financieras.margen_ganancia | round(2) }}%</td>
+        <td>{{ data.referencias.margen_ganancia }}</td>
+      </tr>
+      <tr>
+        <td>Razón de Endeudamiento</td>
+        <td class="negative">{{ data.razones_financieras.razon_endeudamiento | round(2) }}</td>
+        <td>{{ data.referencias.razon_endeudamiento }}</td>
+      </tr>
+    </table>
+
+    <button onclick="printPDF()" class="btn">Descargar en PDF</button>
+
+    <!-- Botón para redirigir al panel de café -->
+    <button onclick="location.href='/dashboard_cafe'" class="btn-back">
+      ← Volver al Panel de Café
+    </button>
+
+    <div class="note">
+      <p>Estados financieros creados el {{ data.fecha_captura }}.</p>
+      <p>Estos estados financieros no están dictaminados por un contador público certificado y son únicamente para fines informativos.</p>
+      <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
+    </div>
+    {% else %}
+    <p>No se encontraron datos para la fecha seleccionada.</p>
+    {% endif %}
+  </div>
+
+  <script>
+    // Formatear números en el cliente
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-value]').forEach(cell => {
+        const value = parseFloat(cell.getAttribute('data-value'));
+        if (!isNaN(value)) {
+          cell.textContent = value.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+        }
+      });
+
+      const producerInput = document.getElementById('producer_name');
+      const financialHeader = document.getElementById('financial-header');
+
+      producerInput.addEventListener('input', () => {
+        const producerName = producerInput.value.trim();
+        financialHeader.textContent = `Estados financieros de "${producerName}" a la fecha {{ data.fecha_captura }}`;
+      });
+    });
+
+    function printPDF() {
+      const producerName = document.getElementById('producer_name').value;
+      if (!producerName) {
+        alert('Por favor, ingresa el nombre del productor o empresa antes de descargar el PDF.');
+        return;
+      }
+      window.print();
+    }
+  </script>
+
+  <!-- Estilo para impresión -->
+  <style>
+    @media print {
+      .producer-input, form {
+        display: none; /* Oculta el filtro y el campo de entrada en la impresión */
+      }
+      h2 {
+        font-size: 14px; /* Reduce el tamaño de los encabezados */
+      }
+      table {
+        font-size: 12px; /* Reduce el tamaño de las tablas */
+      }
+    }
+  </style>
+
+  <!-- Estilo para el botón -->
+  <style>
+    .btn-back {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px 0;
+      background-color: #FFA500; /* Naranja */
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-back:hover {
+      background-color: #FF8C00; /* Naranja oscuro */
+    }
+
+    @media print {
+      .btn-back {
+        display: none; /* Oculta el botón en la impresión */
+      }
+    }
+  </style>
+</body>
+</html>

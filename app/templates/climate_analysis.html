@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Análisis Climático{% endblock %}
+
+{% block content %}
+<h2>Análisis Climático</h2>
+<form method="POST" enctype="multipart/form-data">
+    <label for="location">Ubicación:</label>
+    <input type="text" id="location" name="location" placeholder="Ciudad o coordenadas">
+    <button type="submit">Consultar API</button>
+</form>
+<form method="POST" enctype="multipart/form-data">
+    <label for="file">Subir archivo CSV:</label>
+    <input type="file" id="file" name="file">
+    <button type="submit">Subir</button>
+</form>
+{% endblock %}

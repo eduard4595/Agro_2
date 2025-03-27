@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cuestionario para Producción de Café</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      background-color: white;
+      margin: 40px 20px;
+      padding: 30px 40px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+    }
+
+    h1, h2 {
+      color: #4CAF50;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 500;
+      margin-top: 15px;
+      display: block;
+    }
+
+    .required::after {
+      content: " *";
+      color: red;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1.1rem;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    p {
+      margin-top: 25px;
+      text-align: center;
+      color: #555;
+    }
+
+    .btn-back {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px 0;
+      background-color: #FFA500; /* Naranja */
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-back:hover {
+      background-color: #FF8C00; /* Naranja oscuro */
+    }
+
+    @media print {
+      .btn-back {
+        display: none; /* Oculta el botón en la impresión */
+      }
+    }
+  </style>
+  <script>
+    function validateForm() {
+      const form = document.getElementById('coffeeForm');
+      const inputs = form.querySelectorAll('input[required], select[required]');
+      
+      for (const input of inputs) {
+        if (input.value.trim() === '') {
+          if (input.type === 'text') {
+            input.value = '0'; // Asignar 0 si el campo está vacío
+          } else {
+            alert(`Por favor, complete el campo: ${input.previousElementSibling.innerText}`);
+            input.focus();
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function toggleOtherInput() {
+      const q13 = document.getElementById('q13');
+      const otherInput = document.getElementById('otherInput');
+      otherInput.style.display = q13.value === 'Otro' ? 'block' : 'none';
+    }
+
+    function formatNumberInput(input) {
+      const value = input.value.replace(/[^\d]/g, '');
+      input.value = new Intl.NumberFormat('es-MX').format(value);
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Cuestionario para Producción de Café</h1>
+    <p><strong>Instrucciones:</strong> Llena este cuestionario una vez al terminar tu ciclo de cultivo. Usa números en todas tus respuestas (por ejemplo, pesos, horas, días). Es rápido y te dará una visión útil de tu producción.</p>
+
+    <!-- Botón para redirigir al panel de café -->
+    <button onclick="location.href='/dashboard_cafe'" class="btn-back">
+      ← Volver al Panel de Café
+    </button>
+
+    <form id="coffeeForm" action="{{ url_for('submit_coffee_form') }}" method="POST" onsubmit="return validateForm()">
+      <h2>Sección 1: Ingresos y Gastos</h2>
+
+      <label class="required">1. ¿Cuál fue el total de ingresos por la venta de café en tu último ciclo de cultivo? (En pesos o moneda local) (Ejemplo: 20,000 pesos)</label>
+      <input type="text" id="q1" name="q1" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con el total de ingresos.')">
+
+      <label class="required">1.2 ¿Cuántos quintales o kilos de café cosechaste en tu último ciclo de cultivo (cosecha)? (Puedes elegir colocar uno o ambos) (Ejemplo: 150 quintales o 3,000 kilos)</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="q1_2" name="q1_2" required oninput="this.setCustomValidity(''); formatNumberInput(this);" style="flex: 1;"
+               oninvalid="this.setCustomValidity('Por favor, completa este campo con la cantidad cosechada.')">
+        <select id="q1_2_unit" name="q1_2_unit" required style="flex: 0.5;"
+                oninput="this.setCustomValidity('');"
+                oninvalid="this.setCustomValidity('Por favor, selecciona una unidad.')">
+          <option value="">Selecciona unidad</option>
+          <option value="kilos">Kilos</option>
+          <option value="quintales">Quintales</option>
+        </select>
+      </div>
+
+      <label class="required">1.3 ¿Cuántas hectáreas de café tienes sembradas? (Ejemplo: 5 hectáreas)</label>
+      <input type="text" id="q1_3" name="q1_3" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con el número de hectáreas.')">
+
+      <label>1.4 ¿Qué variedad de café tienes sembrada? (Ejemplo: Café arábigo)</label>
+      <input type="text" id="q1_4" name="q1_4">
+
+      <label class="required">2. ¿Cuánto gastaste en insumos (fertilizantes, electricidad, pesticidas, combustibles) para el café en el último ciclo de cultivo (cosecha)? (Ejemplo: $10,000 MXN)</label>
+      <input type="text" id="q2" name="q2" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en insumos.')">
+
+      <label class="required">3. ¿Cuánto pagaste por todos los jornales en tu último ciclo de cultivo? (Ejemplo: 3,000 pesos)</label>
+      <input type="text" id="q3" name="q3" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con el pago por jornales.')">
+
+      <label class="required">4. ¿Cuánto gastaste en servicios (mantenimiento de maquinaria y equipo, riego, electricidad y seguro de cultivo) para el café en tu último ciclo de cultivo? (Ejemplo: 1,000 pesos)</label>
+      <input type="text" id="q4" name="q4" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en servicios.')">
+
+      <label>5. ¿Cuál es el valor estimado de la maquinaria y equipo que utilizas en tu producción de café? (Ejemplo: 250,000 pesos por tractor, sembradora y cosechadora)</label>
+      <input type="text" id="q5" name="q5" oninput="this.setCustomValidity(''); formatNumberInput(this);">
+
+      <label class="required">6. ¿Cuánto dinero tienes disponible para cubrir gastos en tu producción de café en los próximos 30 días? (Incluye costos como fertilizantes, herbicidas, pago de jornales y reparación o mantenimiento de maquinaria y equipo.) (Ejemplo: 6,000 pesos para insumos)</label>
+      <input type="text" id="q6" name="q6" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con el dinero disponible.')">
+
+      <label class="required">7. ¿Cuánto gastaste en imprevistos relacionados con tu producción de café en los últimos 30 días? (Incluye costos como atención médica, accidentes, reparaciones de maquinaria, daños en la cosecha o preparación, y otros imprevistos.) (Ejemplo: Total: 3,500 pesos)</label>
+      <input type="text" id="q7" name="q7" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en imprevistos.')">
+
+      <label class="required">8. ¿Cuál es el monto total de tus deudas relacionadas con la producción de café? (créditos, financiamiento para insumos, maquinaria o compras fiadas de semillas y fertilizantes) (Ejemplo: 25,000 pesos)</label>
+      <input type="text" id="q8" name="q8" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con el monto total de tus deudas.')">
+
+      <h2>Sección 2: Procesos Productivos</h2>
+
+      <label class="required">9. ¿Cuántos días en total dedicaste a labores culturales en tu último ciclo de cultivo de café? (Ejemplo: 5 días para nivelación, limpieza y preparación del suelo)</label>
+      <input type="text" id="q9" name="q9" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con los días dedicados a labores culturales.')">
+
+      <label class="required">10. ¿Cuántos trabajadores necesitas para poda, fertilización, control de maleza, cosecha y secado del grano en tu último ciclo de cultivo de café? (Ejemplo: 3 trabajadores)</label>
+      <input type="text" id="q10" name="q10" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con el número de trabajadores.')">
+
+      <label class="required">11. ¿Cuántas horas a la semana dedicas a vender tu café? (Ejemplo: 10 horas)</label>
+      <input type="text" id="q11" name="q11" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con las horas dedicadas a la venta.')">
+
+      <label class="required">12. ¿Cuántas horas al día supervisas tus plantas de café? (Ejemplo: 2 horas)</label>
+      <input type="text" id="q12" name="q12" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+             oninvalid="this.setCustomValidity('Por favor, completa este campo con las horas de supervisión.')">
+
+      <label class="required">13. ¿Dónde comercializaste tu cultivo de café?</label>
+      <select id="q13" name="q13" required onchange="toggleOtherInput()" 
+              oninput="this.setCustomValidity('');"
+              oninvalid="this.setCustomValidity('Por favor, selecciona una opción.')">
+        <option value="">Selecciona una opción</option>
+        <option value="Centro de acopio">Centro de acopio</option>
+        <option value="Mercado local">Mercado local</option>
+        <option value="Exportación">Exportación</option>
+        <option value="Otro">Otro</option>
+      </select>
+      <input type="text" id="otherInput" name="otherInput" style="display:none;" placeholder="Especificar otro lugar">
+
+      <label class="required">Fecha de captura:</label>
+      <input type="date" id="fecha_captura" name="fecha_captura" required 
+             oninput="this.setCustomValidity('');"
+             oninvalid="this.setCustomValidity('Por favor, selecciona una fecha.')">
+
+      <label>Comentarios o sugerencias:</label>
+      <textarea id="comments" name="comments" rows="4"></textarea>
+
+      <div style="width: 100%; display: flex; justify-content: center;">
+        <button type="submit" style="width: 300px;">Enviar</button>
+      </div>
+    </form>
+
+    <p>✨ Tu opinión es muy valiosa para nosotros. Cualquier sugerencia o comentario que nos ayude a mejorar será recibido con gratitud. 🙏 ¡Gracias por tu tiempo y colaboración! Juntos podemos seguir creciendo. ☕🌱</p>
+    <p>Gracias por completar el cuestionario. Tus respuestas nos ayudarán a mejorar la producción de café.</p>
+  </div>
+</body>
+</html>

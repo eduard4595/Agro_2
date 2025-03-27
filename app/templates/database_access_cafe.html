@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso a Base de Datos - Café</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #003366;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #003366;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            background-color: #FFA500; /* Naranja */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #FF8C00; /* Naranja oscuro */
+        }
+        .btn-modify {
+            background-color: #4CAF50; /* Verde */
+            color: white;
+        }
+        .btn-modify:hover {
+            background-color: #45a049; /* Verde oscuro */
+        }
+        @media print {
+            .btn, .btn-modify {
+                display: none; /* Oculta los botones en la impresión */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Acceso a Base de Datos - Café</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Rubro Contable</th>
+                {% for fecha in fechas %}
+                <th>{{ fecha }}</th>
+                {% endfor %}
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rubro in rubros %}
+            <tr>
+                <td>
+                    {% if rubro.key in ['total_ingresos', 'gastos_insumos', 'pago_jornales', 'gastos_servicios', 'valor_maquinaria', 'dinero_disponible', 'gastos_imprevistos', 'total_deudas'] %}
+                    $ {{ rubro.label }}
+                    {% elif rubro.key in ['produccion_total', 'hectareas', 'dias_trabajo', 'trabajadores', 'horas_venta', 'horas_supervision'] %}
+                    # {{ rubro.label }}
+                    {% else %}
+                    {{ rubro.label }}
+                    {% endif %}
+                </td>
+                {% for fecha in fechas %}
+                <td>
+                    {% set valor = (data | selectattr('fecha_captura', 'equalto', fecha) | map(attribute=rubro.key) | list | first) %}
+                    {% if rubro.key in ['total_ingresos', 'gastos_insumos', 'pago_jornales', 'gastos_servicios', 'valor_maquinaria', 'dinero_disponible', 'gastos_imprevistos', 'total_deudas'] %}
+                    {{ valor | float | round(2) | tojson | replace('"', '') | replace('.', ',') if valor else 'N/A' }}
+                    {% elif rubro.key in ['produccion_total', 'hectareas', 'dias_trabajo', 'trabajadores', 'horas_venta', 'horas_supervision'] %}
+                    {{ valor | float | round(2) | tojson | replace('"', '') | replace('.', ',') if valor else 'N/A' }}
+                    {% else %}
+                    {{ valor if valor else 'N/A' }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+                <td>
+                    <button class="btn-modify" onclick="modifyData('{{ rubro.key }}')">Modificar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Botón para regresar al panel de café -->
+    <button onclick="location.href='/dashboard_cafe'" class="btn">
+        ← Volver al Panel de Café
+    </button>
+
+    <script>
+        function modifyData(rubro) {
+            const username = prompt('Ingrese su usuario:');
+            const password = prompt('Ingrese su contraseña:');
+            if (username && password) {
+                // Mostrar formulario emergente para solicitar detalles
+                const email = prompt('Ingrese su correo electrónico:');
+                const name = prompt('Ingrese su nombre:');
+                const details = prompt(`¿Qué desea modificar en el rubro "${rubro}"?`);
+
+                if (email && name && details) {
+                    // Enviar datos al backend
+                    fetch('/request_modification', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            email: email,
+                            name: name,
+                            details: details,
+                        }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('Tu solicitud ha sido enviada correctamente.');
+                            } else {
+                                alert(`Error: ${data.message}`);
+                            }
+                        })
+                        .catch(error => {
+                            alert('Ocurrió un error al enviar la solicitud.');
+                            console.error(error);
+                        });
+                } else {
+                    alert('Debe completar todos los campos para enviar la solicitud.');
+                }
+            } else {
+                alert('Debe ingresar ambos campos para solicitar la modificación.');
+            }
+        }
+    </script>
+</body>
+</html>

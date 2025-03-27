@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Datos Generales de la Persona</title>
+</head>
+<body>
+    <h1>Datos Generales de la Persona</h1>
+    <form action="{{ url_for('datos_generales') }}" method="POST">
+        <label for="idioma">¿Qué idioma prefieres para usar la aplicación?</label><br>
+        <select id="idioma" name="idioma" required>
+            <option value="español">Español</option>
+            <option value="nahuatl">Nahuatl</option>
+            <option value="lenca">Lenca</option>
+            <option value="garifuna">Garífuna</option>
+            <option value="otro">Otro</option>
+        </select><br>
+
+        <label for="actividad_principal">¿A qué actividad agropecuaria te dedicas principalmente?</label><br>
+        <select id="actividad_principal" name="actividad_principal" required>
+            <option value="citricos">Producción de Cítricos</option>
+            <option value="cafe">Café</option>
+            <option value="maiz">Maíz</option>
+            <option value="ganado_bovino">Engorda de Ganado Bovino</option>
+            <option value="cerdos">Cerdos/Lechones</option>
+            <option value="huevo">Producción de Huevo con Aves de Traspatio</option>
+        </select><br>
+
+        <label for="otras_actividades">¿Realizas otras actividades agropecuarias además de la principal? (opcional)</label><br>
+        <select id="otras_actividades" name="otras_actividades" multiple>
+            <option value="citricos">Producción de Cítricos</option>
+            <option value="cafe">Café</option>
+            <option value="maiz">Maíz</option>
+            <option value="ganado_bovino">Engorda de Ganado Bovino</option>
+            <option value="cerdos">Cerdos/Lechones</option>
+            <option value="huevo">Producción de Huevo con Aves de Traspatio</option>
+            <option value="otro">Otro</option>
+        </select><br>
+
+        <label for="tamano_produccion">Tamaño de producción: En toneladas, animales, gall o kintales especificar por actividad principal</label><br>
+        <input type="text" id="tamano_produccion" name="tamano_produccion" required><br>
+
+        <label for="anos_actividad">¿Cuántos años llevas trabajando en tu actividad agropecuaria principal?</label><br>
+        <input type="number" id="anos_actividad" name="anos_actividad" required><br>
+
+        <label for="ubicacion">¿En qué municipio y Estado en México está ubicada tu producción principal?</label><br>
+        <input type="text" id="ubicacion" name="ubicacion" required><br>
+
+        <label for="coordenadas">Si las conoces, ¿cuáles son las coordenadas de tu parcela o instalación? (Latitud y longitud). Puedes compartir la ubicación utilizando un enlace de Google Maps.</label><br>
+        <input type="text" id="coordenadas" name="coordenadas"><br>
+
+        <label for="clima_preocupacion">¿Qué aspectos del clima te preocupan más para tu actividad principal?</label><br>
+        <select id="clima_preocupacion" name="clima_preocupacion" required>
+            <option value="lluvia">Lluvia</option>
+            <option value="temperatura">Temperatura</option>
+            <option value="humedad">Humedad</option>
+            <option value="vientos_fuertes">Vientos fuertes</option>
+            <option value="plagas">Plagas</option>
+            <option value="otros">Otros</option>
+        </select><br>
+
+        <label for="perdidas_clima">¿Has tenido pérdidas en los últimos 5 años debido al clima? Si sí, describe brevemente (Ejemplo: Sequía, Inundación)</label><br>
+        <input type="text" id="perdidas_clima" name="perdidas_clima"><br>
+
+        <label for="tipo_ayuda">¿Qué tipo de ayuda esperas del chat?</label><br>
+        <select id="tipo_ayuda" name="tipo_ayuda" required>
+            <option value="consejos_financieros">Consejos financieros</option>
+            <option value="tecnicas_cultivo">Técnicas de cultivo/crianza</option>
+            <option value="clima_riesgos">Clima y riesgos</option>
+            <option value="mercados_ventas">Mercados y ventas</option>
+        </select><br>
+
+        <label for="frecuencia_chat">¿Con qué frecuencia planeas consultar el chat?</label><br>
+        <select id="frecuencia_chat" name="frecuencia_chat" required>
+            <option value="diario">Diario</option>
+            <option value="semanal">Semanal</option>
+            <option value="mensual">Mensual</option>
+        </select><br>
+
+        <label for="comodidad_tecnologia">¿Qué tan cómodo te sientes usando tecnología o aplicaciones?</label><br>
+        <select id="comodidad_tecnologia" name="comodidad_tecnologia" required>
+            <option value="comodo">Cómodo</option>
+            <option value="neutral">Neutral</option>
+            <option value="incomodo">Incómodo</option>
+        </select><br>
+
+        <label for="aceptar_mejoras">¿Aceptas que tus datos sean usados para mejorar la aplicación y recibir recomendaciones personalizadas?</label><br>
+        <select id="aceptar_mejoras" name="aceptar_mejoras" required>
+            <option value="si">Sí</option>
+            <option value="no">No</option>
+        </select><br>
+
+        <label for="aceptar_terminos">¿Aceptas los términos y condiciones y la política de privacidad?</label><br>
+        <select id="aceptar_terminos" name="aceptar_terminos" required>
+            <option value="si">Sí</option>
+            <option value="no">No</option>
+        </select><br>
+
+        <input type="submit" value="Guardar">
+    </form>
+</body>
+</html>

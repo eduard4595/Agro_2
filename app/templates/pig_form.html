@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario para Cerdo de Engorda y Lechones</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2 { color: #4CAF50; }
+        .required::after { content: " *"; color: red; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; }
+        button { background-color: #4CAF50; color: white; padding: 10px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Cuestionario para Cerdo de Engorda y Lechones</h1>
+    <p><strong>Instrucciones:</strong> Completa este cuestionario una vez al mes. Usa solo números en tus respuestas (por ejemplo, pesos, horas, días).</p>
+
+    <form id="pigForm" action="{{ url_for('submit_pig_form') }}" method="POST">
+        <h2>Sección 1: Ingresos y Gastos</h2>
+        <label class="required">1. ¿Cuál fue el total de ingresos por la venta de tú última engorda de cerdos y lechones? (en pesos o moneda local)</label>
+        <input type="number" id="q1" name="q1" required>
+
+        <label class="required">1.1 ¿Cuántos cerdos y lechones fueron? (cantidad de animales)</label>
+        <input type="number" id="q1_1" name="q1_1" required>
+
+        <label class="required">2. ¿Cuánto gastaste en total en alimento para los cerdos y lechones en la última engorda?</label>
+        <input type="number" id="q2" name="q2" required>
+
+        <label class="required">3. ¿Cuánto pagaste por mano de obra para la engorda de cerdos y producción de lechones en la última engorda?</label>
+        <input type="number" id="q3" name="q3" required>
+
+        <label class="required">4. ¿Cuánto gastaste en servicios (veterinario, mantenimiento de instalaciones, etc.) para los cerdos y lechones en la última engorda?</label>
+        <input type="number" id="q4" name="q4" required>
+
+        <label class="required">5. ¿Cuántos meses te llevó la última engorda?</label>
+        <input type="number" id="q5" name="q5" required>
+
+        <label class="required">6. ¿Cuáles fueron tus pérdidas en la última engorda? (Número de animales)</label>
+        <input type="number" id="q6" name="q6">
+
+        <label class="required">7. ¿Cuánto dinero tienes disponible actualmente para cubrir gastos en tu operación de engorda en los próximos 30 días?</label>
+        <input type="number" id="q7" name="q7" required>
+
+        <label class="required">8. ¿Cuánto gastaste en imprevistos relacionados con tu operación de engorda dentro en los últimos 30 días?</label>
+        <input type="number" id="q8" name="q8" required>
+
+        <label class="required">9. ¿Cuánto es el monto total de tus deudas relacionadas con la engorda de cerdos y producción de lechones?</label>
+        <input type="number" id="q9" name="q9" required>
+
+        <h2>Sección 2: Procesos Productivos</h2>
+        <label class="required">10. ¿Cuántas horas al día dedicas a preparar el alimento para los cerdos y lechones?</label>
+        <input type="number" id="q10" name="q10" required>
+
+        <label class="required">11. ¿Cada cuántos días aplicas tratamientos o vacunas a los cerdos y lechones?</label>
+        <input type="number" id="q11" name="q11" required>
+
+        <label class="required">12. ¿Cuánto tiempo te toma preparar los cerdos para la venta (pesaje, selección, etc.)?</label>
+        <input type="number" id="q12" name="q12" required>
+
+        <label class="required">13. ¿Cuántos trabajadores necesitas durante la temporada de engorde?</label>
+        <input type="number" id="q13" name="q13" required>
+
+        <label class="required">14. ¿Cuántos días te toma engordar un lote de cerdos?</label>
+        <input type="number" id="q14" name="q14" required>
+
+        <label class="required">15. ¿Cuántas horas a la semana dedicas a vender los cerdos o lechones?</label>
+        <input type="number" id="q15" name="q15" required>
+
+        <label class="required">16. ¿Cuántas horas al día supervisas tus cerdos y lechones?</label>
+        <input type="number" id="q16" name="q16" required>
+
+        <label class="required">17. ¿Dónde sueles vender tu ganado bovino?</label>
+        <select id="q17" name="q17" required multiple>
+            <option value="Rastros y empacadoras">Rastros y empacadoras</option>
+            <option value="Productores locales">Productores locales</option>
+            <option value="Mercado local">Mercado local</option>
+            <option value="Venta en línea">Venta en línea</option>
+            <option value="Venta directa al consumidor">Venta directa al consumidor</option>
+            <option value="Otro">Otro</option>
+        </select><br>
+
+        <label class="required">Fecha de captura:</label>
+        <input type="date" id="fecha_captura" name="fecha_captura" required>
+
+        <label>Comentarios o sugerencias:</label>
+        <textarea id="comments" name="comments"></textarea>
+
+        <button type="submit">Enviar</button>
+    </form>
+</body>
+</html>
