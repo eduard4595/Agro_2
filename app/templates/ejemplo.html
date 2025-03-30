@@ -128,7 +128,7 @@
 
     {% if data %}
     <h2 id="financial-header">
-      Estados financieros "" a la fecha {{ data.fecha_captura }}
+      Estados financieros de "" a la fecha {{ data.fecha_captura }}
     </h2>
 
     <h2>Balance General</h2>
@@ -139,17 +139,16 @@
           <tr><th>Concepto</th><th>Monto (pesos)</th></tr>
           <tr><td>Maquinaria y equipo</td><td>{{ data.activos.maquinaria_equipo }}</td></tr>
           <tr><td>Dinero disponible</td><td>{{ data.activos.dinero_disponible }}</td></tr>
-          <tr><td><strong>Total Activos</strong></td><td><strong>{{ data.activos.total_activos }}</strong></td></tr>
+          <tr><td><strong>Total Activos</strong></td><td>{{ data.activos.total_activos }}</td></tr>
         </table>
       </div>
       <div class="column">
         <h3>Pasivos y Capital</h3>
         <table>
           <tr><th>Concepto</th><th>Monto (pesos)</th></tr>
-          <tr><td>Deudas</td><td>{{ data.pasivos.deudas }}</td></tr>
-          <tr><td><strong>Total Pasivos</strong></td><td><strong>{{ data.pasivos.total_pasivos }}</strong></td></tr>
+          <tr><td>Deudas</td><td class="negative">({{ data.pasivos.deudas }})</td></tr>
+          <tr><td><strong>Total Pasivos</strong></td><td class="negative">({{ data.pasivos.total_pasivos }})</td></tr>
           <tr><td>Patrimonio</td><td>{{ data.patrimonio }}</td></tr>
-          <tr><td><strong>Pasivo más Capital</strong></td><td><strong>{{ data.capital_mas_pasivo }}</strong></td></tr>
         </table>
       </div>
     </div>
@@ -159,23 +158,19 @@
         <h2>Estado de Resultados</h2>
         <table>
           <tr><th>Concepto</th><th>Monto (pesos)</th></tr>
-          <tr><td><strong>Ingresos por café</td></strong><td><strong>{{ data.ingresos.venta_cafe }}</strong></td></tr>
-          <tr><td style="padding-left: 20px; font-size: 12px;"> Insumos</td><td style="font-size: 12px;">({{ data.gastos.insumos }})</td></tr>
-          <tr><td style="padding-left: 20px; font-size: 12px;"> Jornales</td><td style="font-size: 12px;">({{ data.gastos.jornales }})</td></tr>
-          <tr><td style="padding-left: 20px; font-size: 12px;"> Servicios</td><td style="font-size: 12px;">({{ data.gastos.servicios }})</td></tr>
-          <tr><td style="padding-left: 20px; font-size: 12px;"> Imprevistos</td><td style="font-size: 12px;">({{ data.gastos.imprevistos }})</td></tr>
-          <tr><td><strong>Total Gastos</strong></td><td class="negative"><strong>({{ data.gastos.total_gastos }})</strong></td></tr>
-          <tr><td><strong>Utilidad Neta</strong></td><td><strong>{{ data.utilidad_neta }}</strong></td></tr>
+          <tr><td>Ingresos por café</td><td>{{ data.ingresos.venta_cafe }}</td></tr>
+          <tr><td><strong>Total Gastos</strong></td><td class="negative">({{ data.gastos.total_gastos }})</td></tr>
+          <tr><td><strong>Utilidad Neta</strong></td><td>{{ data.utilidad_neta }}</td></tr>
         </table>
       </div>
       <div class="column">
         <h2>Razones Financieras</h2>
         <table>
           <tr><th>Razón</th><th>Valor</th></tr>
-          <tr><td>Margen de Ganancia</td><td>{{ data.razones_financieras.margen_ganancia|round(4) }}%</td></tr>
-          <tr><td>Razón de Endeudamiento</td><td>{{ data.razones_financieras.razon_endeudamiento|round(4) }}%</td></tr>
-          <tr><td>Productividad por Hectárea</td><td>{{ data.razones_financieras.productividad_por_hectarea|round(4) }}</td></tr>
-          <tr><td>Costo por Unidad</td><td>{{ data.razones_financieras.costo_por_unidad|round(4) }}</td></tr>
+          <tr><td>Margen de Ganancia</td><td>{{ data.razones_financieras.margen_ganancia }}%</td></tr>
+          <tr><td>Razón de Endeudamiento</td><td class="negative">({{ data.razones_financieras.razon_endeudamiento }})</td></tr>
+          <tr><td>Productividad por Hectárea</td><td>{{ data.razones_financieras.productividad_por_hectarea }}</td></tr>
+          <tr><td>Costo por Unidad</td><td class="negative">({{ data.razones_financieras.costo_por_unidad }})</td></tr>
         </table>
       </div>
     </div>
@@ -184,37 +179,23 @@
           </table><h2>Datos de Referencia</h2>
           <table>
               <tr><th>Concepto</th><th>Valor</th></tr>
-              <tr><td>Producción total<td>{{ data.datos_referencia.produccion_total }} {{ data.datos_referencia.unidad_produccion }}</td>
-              <tr><td>Hectáreas cultivadas</td><td>{{ data.datos_referencia.hectareas }} ha</td></tr>
-              <tr><td>Trabajadores</td><td>{{ data.datos_referencia.trabajadores }}</td></tr>
-              <tr><td>Lugar de comercialización</td><td>{{ data.datos_referencia.lugar_comercializacion }}</td></tr>
+              <tr><td>Producción total</td><td>{{ data.referencia.produccion_total }} kg</td></tr>
+              <tr><td>Hectáreas cultivadas</td><td>{{ data.referencia.hectareas }} ha</td></tr>
+              <tr><td>Trabajadores</td><td>{{ data.referencia.trabajadores }}</td></tr>
+              <tr><td>Lugar de comercialización</td><td>{{ data.referencia.lugar_comercializacion }}</td></tr>
           </table>
         </div>
         <div class="column">
           <h2>Interpretación AI</h2>
           <div class="interpretation-box">
-              <p id="ai-analysis">{{ data.interpretacion_ai }}</p>
+              <p id="ai-analysis">Esperando datos para análisis...</p>
           </div>
-          <p style="margin-top: 10px; font-size: 14px; color: #555;">
-            Nota: Esta interpretación generada por la inteligencia artificial es solo de referencia y puede contener errores. 
-            Si necesita más apoyo, no dude en contactar a nuestros expertos.
-        </p>
         </div>
      
     </div>
-
     <button onclick="printPDF()" class="btn">Descargar en PDF</button>
-
-    <!-- Botón para redirigir al panel de café -->
-    <button onclick="location.href='/dashboard_cafe'" class="btn-back">
-      ← Volver al Panel de Café
-    </button>
-
-    <div class="note" style="text-align: center; margin-top: 20px;">
-      <p>Estados financieros en pesos creados el {{ data.fecha_captura }}.</p>
-      <p>Estos estados financieros no están dictaminados por un contador público certificado y son únicamente para fines informativos.</p>
-      <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
-    </div>
+    <button onclick="location.href='/dashboard_cafe'" class="btn-back">← Volver al Panel de Café</button>
+    
     {% else %}
     <p>No se encontraron datos para la fecha seleccionada.</p>
     {% endif %}
@@ -248,48 +229,5 @@
       window.print();
     }
   </script>
-
-  <!-- Estilo para impresión -->
-  <style>
-    @media print {
-      .producer-input, form {
-        display: none; /* Oculta el filtro y el campo de entrada en la impresión */
-      }
-      h2 {
-        font-size: 14px; /* Reduce el tamaño de los encabezados */
-      }
-      table {
-        font-size: 12px; /* Reduce el tamaño de las tablas */
-      }
-    }
-  </style>
-
-  <!-- Estilo para el botón -->
-  <style>
-    .btn-back {
-      display: inline-block;
-      padding: 10px 20px;
-      margin: 10px 0;
-      background-color: #FFA500; /* Naranja */
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 16px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .btn-back:hover {
-      background-color: #FF8C00; /* Naranja oscuro */
-    }
-
-    @media print {
-      .btn-back {
-        display: none; /* Oculta el botón en la impresión */
-      }
-    }
-  </style>
 </body>
 </html>

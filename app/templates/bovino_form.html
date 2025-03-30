@@ -5,83 +5,220 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuestionario para Engorda de Ganado Bovino</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1, h2 { color: #4CAF50; }
-        .required::after { content: " *"; color: red; }
-        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; }
-        button { background-color: #4CAF50; color: white; padding: 10px; border: none; cursor: pointer; }
-    </style>
+        * {
+          box-sizing: border-box;
+        }
+    
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: #f4f4f4;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          min-height: 100vh;
+        }
+    
+        .container {
+          max-width: 900px;
+          background-color: white;
+          margin: 40px 20px;
+          padding: 30px 40px;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+        }
+    
+        h1, h2 {
+          color: #4CAF50;
+          text-align: center;
+          margin-bottom: 20px;
+        }
+    
+        label {
+          font-weight: 500;
+          margin-top: 15px;
+          display: block;
+        }
+    
+        .required::after {
+          content: " *";
+          color: red;
+        }
+    
+        input, select, textarea {
+          width: 100%;
+          padding: 10px;
+          margin-top: 5px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          font-size: 1rem;
+        }
+    
+        textarea {
+          resize: vertical;
+        }
+    
+        button {
+          display: block;
+          width: 100%;
+          background-color: #4CAF50;
+          color: white;
+          font-size: 1.1rem;
+          padding: 12px;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          margin-top: 20px;
+          transition: background-color 0.3s ease;
+        }
+    
+        button:hover {
+          background-color: #45a049;
+        }
+    
+        p {
+          margin-top: 25px;
+          text-align: center;
+          color: #555;
+        }
+    
+        .btn-back {
+          display: inline-block;
+          padding: 10px 20px;
+          margin: 10px 0;
+          background-color: #FFA500; /* Naranja */
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          text-align: center;
+          font-weight: bold;
+          font-size: 16px;
+          border: none;
+          cursor: pointer;
+        }
+    
+        .btn-back:hover {
+          background-color: #FF8C00; /* Naranja oscuro */
+        }
+    
+        @media print {
+          .btn-back {
+            display: none; /* Oculta el botón en la impresión */
+          }
+        }
+      </style>
+      <script>
+        function validateForm() {
+          const form = document.getElementById('bovinoForm');
+          const inputs = form.querySelectorAll('input[required], select[required]');
+          
+          for (const input of inputs) {
+            if (input.value.trim() === '') {
+              if (input.type === 'text') {
+                input.value = '0'; // Asignar 0 si el campo está vacío
+              } else {
+                alert(`Por favor, complete el campo: ${input.previousElementSibling.innerText}`);
+                input.focus();
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+    
+        function toggleOtherInput() {
+          const q13 = document.getElementById('q13');
+          const otherInput = document.getElementById('otherInput');
+          otherInput.style.display = q13.value === 'Otro' ? 'block' : 'none';
+        }
+    
+        function formatNumberInput(input) {
+          const value = input.value.replace(/[^\d]/g, '');
+          input.value = new Intl.NumberFormat('es-MX').format(value);
+        }
+      </script>
 </head>
 <body>
-    <h1>Cuestionario para Engorda de Ganado Bovino</h1>
-    <p><strong>Instrucciones:</strong> Completa este cuestionario una vez al mes para obtener un mejor control de tu producción. Usa solo números en tus respuestas (por ejemplo, pesos, horas, días).</p>
+    <div class="container"> 
+        <h1>Cuestionario para Engorda de Ganado Bovino</h1>
+        <p><strong>Instrucciones:</strong> Completa este cuestionario una vez al mes para obtener un mejor control de tu producción. Usa solo números en tus respuestas (por ejemplo, pesos, horas, días) para facilitar el análisis. Es un proceso rápido y te permitirá identificar patrones, optimizar costos y tomar mejores decisiones para mejorar la rentabilidad de tu operación.   🐮   🐮   🐮
 
-    <form id="bovinoForm" action="{{ url_for('submit_bovino_form') }}" method="POST">
-        <h2>Sección 1: Ingresos y Gastos</h2>
-        <label class="required">1. ¿Cuál fue el total de ingresos por la venta de tu última engorda de ganado? (en pesos o moneda local)</label>
-        <input type="number" id="q1" name="q1" required>
-        
-        <label class="required">1.1 ¿Cuántos becerros fueron? (cantidad de animales)</label>
-        <input type="number" id="q1_1" name="q1_1" required>
-        
-        <label class="required">2. ¿Cuántos meses duró el último ciclo de engorda de tu ganado bovino?</label>
-        <input type="number" id="q2" name="q2" required>
-        
-        <label class="required">3. ¿Cuánto gastaste en alimento para el ganado bovino en la última engorda?</label>
-        <input type="number" id="q3" name="q3" required>
-        
-        <label class="required">4. ¿Cuánto pagaste por mano de obra en la última engorda de ganado?</label>
-        <input type="number" id="q4" name="q4" required>
-        
-        <label class="required">5. ¿Cuánto gastaste en servicios (veterinario, mantenimiento de instalaciones, etc.) para el ganado en la última engorda?</label>
-        <input type="number" id="q5" name="q5" required>
-        
-        <label class="required">6. ¿Cuáles fueron tus pérdidas en la última engorda? (Número de animales)</label>
-        <input type="number" id="q6" name="q6" required>
-        
-        <label class="required">7. ¿Cuánto dinero tienes disponible actualmente para cubrir gastos en tu operación de engorda en los próximos 30 días?</label>
-        <input type="number" id="q7" name="q7" required>
-        
-        <label class="required">8. ¿Cuánto gastaste en imprevistos relacionados con tu operación de engorda dentro de los últimos 30 días?</label>
-        <input type="number" id="q8" name="q8" required>
-        
-        <label class="required">9. ¿Cuánto es el monto total de tus deudas relacionadas con la engorda de ganado bovino?</label>
-        <input type="number" id="q9" name="q9" required>
+            <strong>Nota:</strong> Es posible generar tu análisis desde uno, dos o más animales.</p>
+        <!-- Botón para redirigir al panel de café -->
+        <button onclick="location.href='/dashboard_cafe'" class="btn-back">
+        ← Volver al Panel de Ganado Bovino
+      </button>
+    
+        <form id="bovinoForm" action="{{ url_for('submit_bovine_form') }}" method="POST">
+            <h2>Sección 1: Ingresos y Gastos</h2>
+            <label class="required">1. ¿Cuál fue el total de ingresos por la venta de tu última engorda de ganado? (en pesos o moneda local)</label>
+            <input type="number" id="q1" name="q1" required>
+            
+            <label class="required">1.1 ¿Cuántos becerros fueron? (cantidad de animales)</label>
+            <input type="number" id="q1_1" name="q1_1" required>
+            
+            <label class="required">2. ¿Cuántos meses duró el último ciclo de engorda de tu ganado bovino?</label>
+            <input type="number" id="q2" name="q2" required>
+            
+            <label class="required">3. ¿Cuánto gastaste en alimento para el ganado bovino en la última engorda?</label>
+            <input type="number" id="q3" name="q3" required>
+            
+            <label class="required">4. ¿Cuánto pagaste por mano de obra en la última engorda de ganado?</label>
+            <input type="number" id="q4" name="q4" required>
+            
+            <label class="required">5. ¿Cuánto gastaste en servicios (veterinario, mantenimiento de instalaciones, etc.) para el ganado en la última engorda?</label>
+            <input type="number" id="q5" name="q5" required>
+            
+            <label class="required">6. ¿Cuáles fueron tus pérdidas en la última engorda? (Número de animales)</label>
+            <input type="number" id="q6" name="q6" required>
+            
+            <label class="required">7. ¿Cuánto dinero tienes disponible actualmente para cubrir gastos en tu operación de engorda en los próximos 30 días?</label>
+            <input type="number" id="q7" name="q7" required>
+            
+            <label class="required">8. ¿Cuánto gastaste en imprevistos relacionados con tu operación de engorda dentro de los últimos 30 días?</label>
+            <input type="number" id="q8" name="q8" required>
+            
+            <label class="required">9. ¿Cuánto es el monto total de tus deudas relacionadas con la engorda de ganado bovino?</label>
+            <input type="number" id="q9" name="q9" required>
 
-        <h2>Sección 2: Procesos Productivos</h2>
-        <label class="required">10. ¿Cuántas horas al día dedicas a preparar el alimento para el ganado bovino?</label>
-        <input type="number" id="q10" name="q10" required>
-        
-        <label class="required">11. ¿Cada cuántos días aplicas tratamientos o vacunas al ganado bovino?</label>
-        <input type="number" id="q11" name="q11" required>
-        
-        <label class="required">12. ¿Cuánto tiempo te toma preparar el ganado para la venta (pesaje, selección, etc.)?</label>
-        <input type="number" id="q12" name="q12" required>
-        
-        <label class="required">13. ¿Cuántos trabajadores necesitas durante la temporada de engorde?</label>
-        <input type="number" id="q13" name="q13" required>
-        
-        <label class="required">14. ¿Cuántos días te toma engordar un lote de ganado bovino?</label>
-        <input type="number" id="q14" name="q14" required>
-        
-        <label class="required">15. ¿Cuántas horas a la semana dedicas a vender el ganado bovino?</label>
-        <input type="number" id="q15" name="q15" required>
-        
-        <label class="required">16. ¿Cuántas horas al día supervisas tu ganado bovino?</label>
-        <input type="number" id="q16" name="q16" required>
-        
-        <label class="required">17. ¿Dónde sueles vender tu ganado bovino? (Selecciona las opciones que apliquen)</label>
-        <select id="q17" name="q17" multiple required>
-            <option value="subastas">Subastas ganaderas</option>
-            <option value="rastros">Rastros y empacadoras</option>
-            <option value="locales">Ganaderos locales</option>
-            <option value="mercado">Mercado local</option>
-            <option value="linea">Venta en línea</option>
-            <option value="consumidor">Venta directa al consumidor</option>
-            <option value="otro">Otro</option>
-        </select>
-        
-        <button type="submit">Enviar</button>
-    </form>
+            <h2>Sección 2: Procesos Productivos</h2>
+            <label class="required">10. ¿Cuántas horas al día dedicas a preparar el alimento para el ganado bovino?</label>
+            <input type="number" id="q10" name="q10" required>
+            
+            <label class="required">11. ¿Cada cuántos días aplicas tratamientos o vacunas al ganado bovino?</label>
+            <input type="number" id="q11" name="q11" required>
+            
+            <label class="required">12. ¿Cuánto tiempo te toma preparar el ganado para la venta (pesaje, selección, etc.)?</label>
+            <input type="number" id="q12" name="q12" required>
+            
+            <label class="required">13. ¿Cuántos trabajadores necesitas durante la temporada de engorde?</label>
+            <input type="number" id="q13" name="q13" required>
+            
+            <label class="required">14. ¿Cuántos días te toma engordar un lote de ganado bovino?</label>
+            <input type="number" id="q14" name="q14" required>
+            
+            <label class="required">15. ¿Cuántas horas a la semana dedicas a vender el ganado bovino?</label>
+            <input type="number" id="q15" name="q15" required>
+            
+            <label class="required">16. ¿Cuántas horas al día supervisas tu ganado bovino?</label>
+            <input type="number" id="q16" name="q16" required>
+            
+            <label class="required">17. ¿Dónde sueles vender tu ganado bovino? (Selecciona las opciones que apliquen)</label>
+            <select id="q17" name="q17" multiple required>
+                <option value="subastas">Subastas ganaderas</option>
+                <option value="rastros">Rastros y empacadoras</option>
+                <option value="locales">Ganaderos locales</option>
+                <option value="mercado">Mercado local</option>
+                <option value="linea">Venta en línea</option>
+                <option value="consumidor">Venta directa al consumidor</option>
+                <option value="otro">Otro</option>
+            </select>
+            
+            <button type="submit">Enviar</button>
+        </form>
+        <p>✨ Tu opinión es muy valiosa para nosotros. Cualquier sugerencia o comentario que nos ayude a mejorar será recibido con gratitud. 🙏 ¡Gracias por tu tiempo y colaboración! Juntos podemos seguir creciendo. ☕🌱</p>
+        <p>Gracias por completar el cuestionario. Tus respuestas nos ayudarán a mejorar la producción de café.</p>
+  </div>
 </body>
 </html>

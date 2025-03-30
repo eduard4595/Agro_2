@@ -254,22 +254,22 @@
         <div class="main-content">
             <div class="cards">
                 <div class="card">
-                    <img src="https://img.icons8.com/color/48/000000/coffee.png" alt="Ingresos">
+                    <img src="https://img.icons8.com/color/48/000000/money.png" alt="Ingresos">
                     <h3>Total Ingresos</h3>
                     <p>${{ ultimos_valores['total_ingresos'] }}</p>
                 </div>
                 <div class="card">
-                    <img src="https://img.icons8.com/color/48/000000/coffee.png" alt="Producción">
+                    <img src="https://img.icons8.com/color/48/000000/coffee-beans.png" alt="Producción">
                     <h3>Producción Total</h3>
                     <p>{{ ultimos_valores['produccion_total'] }} kg</p>
                 </div>
                 <div class="card">
-                    <img src="https://img.icons8.com/color/48/000000/coffee.png" alt="Hectáreas">
+                    <img src="https://img.icons8.com/color/48/000000/field.png" alt="Hectáreas">
                     <h3>Hectáreas</h3>
                     <p>{{ ultimos_valores['hectareas'] }}</p>
                 </div>
                 <div class="card">
-                    <img src="https://img.icons8.com/color/48/000000/coffee.png" alt="Gastos">
+                    <img src="https://img.icons8.com/color/48/000000/money-bag.png" alt="Gastos">
                     <h3>Gastos Totales</h3>
                     <p>${{ ultimos_valores['gastos_totales'] }}</p>
                 </div>
@@ -286,47 +286,29 @@
                 </div>                
                 <div class="chart" id="produccion" style="display: none;">
                     <h2>Producción</h2>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartProduccion1"></canvas>
-                    </div>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartProduccion2"></canvas>
-                    </div>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartProduccion3"></canvas>
-                    </div>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartProduccion4"></canvas>
+                    <div class="quadrant-container">
+                        <div class="quadrant">{{ bar_produccion_html|safe }}</div>
+                        <div class="quadrant">{{ line_costos_vs_produccion_html|safe }}</div>
+                        <div class="quadrant">{{ line_costo_por_unidad_html|safe }}</div>
+                        <div class="quadrant">{{ scatter_insumos_vs_produccion_html|safe }}</div> <!-- Espacio vacío opcional -->
                     </div>
                 </div>
                 <div class="chart" id="mano_obra" style="display: none;">
                     <h2>Mano de Obra</h2>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartManoObra1"></canvas>
-                    </div>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartManoObra2"></canvas>
-                    </div>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartManoObra3"></canvas>
-                    </div>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartManoObra4"></canvas>
+                    <div class="quadrant-container">
+                        <div class="quadrant">{{ pie_costos_laborales_html|safe }}</div>
+                        <div class="quadrant">{{ bar_dias_vs_trabajadores_html|safe }}</div>
+                        <div class="quadrant">{{ line_supervision_vs_ventas_html|safe }}</div>
+                        <div class="quadrant">{{ bar_productividad_trabajador_html|safe }}</div> <!-- Espacio vacío opcional -->
                     </div>
                 </div>
                 <div class="chart" id="patrimonio" style="display: none;">
                     <h2>Patrimonio</h2>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartPatrimonio1"></canvas>
-                    </div>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartPatrimonio2"></canvas>
-                    </div>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartPatrimonio3"></canvas>
-                    </div>
-                    <div class="quadrant" style="width: 50%; height: 50%; float: left;">
-                        <canvas id="chartPatrimonio4"></canvas>
+                    <div class="quadrant-container">
+                        <div class="quadrant">{{ pie_patrimonio_html|safe }}</div>
+                        <div class="quadrant">{{ line_razon_endeudamiento_html|safe }}</div>
+                        <div class="quadrant">{{ bar_activos_vs_deudas_html|safe }}</div>
+                        <div class="quadrant">{{ scatter_maquinaria_vs_patrimonio_html|safe }}</div> <!-- Espacio vacío opcional -->
                     </div>
                 </div>
             </div>
