@@ -358,47 +358,58 @@ def register_routes(app):
 
             # Datos específicos del formulario de ganado bovino
             data = {
-                # Datos financieros
+                # Sección 1: Ingresos y Gastos
                 'total_ingresos': parse_float(request.form.get('q1', '0')),
-                'cantidad_animales': parse_float(request.form.get('q1_1', '0')),
+                'cantidad_becerros': parse_float(request.form.get('q1_1', '0')),
+                'animales_actuales': parse_float(request.form.get('q1_2', '0')),
+                'peso_vivo_actual': parse_float(request.form.get('q1_3', '0')),
                 'meses_engorda': parse_float(request.form.get('q2', '0')),
-                'gastos_alimento': parse_float(request.form.get('q3', '0')),
-                'pago_mano_obra': parse_float(request.form.get('q4', '0')),
-                'gastos_servicios': parse_float(request.form.get('q5', '0')),
-                'perdidas_animales': parse_float(request.form.get('q6', '0')),
-                'dinero_disponible': parse_float(request.form.get('q7', '0')),
-                'gastos_imprevistos': parse_float(request.form.get('q8', '0')),
-                'total_deudas': parse_float(request.form.get('q9', '0')),
-                # Procesos productivos
-                'horas_preparacion_alimento': parse_float(request.form.get('q10', '0')),
-                'dias_aplicacion_tratamientos': parse_float(request.form.get('q11', '0')),
-                'horas_preparacion_venta': parse_float(request.form.get('q12', '0')),
-                'trabajadores_necesarios': parse_float(request.form.get('q13', '0')),
-                'dias_engorda': parse_float(request.form.get('q14', '0')),
-                'horas_venta_semanales': parse_float(request.form.get('q15', '0')),
+                'ciclos_anuales': parse_float(request.form.get('q3', '0')),
+                'meses_intervalo': parse_float(request.form.get('q4', '0')),
+                'gastos_alimento': parse_float(request.form.get('q5', '0')),
+                'pago_mano_obra': parse_float(request.form.get('q6', '0')),
+                'gastos_servicios': parse_float(request.form.get('q7', '0')),
+                'valor_maquinaria': parse_float(request.form.get('q7_1', '0')),
+                'perdidas_animales': parse_float(request.form.get('q8', '0')),
+                'dinero_disponible': parse_float(request.form.get('q9', '0')),
+                'gastos_imprevistos': parse_float(request.form.get('q10', '0')),
+                'total_deudas': parse_float(request.form.get('q11', '0')),
+
+                # Sección 2: Procesos Productivos
+                'horas_preparacion_alimento': parse_float(request.form.get('q12', '0')),
+                'dias_aplicacion_tratamientos': parse_float(request.form.get('q13', '0')),
+                'horas_preparacion_venta': parse_float(request.form.get('q14', '0')),
+                'trabajadores_necesarios': parse_float(request.form.get('q15', '0')),
                 'horas_supervision_diarias': parse_float(request.form.get('q16', '0')),
-                'lugar_venta': request.form.getlist('q17'),  # Manejar múltiples selecciones
-                # Fecha de captura
-                'fecha_captura': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+                'terreno_instalaciones': request.form.get('q17', ''),
+                'tipo_cubierta': request.form.get('q18', ''),
+                'lugar_venta': request.form.get('q19', ''),
+                'fecha_captura': request.form.get('fecha_captura', '')
             }
 
             # Validar datos obligatorios
-            if not data['total_ingresos'] or not data['cantidad_animales'] or not data['meses_engorda']:
+            if not data['total_ingresos'] or not data['cantidad_becerros'] or not data['peso_vivo_actual']:
                 flash('Por favor, completa todos los campos obligatorios.', 'danger')
                 return redirect(url_for('bovino_form'))
 
             # Cálculos financieros
-            costos_directos = data['gastos_alimento'] + data['pago_mano_obra'] + data['gastos_servicios'] + data['gastos_imprevistos']
+            costos_directos = (
+                data['gastos_alimento'] +
+                data['pago_mano_obra'] +
+                data['gastos_servicios'] +
+                data['gastos_imprevistos']
+            )
             data['utilidad_bruta'] = data['total_ingresos'] - costos_directos
             data['utilidad_neta'] = data['utilidad_bruta'] - data['total_deudas']
-            activos_totales = data['dinero_disponible']
+            activos_totales = data['dinero_disponible'] + data['valor_maquinaria']
             data['activos_totales'] = activos_totales
             data['patrimonio_neto'] = activos_totales - data['total_deudas']
-            data['costo_por_animal'] = costos_directos / data['cantidad_animales'] if data['cantidad_animales'] else 0
+            data['costo_por_animal'] = costos_directos / data['cantidad_becerros'] if data['cantidad_becerros'] else 0
             data['margen_ganancia'] = (data['utilidad_bruta'] / data['total_ingresos']) * 100 if data['total_ingresos'] else 0
             data['razon_endeudamiento'] = data['total_deudas'] / activos_totales if activos_totales else 0
-            data['productividad_por_trabajador'] = data['cantidad_animales'] / data['trabajadores_necesarios'] if data['trabajadores_necesarios'] else 0
+            data['productividad_por_trabajador'] = data['cantidad_becerros'] / data['trabajadores_necesarios'] if data['trabajadores_necesarios'] else 0
             data['gastos_totales'] = costos_directos
+
             # Crear carpeta del usuario si no existe
             user_folder = os.path.join('data', user_id)
             if not os.path.exists(user_folder):
@@ -663,14 +674,33 @@ def register_routes(app):
             return redirect(url_for('login'))
 
         # Leer datos financieros desde el archivo CSV
-        file_path = f'{user_id}_ganado.csv'
+        file_path = f'data/{user_id}/datos_financieros_ganado.csv'
         financial_data = []
+        rubros = [
+            {'key': 'total_ingresos', 'label': 'Total de Ingresos'},
+            {'key': 'cantidad_becerros', 'label': 'Cantidad de Becerros'},
+            {'key': 'animales_actuales', 'label': 'Animales Actuales en Engorda'},
+            {'key': 'peso_vivo_actual', 'label': 'Peso Vivo Promedio (kg)'},
+            {'key': 'meses_engorda', 'label': 'Meses de Engorda'},
+            {'key': 'ciclos_anuales', 'label': 'Ciclos Anuales'},
+            {'key': 'meses_intervalo', 'label': 'Meses de Intervalo'},
+            {'key': 'gastos_alimento', 'label': 'Gastos en Alimento'},
+            {'key': 'pago_mano_obra', 'label': 'Pago de Mano de Obra'},
+            {'key': 'gastos_servicios', 'label': 'Gastos en Servicios'},
+            {'key': 'valor_maquinaria', 'label': 'Valor de Maquinaria y Equipo'},  # Nuevo rubro
+            {'key': 'perdidas_animales', 'label': 'Pérdidas de Animales'},
+            {'key': 'dinero_disponible', 'label': 'Dinero Disponible'},
+            {'key': 'gastos_imprevistos', 'label': 'Gastos Imprevistos'},
+            {'key': 'total_deudas', 'label': 'Total de Deudas'},
+            {'key': 'fecha_captura', 'label': 'Fecha de Captura'}
+        ]
+
         if os.path.isfile(file_path):
             with open(file_path, mode='r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
                 financial_data = list(reader)
 
-        return render_template('database_access_ganado.html', data=financial_data)
+        return render_template('database_access_ganado.html', data=financial_data, rubros=rubros)
 
     # Ruta para acceder a los datos financieros de huevos
     @app.route('/database_access_huevos')
@@ -862,22 +892,155 @@ def register_routes(app):
         return render_template('financial_statements_cerdos.html', data=financial_data)
 
     # Ruta para generar estados financieros de ganado
-    @app.route('/financial_statements_ganado')
+    @app.route('/financial_statements_ganado', methods=['GET', 'POST'])
     def financial_statements_ganado():
         user_id = session.get('user_id')
         if not user_id:
             flash('Por favor, inicia sesión para acceder a los estados financieros.', 'danger')
             return redirect(url_for('login'))
 
-        # Leer datos financieros desde el archivo CSV
-        file_path = f'{user_id}_ganado.csv'
+        # Ruta del archivo CSV
+        user_folder = os.path.join('data', user_id)
+        file_path = os.path.join(user_folder, 'datos_financieros_ganado.csv')
+
         financial_data = []
+        selected_date = None
+
         if os.path.isfile(file_path):
             with open(file_path, mode='r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
                 financial_data = list(reader)
 
-        return render_template('financial_statements_ganado.html', data=financial_data)
+        # Ordenar las fechas de captura en orden descendente
+        fechas_disponibles = sorted([row['fecha_captura'] for row in financial_data], reverse=True)
+
+        # Si no se envía una fecha desde el formulario, usar la fecha más reciente
+        if request.method == 'POST':
+            selected_date = request.form.get('fecha_captura')
+        elif fechas_disponibles:
+            selected_date = fechas_disponibles[0]  # Fecha más reciente
+
+        # Filtrar los datos por la fecha seleccionada
+        filtered_data = [row for row in financial_data if row['fecha_captura'] == selected_date]
+
+        # Calcular estados financieros y razones financieras
+        if filtered_data:
+            data = filtered_data[0]  # Tomar el primer registro filtrado
+
+            # Calcular costos directos
+            costos_directos = (
+                float(data['gastos_alimento']) +
+                float(data['pago_mano_obra']) +
+                float(data['gastos_servicios']) +
+                float(data['gastos_imprevistos'])
+            )
+            utilidad_bruta = float(data['total_ingresos']) - costos_directos
+            utilidad_neta = utilidad_bruta 
+            activos_totales = float(data['dinero_disponible']) + float(data['valor_maquinaria']) + utilidad_neta
+            patrimonio_neto = activos_totales - float(data['total_deudas'])
+            total_gastos = costos_directos
+            margen_ganancia = (utilidad_bruta / float(data['total_ingresos'])) * 100 if float(data['total_ingresos']) else 0
+            razon_endeudamiento = float(data['total_deudas']) / activos_totales if activos_totales else 0
+
+            # Calcular productividad por trabajador
+            productividad_por_trabajador = float(data['cantidad_becerros']) / float(data['trabajadores_necesarios']) if float(data['trabajadores_necesarios']) > 0 else 0
+
+            # Calcular costo por animal
+            costo_por_animal = costos_directos / float(data['cantidad_becerros']) if float(data['cantidad_becerros']) > 0 else 0
+
+            # Estimación del valor por kilo de carne
+            valor_por_kilo = float(data['total_ingresos']) / (float(data['cantidad_becerros']) * float(data['peso_vivo_actual'])) if float(data['cantidad_becerros']) > 0 else 0
+
+            # Estimación del valor de los animales actuales en engorda
+            valor_animales_actuales = float(data['animales_actuales']) * float(data['peso_vivo_actual']) * valor_por_kilo
+
+            # Agregar el valor estimado de los animales actuales como activo
+            activos_totales += valor_animales_actuales
+            patrimonio_neto += valor_animales_actuales
+
+            # Calcular Capital más Pasivo
+            capital_mas_pasivo = patrimonio_neto + float(data['total_deudas'])
+
+            # Valores de referencia para razones financieras
+            referencias = {
+                'margen_ganancia': 'Mayor al 20% es favorable',
+                'razon_endeudamiento': 'Menor al 50% es favorable'
+            }
+
+            # Agregar datos de referencia
+            datos_referencia = {
+                'cantidad_becerros': float(data['cantidad_becerros']),
+                'peso_vivo_actual': float(data['peso_vivo_actual']),
+                'animales_actuales': float(data['animales_actuales']),
+                'valor_maquinaria': float(data['valor_maquinaria']),  # Nuevo análisis de maquinaria
+                'lugar_venta': data['lugar_venta']
+            }
+
+            # Generar interpretación AI
+            interpretacion_ai = []
+
+            if float(data['total_ingresos']) > total_gastos:
+                interpretacion_ai.append("Los ingresos son mayores que los gastos, lo cual es positivo.")
+            else:
+                interpretacion_ai.append("Los gastos superan los ingresos, lo que indica posibles pérdidas.")
+
+            if margen_ganancia >= 20:
+                interpretacion_ai.append(f"El margen de ganancia es del {margen_ganancia:.2f}%, lo cual es favorable.")
+            else:
+                interpretacion_ai.append(f"El margen de ganancia es del {margen_ganancia:.2f}%, podría mejorar.")
+
+            if razon_endeudamiento < 0.5:
+                interpretacion_ai.append(f"La razón de endeudamiento es del {razon_endeudamiento:.2%}, lo cual es manejable.")
+            else:
+                interpretacion_ai.append(f"La razón de endeudamiento es del {razon_endeudamiento:.2%}, se recomienda reducir deudas.")
+
+            interpretacion_ai.append(f"El valor estimado por kilo de carne es de ${valor_por_kilo:.2f}.")
+            interpretacion_ai.append(f"El valor aproximado de los animales actuales en engorda es de ${valor_animales_actuales:,.2f}.")
+            interpretacion_ai.append(f"El valor de la maquinaria y equipo es de ${float(data['valor_maquinaria']):,.2f}.")  # Nuevo análisis
+
+            # Convertir lista a string
+            interpretacion_ai = " ".join(interpretacion_ai)
+
+            # Preparar datos para el HTML
+            financial_summary = {
+                'activos': {
+                    'dinero_disponible': float(data['dinero_disponible']),
+                    'valor_maquinaria': float(data['valor_maquinaria']),  # Agregar maquinaria a los activos
+                    'valor_animales_actuales': valor_animales_actuales,
+                    'total_activos': activos_totales
+                },
+                'pasivos': {
+                    'deudas': float(data['total_deudas']),
+                    'total_pasivos': float(data['total_deudas'])
+                },
+                'patrimonio': patrimonio_neto,
+                'capital_mas_pasivo': capital_mas_pasivo,
+                'ingresos': {
+                    'venta_ganado': float(data['total_ingresos'])
+                },
+                'gastos': {
+                    'alimento': float(data['gastos_alimento']),
+                    'mano_obra': float(data['pago_mano_obra']),
+                    'servicios': float(data['gastos_servicios']),
+                    'imprevistos': float(data['gastos_imprevistos']),
+                    'total_gastos': total_gastos
+                },
+                'utilidad_neta': utilidad_neta,
+                'razones_financieras': {
+                    'margen_ganancia': margen_ganancia,
+                    'razon_endeudamiento': razon_endeudamiento,
+                    'productividad_por_trabajador': productividad_por_trabajador,
+                    'costo_por_animal': costo_por_animal
+                },
+                'referencias': referencias,
+                'datos_referencia': datos_referencia,
+                'fecha_captura': selected_date,
+                'interpretacion_ai': interpretacion_ai
+            }
+        else:
+            financial_summary = None
+
+        return render_template('financial_statements_ganado.html', data=financial_summary, fechas=fechas_disponibles)
 
     # Ruta para generar estados financieros de huevos
     @app.route('/financial_statements_huevos')
