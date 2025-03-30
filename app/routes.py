@@ -1384,3 +1384,218 @@ def register_routes(app):
         except FileNotFoundError:
             flash('No se encontraron datos para generar el análisis.', 'danger')
             return render_template('my_analysis_cafe.html')
+
+
+    @app.route('/my_analysis_bovino', methods=['GET', 'POST'])
+    def my_analysis_bovino():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder al análisis.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        file_path = f"data/{user_id}/datos_financieros_ganado.csv"
+        try:
+            data = pd.read_csv(file_path)
+
+            # Ordenar las fechas y obtener la más reciente
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y %H:%M', errors='coerce')
+
+            # Verificar si hay fechas inválidas
+            if data['fecha_captura'].isna().any():
+                flash('Algunas fechas no tienen un formato válido. Verifica los datos.', 'danger')
+                return render_template('my_analysis_bovino.html')
+
+            data = data.sort_values(by='fecha_captura', ascending=False)
+            fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
+            fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
+
+            # Filtrar los datos por la fecha seleccionada
+            data_filtrada = data[data['fecha_captura'] == pd.to_datetime(fecha_seleccionada)]
+
+            # Verifica que las columnas necesarias existan
+            required_columns = [
+                'gastos_alimento', 'pago_mano_obra', 'gastos_servicios', 'gastos_imprevistos',
+                'cantidad_becerros', 'peso_vivo_actual', 'trabajadores_necesarios', 'total_ingresos'
+            ]
+            for col in required_columns:
+                if col not in data.columns:
+                    flash(f'Falta la columna necesaria: {col}', 'danger')
+                    return render_template('my_analysis_bovino.html')
+
+            # Cálculos obligatorios
+            data['gastos_totales'] = data['gastos_alimento'] + data['pago_mano_obra'] + data['gastos_servicios'] + data['gastos_imprevistos']
+            data['productividad_por_trabajador'] = data['cantidad_becerros'] / data['trabajadores_necesarios']
+            data['costo_por_animal'] = data['gastos_totales'] / data['cantidad_becerros']
+
+            # Gráficos para Rentabilidad
+            fig_sunburst = px.sunburst(
+                data_filtrada,
+                path=['gastos_alimento', 'pago_mano_obra', 'gastos_servicios', 'gastos_imprevistos'],
+                values='gastos_totales',
+                title="Jerarquía de Gastos"
+            )
+            fig_line = px.line(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'utilidad_neta'],
+                title="Ingresos vs. Utilidad Neta"
+            )
+            fig_bar = px.bar(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'gastos_totales'],
+                title="Ingresos vs. Gastos Totales"
+            )
+
+            # Convertir gráficos a HTML
+            sunburst_html = fig_sunburst.to_html(full_html=False)
+            line_html = fig_line.to_html(full_html=False)
+            bar_html = fig_bar.to_html(full_html=False)
+
+            # Gráficos para Producción
+            # Producción total por becerro
+            fig_bar_produccion = px.bar(
+                data,
+                x='fecha_captura',
+                y='cantidad_becerros',
+                title="Cantidad de Becerros por Fecha"
+            )
+
+            # Costos de alimento vs producción
+            fig_line_costos_vs_produccion = px.line(
+                data,
+                x='fecha_captura',
+                y=['cantidad_becerros', 'gastos_alimento'],
+                title="Costos de Alimento vs Cantidad de Becerros"
+            )
+
+            # Costo por animal
+            fig_line_costo_por_animal = px.line(
+                data,
+                x='fecha_captura',
+                y='costo_por_animal',
+                title="Costo por Animal"
+            )
+
+            # Correlación entre peso vivo y cantidad de becerros
+            fig_scatter_peso_vs_becerros = px.scatter(
+                data,
+                x='peso_vivo_actual',
+                y='cantidad_becerros',
+                title="Peso Vivo Promedio vs Cantidad de Becerros",
+                labels={'x': 'Peso Vivo Promedio (kg)', 'y': 'Cantidad de Becerros'}
+            )
+
+            # Convertir gráficos a HTML
+            bar_produccion_html = fig_bar_produccion.to_html(full_html=False)
+            line_costos_vs_produccion_html = fig_line_costos_vs_produccion.to_html(full_html=False)
+            line_costo_por_animal_html = fig_line_costo_por_animal.to_html(full_html=False)
+            scatter_peso_vs_becerros_html = fig_scatter_peso_vs_becerros.to_html(full_html=False)
+
+            # Gráficos para Mano de Obra
+            # Distribución de costos laborales
+            fig_pie_costos_laborales = px.pie(
+                data_filtrada,
+                names=['pago_mano_obra', 'gastos_totales'],
+                values=[data_filtrada['pago_mano_obra'].sum(), data_filtrada['gastos_totales'].sum()],
+                title="Distribución de Costos Laborales"
+            )
+
+            # Días de aplicación de tratamientos vs trabajadores necesarios
+            fig_bar_dias_vs_trabajadores = px.bar(
+                data,
+                x='dias_aplicacion_tratamientos',
+                y='trabajadores_necesarios',
+                title="Días de Aplicación de Tratamientos vs Trabajadores Necesarios"
+            )
+
+            # Horas de supervisión vs preparación de alimento
+            fig_line_supervision_vs_preparacion = px.line(
+                data,
+                x='fecha_captura',
+                y=['horas_supervision_diarias', 'horas_preparacion_alimento'],
+                title="Horas de Supervisión vs Preparación de Alimento"
+            )
+
+            # Productividad por trabajador
+            fig_bar_productividad_trabajador = px.bar(
+                data,
+                x='fecha_captura',
+                y='productividad_por_trabajador',
+                title="Productividad por Trabajador"
+            )
+
+            # Convertir gráficos a HTML
+            pie_costos_laborales_html = fig_pie_costos_laborales.to_html(full_html=False)
+            bar_dias_vs_trabajadores_html = fig_bar_dias_vs_trabajadores.to_html(full_html=False)
+            line_supervision_vs_preparacion_html = fig_line_supervision_vs_preparacion.to_html(full_html=False)
+            bar_productividad_trabajador_html = fig_bar_productividad_trabajador.to_html(full_html=False)
+
+            # Gráficos para Patrimonio
+            # Composición del patrimonio neto
+            fig_pie_patrimonio = px.pie(
+                data_filtrada,
+                names=['patrimonio_neto', 'activos_totales', 'valor_maquinaria'],
+                values=[data_filtrada['patrimonio_neto'].sum(), data_filtrada['activos_totales'].sum(), data_filtrada['valor_maquinaria'].sum()],
+                title="Composición del Patrimonio Neto"
+            )
+
+            # Razón de endeudamiento
+            fig_line_razon_endeudamiento = px.line(
+                data,
+                x='fecha_captura',
+                y='razon_endeudamiento',
+                title="Razón de Endeudamiento vs Tiempo"
+            )
+
+            # Activos vs deudas
+            fig_bar_activos_vs_deudas = px.bar(
+                data,
+                x='fecha_captura',
+                y=['activos_totales', 'total_deudas'],
+                barmode='group',
+                title="Activos Totales vs Total de Deudas"
+            )
+
+            # Valor maquinaria vs patrimonio
+            fig_scatter_maquinaria_vs_patrimonio = px.scatter(
+                data,
+                x='valor_maquinaria',
+                y='patrimonio_neto',
+                title="Valor Maquinaria vs Patrimonio Neto",
+                labels={'x': 'Valor Maquinaria', 'y': 'Patrimonio Neto'}
+            )
+
+            # Convertir gráficos a HTML
+            pie_patrimonio_html = fig_pie_patrimonio.to_html(full_html=False)
+            line_razon_endeudamiento_html = fig_line_razon_endeudamiento.to_html(full_html=False)
+            bar_activos_vs_deudas_html = fig_bar_activos_vs_deudas.to_html(full_html=False)
+            scatter_maquinaria_vs_patrimonio_html = fig_scatter_maquinaria_vs_patrimonio.to_html(full_html=False)
+
+            return render_template(
+                'my_analysis_bovino.html',
+                sunburst_html=sunburst_html,
+                line_html=line_html,
+                bar_html=bar_html,
+                bar_produccion_html=bar_produccion_html,
+                line_costos_vs_produccion_html=line_costos_vs_produccion_html,
+                line_costo_por_animal_html=line_costo_por_animal_html,
+                scatter_peso_vs_becerros_html=scatter_peso_vs_becerros_html,
+                pie_costos_laborales_html=pie_costos_laborales_html,
+                bar_dias_vs_trabajadores_html=bar_dias_vs_trabajadores_html,
+                line_supervision_vs_preparacion_html=line_supervision_vs_preparacion_html,
+                bar_productividad_trabajador_html=bar_productividad_trabajador_html,
+                pie_patrimonio_html=pie_patrimonio_html,
+                line_razon_endeudamiento_html=line_razon_endeudamiento_html,
+                bar_activos_vs_deudas_html=bar_activos_vs_deudas_html,
+                scatter_maquinaria_vs_patrimonio_html=scatter_maquinaria_vs_patrimonio_html,
+                ultimos_valores=data_filtrada.iloc[0].to_dict(),
+                fechas_disponibles=fechas_disponibles,
+                fecha_seleccionada=fecha_seleccionada
+            )
+        except FileNotFoundError:
+            flash('No se encontraron datos para generar el análisis.', 'danger')
+            return render_template('my_analysis_bovino.html')
+
+
