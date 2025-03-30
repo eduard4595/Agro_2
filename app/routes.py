@@ -1096,6 +1096,7 @@ def register_routes(app):
             server.login(sender_email, sender_password)
             server.send_message(msg)
 
+    # Ruta para el análisis de datos de café
     @app.route('/my_analysis_cafe', methods=['GET', 'POST'])
     def my_analysis_cafe():
         user_id = session.get('user_id')
