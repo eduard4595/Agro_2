@@ -4,81 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuestionario para Producción de Cítricos</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1, h2 { color: #4CAF50; }
-        .required::after { content: " *"; color: red; }
-        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; }
-        button { background-color: #4CAF50; color: white; padding: 10px; border: none; cursor: pointer; }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/questionario.css') }}">
+    <script src="{{ url_for('static', filename='js/questionario.js') }}"></script>
 </head>
 <body>
-    <h1>Cuestionario para Producción de Cítricos</h1>
-    <p><strong>Instrucciones:</strong> Llena este cuestionario una vez al mes. Usa números en todas tus respuestas (por ejemplo, pesos, horas, días).</p>
+    <div class="container">
+        <h1>Cuestionario para Producción de Cítricos</h1>
+        <p><strong>Instrucciones:</strong> Llena este cuestionario una vez al mes. Usa números en todas tus respuestas (por ejemplo, pesos, horas, días).</p>
 
-    <form id="citricosForm" action="{{ url_for('submit_citricos_form') }}" method="POST">
-        <h2>Sección 1: Ingresos y Gastos</h2>
-        <label class="required">1. ¿Cuál fue el total de ingresos por la venta de cítricos en tu última cosecha? (en pesos o moneda local)</label>
-        <input type="number" id="q1" name="q1" required>
-        
-        <label class="required">1.2. ¿Cuántas toneladas cosechaste en tu última cosecha?</label>
-        <input type="number" id="q1_2" name="q1_2" required>
-        
-        <label class="required">1.3 ¿Qué tipos de cítricos cosechaste?</label>
-        <select id="q1_3" name="q1_3" multiple required>
-            <option value="naranja">Naranja</option>
-            <option value="mandarina">Mandarina</option>
-            <option value="limon">Limón (persa, criollo)</option>
-            <option value="toronja">Toronja</option>
-            <option value="lima">Lima dulce</option>
-            <option value="tangelo">Tangelo</option>
-            <option value="pomelo">Pomelo</option>
-            <option value="cidra">CIDRA (limón real)</option>
-            <option value="kumquat">Kumquat</option>
-            <option value="otro">Otro</option>
-        </select>
-        
-        <label class="required">1.4 ¿Cuántas hectáreas de terreno tienes sembradas con cítricos?</label>
-        <input type="number" id="q1_4" name="q1_4" required>
-        
-        <label class="required">2. ¿Cuánto gastaste en insumos (fertilizantes, electricidad, pesticidas, combustibles) para tus plantas de cítricos en el último ciclo de cultivo (cosecha)?</label>
-        <input type="number" id="q2" name="q2" required>
-        
-        <label class="required">3. ¿Cuánto pagaste por todos los jornales en tu último ciclo de cultivo?</label>
-        <input type="number" id="q3" name="q3" required>
-        
-        <label class="required">4. ¿Cuánto gastaste en servicios (mantenimiento de maquinaria y equipo, riego, electricidad y seguro de cultivo) para tus plantas de cítricos en tu último ciclo de cultivo?</label>
-        <input type="number" id="q4" name="q4" required>
-        
-        <label class="required">5. ¿Cuál es el valor estimado de la maquinaria y equipo que utilizas en tu producción de cítricos?</label>
-        <input type="number" id="q5" name="q5" required>
-        
-        <label class="required">6. ¿Cuánto dinero tienes disponible para cubrir gastos en tu producción de cítricos en los próximos 30 días?</label>
-        <input type="number" id="q6" name="q6" required>
-        
-        <label class="required">7. ¿Cuánto gastaste en imprevistos relacionados con tu producción de cítricos en los últimos 30 días?</label>
-        <input type="number" id="q7" name="q7" required>
-        
-        <label class="required">8. ¿Cuál es el monto total de tus deudas relacionadas con la producción de cítricos?</label>
-        <input type="number" id="q8" name="q8" required>
+        <!-- Botón para volver al dashboard -->
+        <button onclick="location.href='/dashboard_citricos'" class="btn-back">
+            ← Volver al Panel de Cítricos
+        </button>
 
-        <h2>Sección 2: Procesos Productivos</h2>
-        <label class="required">9. ¿Cuántos trabajadores necesitas para poda, fertilización, control de maleza y cosecha en tu último ciclo de cultivo de cítricos?</label>
-        <input type="number" id="q9" name="q9" required>
-        
-        <label class="required">10. ¿Cuántos días supervisaste tus árboles de cítricos en tu último ciclo de cultivo?</label>
-        <input type="number" id="q10" name="q10" required>
-        
-        <label class="required">11. ¿En qué lugares comercializas tu fruta? (Selecciona las opciones que apliquen)</label>
-        <select id="q11" name="q11" multiple required>
-            <option value="acopio">Centro de acopio</option>
-            <option value="mercado">Mercado local</option>
-            <option value="central">Central de Abastos</option>
-            <option value="juguera">Juguera</option>
-            <option value="otro">Otro</option>
-        </select>
-        
-        <button type="submit">Enviar</button>
-    </form>
+        <form id="citricosForm" action="{{ url_for('dashboard_citricos.submit_citrus_form') }}" method="POST" onsubmit="return validateForm()">
+            <h2>Sección 1: Ingresos y Gastos</h2>
+            <label class="required"><strong>1. ¿Cuál fue el total de ingresos por la venta de cítricos en tu última cosecha?</strong> (en pesos o moneda local)</label>
+            <input type="text" id="q1" name="q1" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el total de ingresos.')">
+
+            <label class="required"><strong>1.2. ¿Cuántas toneladas cosechaste en tu última cosecha?</strong> (Ejemplo: 50 toneladas.)</label>
+            <input type="text" id="q1_2" name="q1_2" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con la cantidad cosechada.')">
+
+            <label class="required"><strong>1.3 ¿Qué tipos de cítricos cosechaste?</strong></label>
+            <select id="q1_3" name="q1_3" multiple required oninput="this.setCustomValidity('');"
+                    oninvalid="this.setCustomValidity('Por favor, selecciona al menos un tipo de cítrico.')">
+                <option value="naranja">Naranja</option>
+                <option value="mandarina">Mandarina</option>
+                <option value="limon">Limón (persa, criollo)</option>
+                <option value="toronja">Toronja</option>
+                <option value="lima">Lima dulce</option>
+                <option value="tangelo">Tangelo</option>
+                <option value="pomelo">Pomelo</option>
+                <option value="cidra">CIDRA (limón real)</option>
+                <option value="kumquat">Kumquat</option>
+                <option value="otro">Otro</option>
+            </select>
+
+            <label class="required"><strong>1.4 ¿Cuántas hectáreas de terreno tienes sembradas con cítricos?</strong> (Ejemplo: 10 hectáreas.)</label>
+            <input type="text" id="q1_4" name="q1_4" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con la cantidad de hectáreas.')">
+
+            <label class="required"><strong>2. ¿Cuánto gastaste en insumos (fertilizantes, electricidad, pesticidas, combustibles) para tus plantas de cítricos en el último ciclo de cultivo (cosecha)?</strong> (Ejemplo: $15,000 pesos.)</label>
+            <input type="text" id="q2" name="q2" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en insumos.')">
+
+            <label class="required"><strong>3. ¿Cuánto pagaste por todos los jornales en tu último ciclo de cultivo?</strong> (Ejemplo: $3,000 pesos.)</label>
+            <input type="text" id="q3" name="q3" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en jornales.')">
+
+            <label class="required"><strong>4. ¿Cuánto gastaste en servicios (mantenimiento de maquinaria y equipo, riego, electricidad y seguro de cultivo) para tus plantas de cítricos en tu último ciclo de cultivo?</strong> (Ejemplo: $1,000 pesos)</label>
+            <input type="text" id="q4" name="q4" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en servicios.')">
+
+            <label class="required"><strong>5. ¿Cuál es el valor estimado de la maquinaria y equipo que utilizas en tu producción de cítricos?</strong> (Ejemplo: $25,000 pesos por desbrozadora, cortadora, sembradora y sistemas de riego) </label>
+            <input type="text" id="q5" name="q5" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el valor estimado de la maquinaria.')">
+
+            <label class="required"><strong>6. ¿Cuánto dinero tienes disponible para cubrir gastos en tu producción de cítricos en los próximos 30 días?</strong> (Incluye costos como fertilizantes, herbicidas, pago de jornales y reparación o mantenimiento de maquinaria y equipo.)
+                (Ejemplo: $6,000 pesos para insumos)  </label>
+            <input type="text" id="q6" name="q6" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el dinero disponible.')">
+
+            <label class="required"><strong>7. ¿Cuánto gastaste en imprevistos relacionados con tu producción de cítricos en los últimos 30 días?</strong> (Incluye costos como atención médica, accidentes, reparaciones de maquinaria, daños en la cosecha o preparación, y otros imprevistos.)
+                (Ejemplo: Total: $3,500 pesos)</label>
+            <input type="text" id="q7" name="q7" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en imprevistos.')">
+
+            <label class="required"><strong>8. ¿Cuál es el monto total de tus deudas relacionadas con la producción de cítricos?</strong> (Ejemplo: $25,000 pesos por créditos, financiamiento para insumos, maquinaria o compras fiadas de semillas y fertilizantes)</label>
+            <input type="text" id="q8" name="q8" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el monto total de deudas.')">
+
+            <h2>Sección 2: Procesos Productivos</h2>
+            <label class="required"><strong>9. ¿Cuántos trabajadores necesitas para poda, fertilización, control de maleza y cosecha en tu último ciclo de cultivo de cítricos?</strong> (Ejemplo: Total: 3 trabajadores)</label>
+            <input type="text" id="q9" name="q9" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el número de trabajadores.')">
+
+            <label class="required"><strong>10. ¿Cuántos días supervisaste tus árboles de cítricos en tu último ciclo de cultivo?</strong> (Ejemplo: 20 días)</label>
+            <input type="text" id="q10" name="q10" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, completa este campo con el número de días supervisados.')">
+
+            <label class="required"><strong>11. ¿En qué lugares comercializas tu fruta? (Selecciona las opciones que apliquen)</strong></label>
+            <select id="q11" name="q11" multiple required onchange="toggleOtherInput()" oninput="this.setCustomValidity('');"
+                    oninvalid="this.setCustomValidity('Por favor, selecciona al menos un lugar de comercialización.')">
+                <option value="acopio">Centro de acopio</option>
+                <option value="mercado">Mercado local</option>
+                <option value="central">Central de Abastos</option>
+                <option value="juguera">Juguera</option>
+                <option value="otro">Otro</option>
+            </select>
+            <!-- Campo de texto para "Otro" -->
+            <input type="text" id="otherInput" name="otherInput" style="display: none;" placeholder="Especificar otro lugar">
+
+            <label class="required">Fecha de captura:</label>
+            <input type="date" id="fecha_captura" name="fecha_captura" required 
+                   oninput="this.setCustomValidity('');"
+                   oninvalid="this.setCustomValidity('Por favor, selecciona una fecha.')">
+      
+            <label>Comentarios o sugerencias:</label>
+            <textarea id="comments" name="comments" rows="4"></textarea>
+
+            <button type="submit">Enviar</button>
+        </form>
+        <p>✨ Tu opinión es muy valiosa para nosotros. Cualquier sugerencia o comentario que nos ayude a mejorar será recibido con gratitud. 🙏 ¡Gracias por tu tiempo y colaboración! Juntos podemos seguir creciendo.  🍊🍋🍊</p>
+    <p>Gracias por completar el cuestionario. Tus respuestas nos ayudarán a mejorar la producción de cítricos.</p>
+    </div>
 </body>
 </html>

@@ -7,7 +7,8 @@ from .views.financial_info import financial_info_bp
 from .views.climate_analysis import climate_analysis_bp
 from .views.chat_ai import chat_ai_bp
 from .views.user_management import user_management_bp
-import pdfkit  # Asegúrate de instalar pdfkit y wkhtmltopdf
+from .views.dashboard_citricos import dashboard_citricos_bp
+# import pdfkit  # Asegúrate de instalar pdfkit y wkhtmltopdf
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -23,6 +24,7 @@ def register_routes(app):
     app.register_blueprint(climate_analysis_bp, url_prefix='/climate-analysis')
     app.register_blueprint(chat_ai_bp, url_prefix='/chat-ai')
     app.register_blueprint(user_management_bp, url_prefix='/user-management')
+    app.register_blueprint(dashboard_citricos_bp, url_prefix='/dashboard_citricos')
 
     # Ruta para registrar usuarios
     @app.route('/register', methods=['GET', 'POST'])
@@ -100,7 +102,7 @@ def register_routes(app):
 
                                 # Redirigir al dashboard correspondiente
                                 if actividad_principal == 'citricos':
-                                    return redirect(url_for('dashboard_citricos'))
+                                    return redirect(url_for('dashboard_citricos.dashboard_citricos'))
                                 elif actividad_principal == 'cafe':
                                     return redirect(url_for('dashboard_cafe'))
                                 elif actividad_principal == 'maiz':
@@ -324,7 +326,7 @@ def register_routes(app):
         file_path = f'{user_id}_cerdos.csv'
         file_exists = os.path.isfile(file_path)
         with open(file_path, mode='a', newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames(data.keys()))
+            writer = csv.DictWriter(file, csv.fieldnames(data.keys()))
             if not file_exists:
                 writer.writeheader()
             writer.writerow(data)
@@ -496,41 +498,7 @@ def register_routes(app):
         flash('Datos de maíz guardados exitosamente.', 'success')
         return redirect(url_for('dashboard_maiz'))
 
-    # Ruta para guardar datos de cítricos
-    @app.route('/submit_citrus_form', methods=['POST'])
-    def submit_citrus_form():
-        user_id = session.get('user_id')
-        if not user_id:
-            flash('Por favor, inicia sesión.', 'danger')
-            return redirect(url_for('login'))
-
-        # Datos específicos del formulario de cítricos
-        data = {
-            'total_ingresos': request.form['q1'],
-            'toneladas_cosechadas': request.form['q1_2'],
-            'tipos_citricos': request.form['q1_3'],
-            'hectareas': request.form['q1_4'],
-            'gastos_insumos': request.form['q2'],
-            'pago_jornales': request.form['q3'],
-            'gastos_servicios': request.form['q4'],
-            'valor_maquinaria': request.form['q5'],
-            'dinero_disponible': request.form['q6'],
-            'gastos_imprevistos': request.form['q7'],
-            'total_deudas': request.form['q8'],
-            'fecha_captura': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-        }
-
-        # Guardar datos en un archivo CSV
-        file_path = f'{user_id}_citricos.csv'
-        file_exists = os.path.isfile(file_path)
-        with open(file_path, mode='a', newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames(data.keys()))
-            if not file_exists:
-                writer.writeheader()
-            writer.writerow(data)
-
-        flash('Datos de cítricos guardados exitosamente.', 'success')
-        return redirect(url_for('dashboard_citricos'))
+    
      # Ruta para el dashboard de café
     @app.route('/dashboard_cafe')
     def dashboard_cafe():
@@ -624,24 +592,7 @@ def register_routes(app):
 
         return render_template('dashboard_maiz.html', data=general_data)
   
-    # Ruta para el dashboard de cítricos
-    @app.route('/dashboard_citricos')
-    def dashboard_citricos():
-        user_id = session.get('user_id')
-        if not user_id:
-            flash('Por favor, inicia sesión para acceder al dashboard.', 'danger')
-            return redirect(url_for('login'))
-
-        # Leer datos generales desde el archivo CSV
-        user_folder = os.path.join('data', user_id)
-        file_path = os.path.join(user_folder, 'datos_generales.csv')
-        general_data = {}
-        if os.path.isfile(file_path):
-            with open(file_path, mode='r', encoding='utf-8') as file:
-                reader = csv.DictReader(file)
-                general_data = next(reader, {})
-
-        return render_template('dashboard_citricos.html', data=general_data)
+    
 
     # Ruta para acceder a los datos financieros de café
     @app.route('/database_access_cafe', methods=['GET'])
@@ -757,23 +708,7 @@ def register_routes(app):
 
         return render_template('database_access_maiz.html', data=financial_data)
 
-    # Ruta para acceder a los datos financieros de cítricos
-    @app.route('/database_access_citricos')
-    def database_access_citricos():
-        user_id = session.get('user_id')
-        if not user_id:
-            flash('Por favor, inicia sesión para acceder a la base de datos.', 'danger')
-            return redirect(url_for('login'))
-
-        # Leer datos financieros desde el archivo CSV
-        file_path = f'{user_id}_citricos.csv'
-        financial_data = []
-        if os.path.isfile(file_path):
-            with open(file_path, mode='r', encoding='utf-8') as file:
-                reader = csv.DictReader(file)
-                financial_data = list(reader)
-
-        return render_template('database_access_citricos.html', data=financial_data)
+   
         # Ruta para generar estados financieros de café
     @app.route('/financial_statements_cafe', methods=['GET', 'POST'])
     def financial_statements_cafe():
@@ -980,23 +915,7 @@ def register_routes(app):
 
         return render_template('financial_statements_maiz.html', data=financial_data)
 
-    # Ruta para generar estados financieros de cítricos
-    @app.route('/financial_statements_citricos')
-    def financial_statements_citricos():
-        user_id = session.get('user_id')
-        if not user_id:
-            flash('Por favor, inicia sesión para acceder a los estados financieros.', 'danger')
-            return redirect(url_for('login'))
-
-        # Leer datos financieros desde el archivo CSV
-        file_path = f'{user_id}_citricos.csv'
-        financial_data = []
-        if os.path.isfile(file_path):
-            with open(file_path, mode='r', encoding='utf-8') as file:
-                reader = csv.DictReader(file)
-                financial_data = list(reader)
-
-        return render_template('financial_statements_citricos.html', data=financial_data)
+   
     
     @app.route('/submit_registro_cliente', methods=['POST'])
     def submit_registro_cliente():

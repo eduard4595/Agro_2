@@ -1,6 +1,7 @@
 # Agro-CIDATMEX Flask Project
 
-Este proyecto Flask incluye módulos para análisis financiero, análisis climático, un chat basado en IA y gestión de usuarios.
+Este proyecto Flask incluye módulos para análisis financiero, análisis 
+climático, un chat basado en IA y gestión de usuarios.
 
 ## Instrucciones para ejecutar
 
@@ -18,4 +19,3 @@ Este proyecto Flask incluye módulos para análisis financiero, análisis climá
 ```python manage.py db init```
 ```python manage.py db migrate -m "Create GeneralDataCafe table"```
 ```python manage.py db upgrade```
-
