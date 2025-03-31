@@ -127,11 +127,11 @@
           return true;
         }
     
-        function toggleOtherInput() {
-          const q13 = document.getElementById('q13');
-          const otherInput = document.getElementById('otherInput');
-          otherInput.style.display = q13.value === 'Otro' ? 'block' : 'none';
-        }
+        function toggleOtherInput(selectId, inputId) {
+        const selectElement = document.getElementById(selectId);
+        const otherInput = document.getElementById(inputId);
+        otherInput.style.display = selectElement.value === 'Other' ? 'block' : 'none';
+       }
     
         function formatNumberInput(input) {
           const value = input.value.replace(/[^\d]/g, '');
@@ -255,16 +255,17 @@
 
             <label for="q17">17. ¿El terreno y las instalaciones son propias o rentadas?</label>
             <select id="q17" name="q17" required 
-                    oninput="this.setCustomValidity('');" 
+                    oninput="this.setCustomValidity(''); toggleOtherInput('q17', 'q17_other');" 
                     oninvalid="this.setCustomValidity('Por favor, selecciona una opción.')">
                 <option value="Propias">Propias</option>
                 <option value="Rentadas">Rentadas</option>
                 <option value="Other">Otro</option>
             </select>
-
+            <input type="text" id="q17_other" name="q17_other" placeholder="Especifica otra opción" style="display: none; margin-top: 10px;">
+            
             <label for="q18">18. ¿Las instalaciones cuentan con algún tipo de cubierta?</label>
             <select id="q18" name="q18" required 
-                    oninput="this.setCustomValidity('');" 
+                    oninput="this.setCustomValidity(''); toggleOtherInput('q18', 'q18_other');" 
                     oninvalid="this.setCustomValidity('Por favor, selecciona una opción.')">
                 <option value="Lámina metálica">Lámina metálica</option>
                 <option value="Plástico de invernadero">Plástico de invernadero</option>
@@ -273,10 +274,11 @@
                 <option value="Ninguno">Ninguno</option>
                 <option value="Other">Otro</option>
             </select>
-
+            <input type="text" id="q18_other" name="q18_other" placeholder="Especifica otra opción" style="display: none; margin-top: 10px;">
+            
             <label for="q19">19. ¿Dónde sueles vender tu ganado bovino?</label>
             <select id="q19" name="q19" required 
-                    oninput="this.setCustomValidity('');" 
+                    oninput="this.setCustomValidity(''); toggleOtherInput('q19', 'q19_other');" 
                     oninvalid="this.setCustomValidity('Por favor, selecciona una opción.')">
                 <option value="Subastas ganaderas">Subastas ganaderas</option>
                 <option value="Rastros y empacadoras">Rastros y empacadoras</option>
@@ -286,6 +288,7 @@
                 <option value="Venta directa al consumidor">Venta directa al consumidor</option>
                 <option value="Other">Otro</option>
             </select>
+            <input type="text" id="q19_other" name="q19_other" placeholder="Especifica otra opción" style="display: none; margin-top: 10px;">
             
             <label class="required">Fecha de captura:</label>
             <input type="date" id="fecha_captura" name="fecha_captura" required 

@@ -2,3 +2,5 @@ username,telefono,email,password,fecha_nacimiento,genero,terminos
 Luis 2 Bovino,123145531315,bovino34fse@gmail.com,pbkdf2:sha256:1000000$H6TPwLmZWAckeBzU$eeed28f5886af45cd16ee71819874c84d8a6b98f06bd9ee7cf256e03c02618b9,12/12/1950,hombre,Aceptado
 Luis3Bovino,134115166,juan.bovino3@qm.com,pbkdf2:sha256:1000000$UxeWOH6SOdicAcYR$9da0c447062a837343bbbb7dc42d2f5017cb9cec0de28339d08369fc136b09fa,12/12/1990,mujer,Aceptado
 user1,1,user1@mail.com,pbkdf2:sha256:1000000$7WPdRADxJI0BwubC$34d6b28f570f09bcee22edf25785e70daddb29ba1655ccc0ae5a8a30fe0e3532,10/10/1990,hombre,Aceptado
+Luis Maiz,1,maiz2@gmail.com,pbkdf2:sha256:1000000$jwiFWTnC54PUl0jI$9a97d02989b8889dd59c44057a1648c6028c405e1e3a8e16699befff5cd45d07,12/12/1990,mujer,Aceptado
+Luis Maiz,1,maiz2@gmail.com,pbkdf2:sha256:1000000$GHDskqbHmd5Gca2e$0e04c5d4aa69111ea2ae96c0c63422bad42ef39645faa607517940aeee56d229,12/12/1990,mujer,Aceptado
