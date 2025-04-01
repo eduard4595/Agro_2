@@ -1,233 +1,383 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Estados Financieros - Café</title>
-        <style>
-          body {
-            font-family: Garamond, serif;
-            margin: 20px;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Café</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
             padding: 0;
-            background-color: #FFFFFF;
-          }
-          .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            background: white;
+            background-color: #EAEAEA;
+            color: #3C3C3C;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #004F73;
+            color: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          }
-          h1, h2, h3 {
-            text-align: center;
-            color: #000000;
-          }
-          .row {
             display: flex;
             justify-content: space-between;
-            margin: 20px 0;
-          }
-          .column {
-            width: 48%;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 10px 0;
-          }
-          table th, table td {
-            padding: 8px;
-            text-align: left;
-          }
-          table th {
-            background-color: #F0F0F0;
-            color: black;
-            border-top: 2px solid black;
-            border-bottom: 2px solid black;
-          }
-          table tr:first-child th {
-            border-top: 2px solid black;
-          }
-          table tr:last-child td {
-            border-bottom: 2px solid black;
-          }
-          .negative {
-            color: black;
-          }
-          .btn {
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        header img {
+            height: 90px;
+        }
+        .ticker-container {
+            background-color: #76A728;
+            color: white;
+            padding: 10px;
+            font-size: 1em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .ticker {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker span {
             display: inline-block;
-            padding: 10px 20px;
-            margin: 10px 5px;
-            background: white;
-            border: 2px solid black;
-            color: black;
-            text-decoration: none;
-            text-align: center;
-            cursor: pointer;
-            font-weight: bold;
-          }
-          .btn:hover {
-            background: #F0F0F0;
-          }
-          .btn-back {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #FFA500;
+            padding-left: 30%;
+            animation: ticker 180s linear infinite;
+        }
+        @keyframes ticker {
+            from { transform: translateX(10%); }
+            to { transform: translateX(-100%); }
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+        }
+        .tools-container {
+            background-color: #004F73;
+            color: white;
+            width: 200px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+        .tools-container a {
+            background-color: #D9A404;
             color: white;
             text-decoration: none;
+            padding: 15px;
             border-radius: 5px;
             text-align: center;
-            font-weight: bold;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-          }
-          .btn-back:hover {
-            background-color: #FF8C00;
-          }
-          .interpretation-box {
-            margin-top: 30px;
-            padding: 15px;
-            border: 2px solid #003366;
-            background-color: #F9F9F9;
-            border-radius: 5px;
-          }
-          @media print {
-            .btn, .btn-back, .producer-input, form {
-              display: none;
-            }
-            h2 {
-              font-size: 14px;
-            }
-            table {
-              font-size: 12px;
-            }
-          }
-        </style>
-      </head>
-<body>
-  <div class="container">
-    <h1>Estados Financieros - Café</h1>
-
-    <div class="producer-input">
-      <label for="producer_name">Favor de colocar tu nombre como productor o el de tu empresa:</label><br>
-      <input type="text" id="producer_name" placeholder="Nombre del productor o empresa" required>
-    </div>
-
-    <form method="POST">
-      <label for="fecha_captura">Selecciona una fecha de captura:</label>
-      <select id="fecha_captura" name="fecha_captura" required>
-        <option value="">Selecciona una fecha</option>
-        {% for fecha in fechas %}
-        <option value="{{ fecha }}" {% if data and data.fecha_captura == fecha %}selected{% endif %}>{{ fecha }}</option>
-        {% endfor %}
-      </select>
-      <button type="submit" class="btn">Filtrar</button>
-    </form>
-
-    {% if data %}
-    <h2 id="financial-header">
-      Estados financieros de "" a la fecha {{ data.fecha_captura }}
-    </h2>
-
-    <h2>Balance General</h2>
-    <div class="row">
-      <div class="column">
-        <h3>Activos</h3>
-        <table>
-          <tr><th>Concepto</th><th>Monto (pesos)</th></tr>
-          <tr><td>Maquinaria y equipo</td><td>{{ data.activos.maquinaria_equipo }}</td></tr>
-          <tr><td>Dinero disponible</td><td>{{ data.activos.dinero_disponible }}</td></tr>
-          <tr><td><strong>Total Activos</strong></td><td>{{ data.activos.total_activos }}</td></tr>
-        </table>
-      </div>
-      <div class="column">
-        <h3>Pasivos y Capital</h3>
-        <table>
-          <tr><th>Concepto</th><th>Monto (pesos)</th></tr>
-          <tr><td>Deudas</td><td class="negative">({{ data.pasivos.deudas }})</td></tr>
-          <tr><td><strong>Total Pasivos</strong></td><td class="negative">({{ data.pasivos.total_pasivos }})</td></tr>
-          <tr><td>Patrimonio</td><td>{{ data.patrimonio }}</td></tr>
-        </table>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="column">
-        <h2>Estado de Resultados</h2>
-        <table>
-          <tr><th>Concepto</th><th>Monto (pesos)</th></tr>
-          <tr><td>Ingresos por café</td><td>{{ data.ingresos.venta_cafe }}</td></tr>
-          <tr><td><strong>Total Gastos</strong></td><td class="negative">({{ data.gastos.total_gastos }})</td></tr>
-          <tr><td><strong>Utilidad Neta</strong></td><td>{{ data.utilidad_neta }}</td></tr>
-        </table>
-      </div>
-      <div class="column">
-        <h2>Razones Financieras</h2>
-        <table>
-          <tr><th>Razón</th><th>Valor</th></tr>
-          <tr><td>Margen de Ganancia</td><td>{{ data.razones_financieras.margen_ganancia }}%</td></tr>
-          <tr><td>Razón de Endeudamiento</td><td class="negative">({{ data.razones_financieras.razon_endeudamiento }})</td></tr>
-          <tr><td>Productividad por Hectárea</td><td>{{ data.razones_financieras.productividad_por_hectarea }}</td></tr>
-          <tr><td>Costo por Unidad</td><td class="negative">({{ data.razones_financieras.costo_por_unidad }})</td></tr>
-        </table>
-      </div>
-    </div>
-    <div class="row">
-        <div class="column">
-          </table><h2>Datos de Referencia</h2>
-          <table>
-              <tr><th>Concepto</th><th>Valor</th></tr>
-              <tr><td>Producción total</td><td>{{ data.referencia.produccion_total }} kg</td></tr>
-              <tr><td>Hectáreas cultivadas</td><td>{{ data.referencia.hectareas }} ha</td></tr>
-              <tr><td>Trabajadores</td><td>{{ data.referencia.trabajadores }}</td></tr>
-              <tr><td>Lugar de comercialización</td><td>{{ data.referencia.lugar_comercializacion }}</td></tr>
-          </table>
-        </div>
-        <div class="column">
-          <h2>Interpretación AI</h2>
-          <div class="interpretation-box">
-              <p id="ai-analysis">Esperando datos para análisis...</p>
-          </div>
-        </div>
-     
-    </div>
-    <button onclick="printPDF()" class="btn">Descargar en PDF</button>
-    <button onclick="location.href='/dashboard_cafe'" class="btn-back">← Volver al Panel de Café</button>
-    
-    {% else %}
-    <p>No se encontraron datos para la fecha seleccionada.</p>
-    {% endif %}
-  </div>
-
-  <script>
-    // Formatear números en el cliente
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('[data-value]').forEach(cell => {
-        const value = parseFloat(cell.getAttribute('data-value'));
-        if (!isNaN(value)) {
-          cell.textContent = value.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-      });
+        .tools-container a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+        .content-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .highlight-btn {
+            background-color: #D9A404;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            flex: 1;
+        }
+        .chat-input {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 0;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #76A728;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-input button:hover {
+            background-color: #D9A404;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #004F73;
+            color: white;
+        }
 
-      const producerInput = document.getElementById('producer_name');
-      const financialHeader = document.getElementById('financial-header');
+        /* Media Queries para diseño responsivo */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .tools-container {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .tools-container a {
+                flex: 1 1 200px;
+                max-width: 250px;
+            }
+            header img {
+                height: 70px;
+            }
+            .highlight-btn {
+                font-size: 1.2em;
+                padding: 12px;
+            }
+        }
 
-      producerInput.addEventListener('input', () => {
-        const producerName = producerInput.value.trim();
-        financialHeader.textContent = `Estados financieros de "${producerName}" a la fecha {{ data.fecha_captura }}`;
-      });
-    });
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+            header h1 {
+                font-size: 1.5em;
+                margin: 10px 0;
+            }
+            header img {
+                height: 60px;
+            }
+            .ticker-container {
+                font-size: 0.9em;
+            }
+            .chat-box {
+                height: 200px;
+            }
+            .highlight-btn {
+                font-size: 1em;
+                max-width: 300px;
+            }
+            .tools-container a {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
 
-    function printPDF() {
-      const producerName = document.getElementById('producer_name').value;
-      if (!producerName) {
-        alert('Por favor, ingresa el nombre del productor o empresa antes de descargar el PDF.');
-        return;
-      }
-      window.print();
-    }
-  </script>
+        @media (max-width: 480px) {
+            header {
+                padding: 10px;
+            }
+            header img {
+                height: 50px;
+            }
+            .ticker-container {
+                font-size: 0.8em;
+            }
+            .content-container {
+                padding: 10px;
+            }
+            .chat-container {
+                padding: 10px;
+            }
+            .chat-box {
+                height: 150px;
+            }
+            .chat-input {
+                flex-direction: column;
+            }
+            .chat-input input {
+                width: 100%;
+            }
+            .chat-input button {
+                width: 100%;
+                padding: 10px;
+            }
+            .highlight-btn {
+                font-size: 0.9em;
+                padding: 10px;
+                max-width: 100%;
+            }
+            .tools-container {
+                padding: 10px;
+            }
+            .tools-container a {
+                flex: 1 1 100%;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Botón para Ir al Panel General -->
+        <a href="{{ url_for('base') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-right: 5px;">
+                <path d="M15 19l-7-7 7-7"/>
+            </svg>
+            Ir al Panel General
+        </a>
+      <h1 style="text-align: center;">Plataforma de gestión en porcicultura</h1>
+      <img src="{{ url_for('static', filename='logo_Asistec.png') }}" alt="Logo Asistec" style="height: 90px;"> <!-- Ajuste del tamaño -->
+      <!-- Botón para Sign Out -->
+      <a href="{{ url_for('logout') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em;">
+        Salir
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-left: 5px;">
+            <path d="M16 13v-2H7V8l-5 4 5 4v-3h9z"/>
+            <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/>
+        </svg>
+    </a>
+    </header>
+    <div class="ticker-container">
+      <h2 style="text-align: center;">Precios de Porcinos : Ganado en Pie LAB Rastro por Estado</h2>
+        <div class="ticker">
+            <span>
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>60.00</strong> | Precio máximo ($/kg) <strong>68.00</strong> |
+                31/03/2025 - Aguascalientes: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>56.00</strong> | Precio máximo ($/kg) <strong>60.00</strong> |
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>56.00</strong> | Precio máximo ($/kg) <strong>60.00</strong> |
+                31/03/2025 - Aguascalientes: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>62.00</strong> | Precio máximo ($/kg) <strong>66.00</strong> |
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>62.00</strong> | Precio máximo ($/kg) <strong>66.00</strong> |
+                31/03/2025 - Baja California Sur: Peso promedio (kg) <strong>100.00</strong> Tipo Criollo | Precio mínimo ($/kg) <strong>40.00</strong> | Precio máximo ($/kg) <strong>40.00</strong> |
+                31/03/2025 - Campeche: Peso promedio (kg) <strong>134.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>48.00</strong> | Precio máximo ($/kg) <strong>52.00</strong> |
+                31/03/2025 - Colima: Peso promedio (kg) <strong>150.00</strong> Tipo Criollo | Precio mínimo ($/kg) <strong>55.00</strong> | Precio máximo ($/kg) <strong>55.00</strong> |
+                31/03/2025 - Chiapas: Peso promedio (kg) <strong>116.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>44.00</strong> | Precio máximo ($/kg) <strong>44.00</strong> |
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>110.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>47.00</strong> | Precio máximo ($/kg) <strong>49.00</strong> |
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>110.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>47.00</strong> | Precio máximo ($/kg) <strong>49.00</strong> |
+                31/03/2025 - Puebla: Peso promedio (kg) <strong>110.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>47.00</strong> | Precio máximo ($/kg) <strong>49.00</strong> |
+                31/03/2025 - Veracruz: Peso promedio (kg) <strong>110.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>47.00</strong> | Precio máximo ($/kg) <strong>49.00</strong> |
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) No disponible | Precio máximo ($/kg) <strong>46.00</strong> |
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) No disponible | Precio máximo ($/kg) <strong>46.00</strong> |
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) No disponible | Precio máximo ($/kg) <strong>46.00</strong> |
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) No disponible | Precio máximo ($/kg) <strong>46.00</strong> |
+                31/03/2025 - Michoacán: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>49.00</strong> | Precio máximo ($/kg) <strong>50.00</strong> |
+                31/03/2025 - Nuevo León: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>43.00</strong> | Precio máximo ($/kg) <strong>44.00</strong> |
+                31/03/2025 - Puebla: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>57.00</strong> | Precio máximo ($/kg) <strong>60.00</strong> |
+                31/03/2025 - Querétaro: Peso promedio (kg) <strong>100.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>51.00</strong> | Precio máximo ($/kg) <strong>51.00</strong> |
+                31/03/2025 - Sonora: Peso promedio (kg) <strong>130.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>39.00</strong> | Precio máximo ($/kg) <strong>39.20</strong> |
+                31/03/2025 - Veracruz: Peso promedio (kg) <strong>109.00</strong> Tipo Supremo | Precio mínimo ($/kg) <strong>45.00</strong> | Precio máximo ($/kg) <strong>46.00</strong>
+                </span>  
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="tools-container">
+            <a href="{{ url_for('financial_statements_cerdos') }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <rect x="3" y="4" width="18" height="16" rx="2" ry="2" stroke="white" stroke-width="2" fill="none"></rect>
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="2"></line>
+                </svg>
+                Ver Estados Financieros
+            </a>
+            <a href="{{ url_for('database_access_cerdos') }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <ellipse cx="12" cy="5" rx="9" ry="3" stroke="white" stroke-width="2" fill="none"></ellipse>
+                    <path d="M3 5v6c0 1.5 4 3 9 3s9-1.5 9-3V5" stroke="white" stroke-width="2" fill="none"></path>
+                    <path d="M3 11v6c0 1.5 4 3 9 3s9-1.5 9-3v-6" stroke="white" stroke-width="2" fill="none"></path>
+                </svg>
+                Acceso a Base de Datos
+            </a>
+            <a href="{{ url_for('my_analysis_cerdos') }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <path d="M3 17h18v2H3v-2zm0-5h12v2H3v-2zm0-5h8v2H3V7z"/>
+                </svg>
+                Análisis Histórico
+            </a>
+          
+        </div>
+        <div class="content-container">
+            <p>Aquí podrás registrar tus finanzas y procesos</p>
+            <div class="highlight-btn">
+                <a href="{{ url_for('pig_form') }}" style="color: white; text-decoration: none;">Responder Cuestionario</a>
+            </div>
+            
+            <div class="chat-container">
+                <h2>AI Chat Porcino AgroAsistec</h2>
+                <div class="chat-box" id="chat-box">
+                    <!-- Mensajes del chat aparecerán aquí -->
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chat-input" placeholder="Escribe tu mensaje aquí...">
+                    <button onclick="sendMessage()">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        function sendMessage() {
+            const chatBox = document.getElementById('chat-box');
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+    
+            if (message) {
+                // Mostrar el mensaje del usuario
+                const userMessage = document.createElement('div');
+                userMessage.textContent = "Tú: " + message;
+                userMessage.style.color = "#2e4a2d"; // Color verde oscuro para el mensaje del usuario
+                chatBox.appendChild(userMessage);
+    
+                // Limpiar el campo de entrada
+                chatInput.value = '';
+    
+                // Mostrar el mensaje automático de respuesta
+                const botMessage = document.createElement('div');
+                botMessage.textContent = "Por el momento este servicio no está disponible. Disculpa las molestias, estamos trabajando para mejorar el servicio.";
+                botMessage.style.color = "#D9534F"; // Color rojo para el mensaje del bot
+                botMessage.style.marginTop = "10px";
+                chatBox.appendChild(botMessage);
+    
+                // Desplazar el chat hacia abajo
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    </script>
 </body>
 </html>

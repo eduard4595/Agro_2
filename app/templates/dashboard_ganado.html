@@ -9,125 +9,293 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f3e5ab; /* Fondo beige */
-            color: #4b3832; /* Marrón oscuro */
+            background-color: #EAEAEA;
+            color: #3C3C3C;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         header {
-            background-color: #6f4e37; /* Marrón oscuro */
+            background-color: #004F73;
             color: white;
             padding: 20px;
-            text-align: center;
-        }
-        h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .button-container {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
+            gap: 10px;
         }
-        .btn {
+        header img {
+            height: 90px;
+        }
+        .ticker-container {
+            background-color: #76A728;
+            color: white;
+            padding: 10px;
+            font-size: 1em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .ticker {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker span {
+            display: inline-block;
+            padding-left: 30%;
+            animation: ticker 180s linear infinite;
+        }
+        @keyframes ticker {
+            from { transform: translateX(10%); }
+            to { transform: translateX(-100%); }
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+        }
+        .tools-container {
+            background-color: #004F73;
+            color: white;
+            width: 200px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+        .tools-container a {
+            background-color: #D9A404;
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1em;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 100%;
-            max-width: 250px;
-            height: 100px;
-            background-color: #d4a373; /* Marrón claro */
-            color: white;
-            text-decoration: none;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 10px;
+            gap: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn:hover {
+        .tools-container a:hover {
             transform: scale(1.05);
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
         }
-        .btn svg {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
+        .content-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .highlight-btn {
+            background-color: #D9A404;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            flex: 1;
+        }
+        .chat-input {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 0;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #76A728;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-input button:hover {
+            background-color: #D9A404;
         }
         footer {
             text-align: center;
             padding: 10px;
-            background-color: #6f4e37;
+            background-color: #004F73;
             color: white;
-            margin-top: 20px;
         }
 
-        /* Media queries para pantallas pequeñas */
+        /* Media Queries para diseño responsivo */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .tools-container {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .tools-container a {
+                flex: 1 1 200px;
+                max-width: 250px;
+            }
+            header img {
+                height: 70px;
+            }
+            .highlight-btn {
+                font-size: 1.2em;
+                padding: 12px;
+            }
+        }
+
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2em;
+            header {
+                flex-direction: column;
+                text-align: center;
             }
-            .btn {
-                height: 80px;
+            header h1 {
+                font-size: 1.5em;
+                margin: 10px 0;
+            }
+            header img {
+                height: 60px;
+            }
+            .ticker-container {
+                font-size: 0.9em;
+            }
+            .chat-box {
+                height: 200px;
+            }
+            .highlight-btn {
                 font-size: 1em;
+                max-width: 300px;
             }
-            .btn img {
-                width: 30px;
-                height: 30px;
+            .tools-container a {
+                padding: 10px;
+                font-size: 0.9em;
             }
         }
 
         @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em;
+            header {
+                padding: 10px;
             }
-            .btn {
-                height: 70px;
+            header img {
+                height: 50px;
+            }
+            .ticker-container {
+                font-size: 0.8em;
+            }
+            .content-container {
+                padding: 10px;
+            }
+            .chat-container {
+                padding: 10px;
+            }
+            .chat-box {
+                height: 150px;
+            }
+            .chat-input {
+                flex-direction: column;
+            }
+            .chat-input input {
+                width: 100%;
+            }
+            .chat-input button {
+                width: 100%;
+                padding: 10px;
+            }
+            .highlight-btn {
                 font-size: 0.9em;
+                padding: 10px;
+                max-width: 100%;
             }
-            .btn img {
-                width: 25px;
-                height: 25px;
+            .tools-container {
+                padding: 10px;
+            }
+            .tools-container a {
+                flex: 1 1 100%;
+                max-width: none;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <!-- Botón para Ir al Panel General -->
-            <a href="{{ url_for('base') }}" class="btn" style="background-color: transparent; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-right: 5px;">
-                    <path d="M15 19l-7-7 7-7"/>
-                </svg>
-                Ir al Panel General
-            </a>
-    
-            <!-- Botón para Sign Out -->
-            <a href="{{ url_for('logout') }}" class="btn" style="background-color: transparent; color: white; text-decoration: none; font-size: 1em;">
-                Sign Out
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-left: 5px;">
-                    <path d="M16 13v-2H7V8l-5 4 5 4v-3h9z"/>
-                    <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/>
-                </svg>
-            </a>
-        </div>
-        <h1>Dashboard - Ganado Bovino</h1>
-        <p>Bienvenido al panel de control para ganaderos</p>
+        <!-- Botón para Ir al Panel General -->
+        <a href="{{ url_for('base') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-right: 5px;">
+                <path d="M15 19l-7-7 7-7"/>
+            </svg>
+            Ir al Panel General
+        </a>
+      <h1 style="text-align: center;">Plataforma de gestión ganadera</h1>
+      <img src="{{ url_for('static', filename='logo_Asistec.png') }}" alt="Logo Asistec" style="height: 90px;"> <!-- Ajuste del tamaño -->
+      <!-- Botón para Sign Out -->
+      <a href="{{ url_for('logout') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em;">
+        Salir
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-left: 5px;">
+            <path d="M16 13v-2H7V8l-5 4 5 4v-3h9z"/>
+            <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/>
+        </svg>
+    </a>
     </header>
-
-    <div class="container">
-        <h2>Opciones disponibles</h2>
-        <div class="button-container">
-            <!-- Botón para Ver Estados Financieros -->
+    <div class="ticker-container">
+      <h2 style="text-align: center;">Precios de Bovinos : Ganado en Pie por Estado </h2>
+        <div class="ticker">
+            <span>
+                31/03/2025 - Aguascalientes: Peso promedio (kg) <strong>564.00</strong> Precio vaca ($/kg) <strong>$74.00</strong> Precio toro ($/kg) <strong>$88.00</strong> |
+                31/03/2025 - Jalisco: Peso promedio (kg) <strong>550.00</strong> Precio vaca ($/kg) <strong>$74.00</strong> Precio toro ($/kg) No disponible |
+                31/03/2025 - Zacatecas: Peso promedio (kg) <strong>550.00</strong> Precio vaca ($/kg) <strong>$74.00</strong> Precio toro ($/kg) No disponible |
+                31/03/2025 - Baja California Sur: Peso promedio (kg) <strong>450.00</strong> Precio vaca ($/kg) No disponible Precio toro ($/kg) <strong>$40.00</strong> |
+                31/03/2025 - Campeche: Peso promedio (kg) <strong>571.00</strong> Precio vaca ($/kg) <strong>$50.50</strong> Precio toro ($/kg) <strong>$54.50</strong> |
+                31/03/2025 - Coahuila: Peso promedio (kg) <strong>485.00</strong> Precio vaca ($/kg) <strong>$32.00</strong> Precio toro ($/kg) No disponible |
+                31/03/2025 - Chiapas: Peso promedio (kg) <strong>512.00</strong> Precio vaca ($/kg) <strong>$40.00</strong> Precio toro ($/kg) <strong>$42.00</strong> |
+                31/03/2025 - Querétaro: Peso promedio (kg) <strong>400.00</strong> Precio vaca ($/kg) No disponible Precio toro ($/kg) <strong>$70.00</strong> |
+                31/03/2025 - Sinaloa: Peso promedio (kg) <strong>474.00</strong> Precio vaca ($/kg) <strong>$40.00</strong> Precio toro ($/kg) <strong>$44.00</strong> |
+                31/03/2025 - Sonora: Peso promedio (kg) No disponible Precio vaca ($/kg) <strong>$45.84</strong> Precio toro ($/kg) <strong>$47.87</strong> |
+                31/03/2025 - Yucatán: Peso promedio (kg) <strong>608.00</strong> Precio vaca ($/kg) <strong>$40.00</strong> Precio toro ($/kg) <strong>$40.00</strong> |
+                28/03/2025 - Veracruz: Peso promedio (kg) <strong>550.00</strong> Precio vaca ($/kg) No disponible Precio toro ($/kg) No disponible |
+                27/03/2025 - Michoacán: Peso promedio (kg) <strong>480.00</strong> Precio vaca ($/kg) <strong>$45.00</strong> Precio toro ($/kg) <strong>$70.00</strong>
+            </span>  
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="tools-container">
             <a href="{{ url_for('financial_statements_ganado') }}" class="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
                     <rect x="3" y="4" width="18" height="16" rx="2" ry="2" stroke="white" stroke-width="2" fill="none"></rect>
@@ -135,8 +303,6 @@
                 </svg>
                 Ver Estados Financieros
             </a>
-
-            <!-- Botón para Acceso a Base de Datos -->
             <a href="{{ url_for('database_access_ganado') }}" class="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
                     <ellipse cx="12" cy="5" rx="9" ry="3" stroke="white" stroke-width="2" fill="none"></ellipse>
@@ -145,30 +311,63 @@
                 </svg>
                 Acceso a Base de Datos
             </a>
-
-            <!-- Botón para Responder Cuestionario -->
-            <a href="{{ url_for('bovino_form') }}" class="btn">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                    <path d="M4 4h16v16H4z" stroke="white" stroke-width="2" fill="none"></path>
-                    <line x1="8" y1="8" x2="16" y2="8" stroke="white" stroke-width="2"></line>
-                    <line x1="8" y1="12" x2="16" y2="12" stroke="white" stroke-width="2"></line>
-                    <line x1="8" y1="16" x2="12" y2="16" stroke="white" stroke-width="2"></line>
-                </svg>
-                Responder Cuestionario
-            </a>
-
-            <!-- Botón para Análisis Histórico -->
             <a href="{{ url_for('my_analysis_bovino') }}" class="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
                     <path d="M3 17h18v2H3v-2zm0-5h12v2H3v-2zm0-5h8v2H3V7z"/>
                 </svg>
                 Análisis Histórico
             </a>
+          
+        </div>
+        <div class="content-container">
+            <p>Aquí podrás registrar tus finanzas y procesos</p>
+            <div class="highlight-btn">
+                <a href="{{ url_for('bovino_form') }}" style="color: white; text-decoration: none;">Responder Cuestionario</a>
+            </div>
+            
+            <div class="chat-container">
+                <h2>AI Chat Ganadero AgroAsistec</h2>
+                <div class="chat-box" id="chat-box">
+                    <!-- Mensajes del chat aparecerán aquí -->
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chat-input" placeholder="Escribe tu mensaje aquí...">
+                    <button onclick="sendMessage()">Enviar</button>
+                </div>
+            </div>
         </div>
     </div>
-
     <footer>
         <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
     </footer>
+
+    <script>
+        function sendMessage() {
+            const chatBox = document.getElementById('chat-box');
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+    
+            if (message) {
+                // Mostrar el mensaje del usuario
+                const userMessage = document.createElement('div');
+                userMessage.textContent = "Tú: " + message;
+                userMessage.style.color = "#2e4a2d"; // Color verde oscuro para el mensaje del usuario
+                chatBox.appendChild(userMessage);
+    
+                // Limpiar el campo de entrada
+                chatInput.value = '';
+    
+                // Mostrar el mensaje automático de respuesta
+                const botMessage = document.createElement('div');
+                botMessage.textContent = "Por el momento este servicio no está disponible. Disculpa las molestias, estamos trabajando para mejorar el servicio.";
+                botMessage.style.color = "#D9534F"; // Color rojo para el mensaje del bot
+                botMessage.style.marginTop = "10px";
+                chatBox.appendChild(botMessage);
+    
+                // Desplazar el chat hacia abajo
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    </script>
 </body>
 </html>
