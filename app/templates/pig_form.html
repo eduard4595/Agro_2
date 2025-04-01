@@ -3,90 +3,296 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuestionario para Cerdo de Engorda y Lechones</title>
+    <title>Cuestionario para Engorda de Ganado Bovino</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1, h2 { color: #4CAF50; }
-        .required::after { content: " *"; color: red; }
-        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; }
-        button { background-color: #4CAF50; color: white; padding: 10px; border: none; cursor: pointer; }
-    </style>
+        * {
+          box-sizing: border-box;
+        }
+    
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: #f4f4f4;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          min-height: 100vh;
+        }
+    
+        .container {
+          max-width: 900px;
+          background-color: white;
+          margin: 40px 20px;
+          padding: 30px 40px;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+        }
+    
+        h1, h2 {
+          color: #4CAF50;
+          text-align: center;
+          margin-bottom: 20px;
+        }
+    
+        label {
+          font-weight: 500;
+          margin-top: 15px;
+          display: block;
+        }
+    
+        .required::after {
+          content: " *";
+          color: red;
+        }
+    
+        input, select, textarea {
+          width: 100%;
+          padding: 10px;
+          margin-top: 5px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          font-size: 1rem;
+        }
+    
+        textarea {
+          resize: vertical;
+        }
+    
+        button {
+          display: block;
+          width: 100%;
+          background-color: #4CAF50;
+          color: white;
+          font-size: 1.1rem;
+          padding: 12px;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          margin-top: 20px;
+          transition: background-color 0.3s ease;
+        }
+    
+        button:hover {
+          background-color: #45a049;
+        }
+    
+        p {
+          margin-top: 25px;
+          text-align: center;
+          color: #555;
+        }
+    
+        .btn-back {
+          display: inline-block;
+          padding: 10px 20px;
+          margin: 10px 0;
+          background-color: #FFA500; /* Naranja */
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          text-align: center;
+          font-weight: bold;
+          font-size: 16px;
+          border: none;
+          cursor: pointer;
+        }
+    
+        .btn-back:hover {
+          background-color: #FF8C00; /* Naranja oscuro */
+        }
+    
+        @media print {
+          .btn-back {
+            display: none; /* Oculta el botón en la impresión */
+          }
+        }
+      </style>
+      <script>
+        function validateForm() {
+          const form = document.getElementById('bovinoForm');
+          const inputs = form.querySelectorAll('input[required], select[required]');
+          
+          for (const input of inputs) {
+            if (input.value.trim() === '') {
+              if (input.type === 'text') {
+                input.value = '0'; // Asignar 0 si el campo está vacío
+              } else {
+                alert(`Por favor, complete el campo: ${input.previousElementSibling.innerText}`);
+                input.focus();
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+    
+        function toggleOtherInput(selectId, inputId) {
+        const selectElement = document.getElementById(selectId);
+        const otherInput = document.getElementById(inputId);
+        otherInput.style.display = selectElement.value === 'Other' ? 'block' : 'none';
+       }
+    
+        function formatNumberInput(input) {
+          const value = input.value.replace(/[^\d]/g, '');
+          input.value = new Intl.NumberFormat('es-MX').format(value);
+        }
+      </script>
 </head>
 <body>
-    <h1>Cuestionario para Cerdo de Engorda y Lechones</h1>
-    <p><strong>Instrucciones:</strong> Completa este cuestionario una vez al mes. Usa solo números en tus respuestas (por ejemplo, pesos, horas, días).</p>
+    <div class="container">
+        <h1>Cuestionario para Cerdo de Engorda y Lechones</h1>
+        <p><strong>Instrucciones:</strong> Completa este cuestionario una vez al mes. Usa solo números en tus respuestas (por ejemplo, pesos, horas, días). Es un proceso rápido y te proporcionará una visión clara y útil de tu producción, ayudándote a tomar decisiones más informadas para mejorar tu operación 🐖  🐖   🐖 
 
-    <form id="pigForm" action="{{ url_for('submit_pig_form') }}" method="POST">
-        <h2>Sección 1: Ingresos y Gastos</h2>
-        <label class="required">1. ¿Cuál fue el total de ingresos por la venta de tú última engorda de cerdos y lechones? (en pesos o moneda local)</label>
-        <input type="number" id="q1" name="q1" required>
+            <strong>Nota:</strong> Es posible generar tu análisis desde uno, dos o más animales.</p>
+        <!-- Botón para redirigir al panel de café -->
+        <button onclick="location.href='/dashboard_cerdos'" class="btn-back">
+            ← Volver al Panel de Cerdos y Lechones
+        </button>
+        <form id="pigForm" action="{{ url_for('submit_pig_form') }}" method="POST">
+            <h2>Sección 1: Ingresos y Gastos</h2>
+        
+            <label for="q1">1. ¿Cuál fue el total de ingresos por la venta de tú última engorda de cerdos y lechones? (en pesos o moneda local)  <em>Ejemplo: 25,000</em></label>
+            <input type="text" id="q1" name="q1" required 
+                   oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el total de ingresos.')">
+        
+            <label for="q1_1">1.1 ¿Cuántos cerdos y lechones fueron? (cantidad de animales) <em>Ejemplo: 120 cerdos</em></label>
+            <input type="number" id="q1_1" name="q1_1" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa la cantidad de animales.')">
+                   
+            <label for="q1_2">1.2 ¿Cuál fue el peso promedio de venta de los cerdos? <em>Ejemplo: 120 kg por cerdo</em></label>
+            <input type="number" id="q1_2" name="q1_2" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el peso promedio.')">
+        
+            <label for="q1_3">1.3 ¿Cuántos ciclos de engorda realizas al año? <em>Ejemplo: 3 ciclos anuales</em></label>
+            <input type="number" id="q1_3" name="q1_3" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa la cantidad de ciclos anuales.')">
+        
+            <label for="q1_4">1.4 ¿Cuánto tiempo dura cada ciclo de engorda (desde la compra hasta la venta)? <em>Ejemplo: 5 meses</em></label>
+            <input type="number" id="q1_4" name="q1_4" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa la duración del ciclo.')">
 
-        <label class="required">1.1 ¿Cuántos cerdos y lechones fueron? (cantidad de animales)</label>
-        <input type="number" id="q1_1" name="q1_1" required>
+            <label for="q1_5">1.5 ¿Cuántos animales tienes actualmente en engorda? <em>Ejemplo: 20 cerdos</em></label>
+            <input type="number" id="q1_5" name="q1_5" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa la cantidad de animales en engorda.')">
 
-        <label class="required">2. ¿Cuánto gastaste en total en alimento para los cerdos y lechones en la última engorda?</label>
-        <input type="number" id="q2" name="q2" required>
+            <label for="q1_6">1.6 ¿Cuál es el peso promedio estimado por animal (en kilogramos) de los cerdos actualmente en engorda? <em>Ejemplo: 60 kilos</em></label>
+            <input type="number" id="q1_6" name="q1_6" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el peso vivo estimado.')">
 
-        <label class="required">3. ¿Cuánto pagaste por mano de obra para la engorda de cerdos y producción de lechones en la última engorda?</label>
-        <input type="number" id="q3" name="q3" required>
+            <label for="q1_7">1.7 ¿Cuál es el valor estimado de la maquinaria y equipo que utilizas en tu actividad de engorda? <em>Ejemplo: 150,000 pesos</em></label>
+            <input type="number" id="q1_7" name="q1_7" required 
+                  oninput="this.setCustomValidity('');" 
+                  oninvalid="this.setCustomValidity('Por favor, ingresa el valor estimado de la maquinaria y equipo..')">
 
-        <label class="required">4. ¿Cuánto gastaste en servicios (veterinario, mantenimiento de instalaciones, etc.) para los cerdos y lechones en la última engorda?</label>
-        <input type="number" id="q4" name="q4" required>
 
-        <label class="required">5. ¿Cuántos meses te llevó la última engorda?</label>
-        <input type="number" id="q5" name="q5" required>
+            <label for="q2">2. ¿Cuánto gastaste en total en alimento para los cerdos y lechones en la última engorda? <em>Ejemplo: 25,000 pesos</em></label>
+            <input type="text" id="q2" name="q2" required 
+                   oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el gasto en alimento.')">
+        
+            <label for="q3">3. ¿Cuánto pagaste por mano de obra para la engorda de cerdos y producción de lechones en la última engorda? <em>Ejemplo: 8,000 pesos</em></label>
+            <input type="text" id="q3" name="q3" required 
+                   oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el gasto en mano de obra.')">
+                    
+            <label for="q4">4. ¿Cuánto gastaste en servicios (mantenimiento de instalaciones, etc.) para los cerdos y lechones en la última engorda? <em>Ejemplo: 5,000 pesos</em></label>
+            <input type="text" id="q4" name="q4" required 
+                   oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el gasto en servicios.')">
+        
+            <label for="q4_1">4.1 ¿Cuánto gastaste en veterinario, medicamentos y suplementos para los cerdos? (Considera premezclas, antibióticos, antiparasitarios, etc.) <em>Ejemplo: 1,000 pesos</em></label>
+            <input type="text" id="q4_1" name="q4_1" required 
+                   oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el gasto en veterinario y medicamentos.')">
+        
+            <label for="q5">5. Cuántos meses de intervalo hay entre una engorda y otra? <em>Ejemplo: 2 meses</em> </label>
+            <input type="number" id="q5" name="q5" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el intervalo entre engordas.')">
+   
+        
+            <label for="q6">6. ¿Cuáles fueron tus pérdidas en la última engorda? (Número de animales) <em>Ejemplo: 2 cerdos</em></label>
+            <input type="number" id="q6" name="q6" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el número de animales perdidos.')">
 
-        <label class="required">6. ¿Cuáles fueron tus pérdidas en la última engorda? (Número de animales)</label>
-        <input type="number" id="q6" name="q6">
+        
+            <label for="q7">7. ¿Cuánto dinero tienes disponible actualmente para cubrir gastos en tu operación de engorda en los próximos 30 días? <em>Ejemplo: 1,000 pesos</em></label>
+            <input type="text" id="q7" name="q7" required 
+                   oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el dinero disponible.')">
+        
+        
+            <label for="q8">8. ¿Cuánto gastaste en imprevistos relacionados con tu operación de engorda dentro en los últimos 30 días? <em>Ejemplo: 3,000 pesos</em></label>
+            <input type="text" id="q8" name="q8" required 
+                   oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el gasto en imprevistos.')">
+            
+        
+            <label for="q9">9. ¿Cuánto es el monto total de tus deudas relacionadas con la engorda de cerdos y producción de lechones? (créditos, financiamiento para insumos, maquinaria o compras fiadas) <em>Ejemplo: 5,000 pesos</em></label>
+            <input type="text" id="q9" name="q9" required 
+                   oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el monto total de deudas.')">
+            
+        
+            <h2>Sección 2: Procesos Productivos</h2>
+        
+            <label for="q10">10. ¿Cuántas horas al día dedicas a supervisar y preparar el alimento para los cerdos y lechones? <em>Ejemplo: 2 horas al día</em></label>
+            <input type="number" id="q10" name="q10" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa las horas diarias dedicadas a supervisar y preparar alimento.')">
+    
+        
+            <label for="q11">11. ¿Cada cuántos días aplicas tratamientos o vacunas a los cerdos y lechones? <em>Ejemplo: Cada 15 días</em></label>
+            <input type="number" id="q11" name="q11" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa los días entre tratamientos o vacunas.')">
+        
+            <label for="q12">12. ¿Cuánto tiempo te toma preparar los cerdos para la venta (pesaje, selección, etc.)? <em>Ejemplo: 4 horas</em></label>
+            <input type="number" id="q12" name="q12" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa el tiempo para preparar los cerdos para la venta.')">
+        
+            <label for="q13">13. ¿Cuántos trabajadores necesitas durante la temporada de engorde? <em>Ejemplo: 5 trabajadores</em></label>
+            <input type="number" id="q13" name="q13" required 
+                   oninput="this.setCustomValidity('');" 
+                   oninvalid="this.setCustomValidity('Por favor, ingresa la cantidad de trabajadores necesarios.')">
+        
+            <label for="q14">14. ¿Dónde sueles vender tu ganado bovino? (Selecciona las opciones que apliquen)</label>
+            <select id="q14" name="q14" required 
+                    oninput="this.setCustomValidity(''); toggleOtherInput('q14', 'q14_other');" 
+                    oninvalid="this.setCustomValidity('Por favor, selecciona una opción.')">
+                <option value="Rastros y empacadoras">Rastros y empacadoras</option>
+                <option value="Productores locales">Productores locales</option>
+                <option value="Mercado local">Mercado local</option>
+                <option value="Venta en línea">Venta en línea</option>
+                <option value="Venta directa al consumidor">Venta directa al consumidor</option>
+                <option value="Other">Otro</option>
+            </select>
+            <input type="text" id="q14_other" name="q14_other" placeholder="Especifica otra opción" style="display: none; margin-top: 10px;">
 
-        <label class="required">7. ¿Cuánto dinero tienes disponible actualmente para cubrir gastos en tu operación de engorda en los próximos 30 días?</label>
-        <input type="number" id="q7" name="q7" required>
-
-        <label class="required">8. ¿Cuánto gastaste en imprevistos relacionados con tu operación de engorda dentro en los últimos 30 días?</label>
-        <input type="number" id="q8" name="q8" required>
-
-        <label class="required">9. ¿Cuánto es el monto total de tus deudas relacionadas con la engorda de cerdos y producción de lechones?</label>
-        <input type="number" id="q9" name="q9" required>
-
-        <h2>Sección 2: Procesos Productivos</h2>
-        <label class="required">10. ¿Cuántas horas al día dedicas a preparar el alimento para los cerdos y lechones?</label>
-        <input type="number" id="q10" name="q10" required>
-
-        <label class="required">11. ¿Cada cuántos días aplicas tratamientos o vacunas a los cerdos y lechones?</label>
-        <input type="number" id="q11" name="q11" required>
-
-        <label class="required">12. ¿Cuánto tiempo te toma preparar los cerdos para la venta (pesaje, selección, etc.)?</label>
-        <input type="number" id="q12" name="q12" required>
-
-        <label class="required">13. ¿Cuántos trabajadores necesitas durante la temporada de engorde?</label>
-        <input type="number" id="q13" name="q13" required>
-
-        <label class="required">14. ¿Cuántos días te toma engordar un lote de cerdos?</label>
-        <input type="number" id="q14" name="q14" required>
-
-        <label class="required">15. ¿Cuántas horas a la semana dedicas a vender los cerdos o lechones?</label>
-        <input type="number" id="q15" name="q15" required>
-
-        <label class="required">16. ¿Cuántas horas al día supervisas tus cerdos y lechones?</label>
-        <input type="number" id="q16" name="q16" required>
-
-        <label class="required">17. ¿Dónde sueles vender tu ganado bovino?</label>
-        <select id="q17" name="q17" required multiple>
-            <option value="Rastros y empacadoras">Rastros y empacadoras</option>
-            <option value="Productores locales">Productores locales</option>
-            <option value="Mercado local">Mercado local</option>
-            <option value="Venta en línea">Venta en línea</option>
-            <option value="Venta directa al consumidor">Venta directa al consumidor</option>
-            <option value="Otro">Otro</option>
-        </select><br>
-
-        <label class="required">Fecha de captura:</label>
-        <input type="date" id="fecha_captura" name="fecha_captura" required>
-
-        <label>Comentarios o sugerencias:</label>
-        <textarea id="comments" name="comments"></textarea>
-
-        <button type="submit">Enviar</button>
-    </form>
+            <label class="required">Fecha de captura:</label>
+            <input type="date" id="fecha_captura" name="fecha_captura" required 
+                   oninput="this.setCustomValidity('');"
+                   oninvalid="this.setCustomValidity('Por favor, selecciona una fecha.')">
+      
+            <label>Comentarios o sugerencias:</label>
+            <textarea id="comments" name="comments" rows="4"></textarea>
+      
+            <div style="width: 100%; display: flex; justify-content: center;">
+              <button type="submit" style="width: 300px;">Enviar</button>
+            </div>
+        </form>
+        <p>✨ Tu opinión es muy valiosa para nosotros. Cualquier sugerencia o comentario que nos ayude a mejorar será recibido con gratitud. 🙏 ¡Gracias por tu tiempo y colaboración! Juntos podemos seguir creciendo. 🐖 🐖 🐖</p>
+        <p>Gracias por completar el cuestionario. Tus respuestas nos ayudarán a mejorar la engorda de cerdos y producción de lechones.</p>
+  </div>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Café</title>
+    <title>Dashboard - Cerdos</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -112,6 +112,7 @@
                 Ir al Panel General
             </a>
     
+
             <!-- Botón para Sign Out -->
             <a href="{{ url_for('logout') }}" class="btn" style="background-color: transparent; color: white; text-decoration: none; font-size: 1em;">
                 Sign Out
@@ -121,8 +122,8 @@
                 </svg>
             </a>
         </div>
-        <h1>Dashboard - Café</h1>
-        <p>Bienvenido al panel de control para cafetaleros</p>
+        <h1>Dashboard - Cerdos y Lechones</h1>
+        <p>Bienvenido al panel de control para Porcicultura</p>
     </header>
 
     <div class="container">
@@ -159,7 +160,7 @@
             </a>
 
             <!-- Botón para Análisis Histórico -->
-            <a href="{{ url_for('my_analysis_cafe') }}" class="btn">
+            <a href="{{ url_for('my_analysis_cerdos') }}" class="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
                     <path d="M3 17h18v2H3v-2zm0-5h12v2H3v-2zm0-5h8v2H3V7z"/>
                 </svg>
