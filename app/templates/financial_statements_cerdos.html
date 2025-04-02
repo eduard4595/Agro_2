@@ -206,9 +206,9 @@
 
         <button onclick="printPDF()" class="btn">Descargar en PDF</button>
 
-        <button onclick="location.href='/dashboard_cerdos'" class="btn-back">
+        <a onclick="{{ url_for('dashboard_cerdos') }}" class="btn-back">
             ← Volver al Panel de Cerdos
-        </button>
+        </a>
 
         <div class="note" style="text-align: center; margin-top: 20px;">
             <p>Estados financieros en pesos creados el {{ data.fecha_captura }}.</p>

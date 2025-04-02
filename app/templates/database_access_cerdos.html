@@ -102,9 +102,9 @@
     </table>
 
     <!-- Botón para regresar al panel de cerdos -->
-    <button onclick="location.href='/dashboard_cerdos'" class="btn">
+    <a href="{{ url_for('dashboard_cerdos') }}" class="btn">
         ← Volver al Panel de Cerdos
-    </button>
+    </a>
 
     <script>
         function modifyData(rubro) {
