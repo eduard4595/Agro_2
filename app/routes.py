@@ -561,7 +561,7 @@ def register_routes(app):
         file_path = f'{user_id}_huevos.csv'
         file_exists = os.path.isfile(file_path)
         with open(file_path, mode='a', newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames(data.keys()))
+            writer = csv.DictWriter(file, fieldnames=data.keys())
             if not file_exists:
                 writer.writeheader()
             writer.writerow(data)
