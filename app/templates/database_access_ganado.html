@@ -108,9 +108,9 @@
     </table>
 
     <!-- Botón para regresar al panel de ganado -->
-    <button onclick="location.href='/dashboard_ganado'" class="btn">
+    <a href="{{ url_for('dashboard_ganado') }}"  class="btn">
         ← Volver al Panel de Ganado
-    </button>
+    </a>
 
     <script>
         function modifyData(rubro) {

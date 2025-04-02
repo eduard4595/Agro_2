@@ -108,9 +108,9 @@
     </table>
 
     <!-- Botón para regresar al panel de café -->
-    <button onclick="location.href='/dashboard_cafe'" class="btn">
+    <a href="{{ url_for('dashboard_cafe') }}" class="btn">
         ← Volver al Panel de Café
-    </button>
+    </a>
 
     <script>
         function modifyData(rubro) {

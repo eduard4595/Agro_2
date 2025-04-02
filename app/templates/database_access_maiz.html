@@ -102,9 +102,9 @@
     </table>
 
     <!-- Botón para regresar al panel de maíz -->
-    <button onclick="location.href='/dashboard_maiz'" class="btn">
+    <a href="{{  url_for(dashboard_maiz) }}" class="btn">
         ← Volver al Panel de Maíz
-    </button>
+    </a>
 
     <script>
         function modifyData(rubro) {

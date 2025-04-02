@@ -207,9 +207,9 @@
 
         <button onclick="printPDF()" class="btn">Descargar en PDF</button>
 
-        <button onclick="location.href='/dashboard_maiz'" class="btn-back">
+        <a href="{{  url_for(dashboard_maiz) }}" class="btn-back">
             ← Volver al Panel de Maíz
-        </button>
+        </a>
 
         <div class="note" style="text-align: center; margin-top: 20px;">
             <p>Estados financieros en pesos creados el {{ data.fecha_captura }}.</p>

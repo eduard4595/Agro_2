@@ -206,9 +206,9 @@
     <button onclick="printPDF()" class="btn">Descargar en PDF</button>
 
     <!-- Botón para redirigir al panel de café -->
-    <button onclick="location.href='/dashboard_cafe'" class="btn-back">
+    <a href="{{ url_for('dashboard_cafe') }}" class="btn-back">
       ← Volver al Panel de Café
-    </button>
+    </a>
 
     <div class="note" style="text-align: center; margin-top: 20px;">
       <p>Estados financieros en pesos creados el {{ data.fecha_captura }}.</p>
