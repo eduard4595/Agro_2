@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Maíz</title>
+    <title>Chatbot de Cultivo de Maíz</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,8 +41,8 @@
         }
         .ticker span {
             display: inline-block;
-            padding-left: 30%;
-            animation: ticker 480s linear infinite;
+            padding-left: 2%;
+            animation: ticker 380s linear infinite;
         }
         @keyframes ticker {
             from { transform: translateX(10%); }
@@ -125,6 +125,8 @@
             overflow-y: auto;
             background-color: #f9f9f9;
             flex: 1;
+            white-space: normal; /* Para evitar que el texto se divida */
+            word-wrap: break-word;
         }
         .chat-input {
             margin-top: 10px;
@@ -252,12 +254,70 @@
                 max-width: none;
             }
         }
+        
+
+        #userInput {
+            width: 70%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        #sendBtn {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .suggestion {
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin-top: 5px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+        }
+        .suggestion:hover {
+            background-color: #ddd;
+        }
+        #autocomplete-suggestions {
+            width: 70%;
+            border: 1px solid #ccc;
+            position: absolute;
+            z-index: 1;
+            background-color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 5px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .thinking-message {
+            font-style: italic;
+            color: #777;
+        }
+        .dot {
+            font-size: 30px; /* Tamaño más grande de los puntos */
+            animation: dot-blink 1s steps(1, end) infinite; /* Animación de parpadeo de puntos */
+        }
+        @keyframes dot-blink {
+            0% { content: "."; }
+            33% { content: ".."; }
+            66% { content: "..."; }
+            100% { content: "."; }
+        }
     </style>
 </head>
 <body>
     <header>
         <!-- Botón para Ir al Panel General -->
-        <a href="{{ url_for('main.index') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
+        <a href="{{ url_for('base') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-right: 5px;">
                 <path d="M15 19l-7-7 7-7"/>
             </svg>
@@ -351,13 +411,17 @@
             </div>
             
             <div class="chat-container">
-                <h2>AI Chat Ganadero AgroAsistec</h2>
+                <h2> AI Chat Agrícola AgroAsistec</h2>
                 <div class="chat-box" id="chat-box">
                     <!-- Mensajes del chat aparecerán aquí -->
                 </div>
                 <div class="chat-input">
-                    <input type="text" id="chat-input" placeholder="Escribe tu mensaje aquí...">
-                    <button onclick="sendMessage()">Enviar</button>
+                    <div id="chatbox"></div>
+                        <div class="welcome-message">Bienvenido a AgroAsistec Maíz</div>
+                        <input type="text" id="userInput" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <button id="sendBtn">Enviar</button>
+                    </div>
+                    <div id="autocomplete-suggestions"></div>
                 </div>
             </div>
         </div>
@@ -366,33 +430,1730 @@
         <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
     </footer>
 
+    
+    
     <script>
-        function sendMessage() {
-            const chatBox = document.getElementById('chat-box');
-            const chatInput = document.getElementById('chat-input');
-            const message = chatInput.value.trim();
-    
-            if (message) {
-                // Mostrar el mensaje del usuario
-                const userMessage = document.createElement('div');
-                userMessage.textContent = "Tú: " + message;
-                userMessage.style.color = "#2e4a2d"; // Color verde oscuro para el mensaje del usuario
-                chatBox.appendChild(userMessage);
-    
-                // Limpiar el campo de entrada
-                chatInput.value = '';
-    
-                // Mostrar el mensaje automático de respuesta
-                const botMessage = document.createElement('div');
-                botMessage.textContent = "Por el momento este servicio no está disponible. Disculpa las molestias, estamos trabajando para mejorar el servicio.";
-                botMessage.style.color = "#D9534F"; // Color rojo para el mensaje del bot
-                botMessage.style.marginTop = "10px";
-                chatBox.appendChild(botMessage);
-    
-                // Desplazar el chat hacia abajo
-                chatBox.scrollTop = chatBox.scrollHeight;
+        const preguntasRespuestas = [
+    { 
+        pregunta: "¿Cómo se prepara el terreno para sembrar maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, se debe labrar el suelo, aplicar fertilizantes y asegurarse de que esté bien aireado y libre de maleza. Esto incluye subsuelo para suelos duros, barbecho para pastos y rastra para suavizar, todo para que el maíz crezca fuerte en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Cuándo se debe sembrar el maíz?", 
+        respuesta: "Hey, gracias por preguntar, el maíz debe sembrarse en primavera, cuando las temperaturas del suelo superan los 10°C. En el temporal, va del 15 de junio al 28 de julio, justo cuando las lluvias dan el visto bueno para empezar. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cuál es la profundidad adecuada para sembrar maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, la profundidad ideal es de 3 a 5 cm. Depende si el suelo está húmedo o seco, para que las semillas capten la humedad perfecta y broten bien en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué distancia debe haber entre las plantas de maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, la distancia recomendada es de 20 a 30 cm entre plantas. El manual marca 25 cm para 66,666 plantas por hectárea, ideal para que los maíces criollos tengan luz y agua a tope. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cuánto riego necesita el maíz?", 
+        respuesta: "Hey, gracias por preguntar, el maíz necesita un riego regular, especialmente durante la germinación y la formación de las mazorcas. En temporal, las lluvias de junio a julio lo mantienen feliz, sin necesidad de riego extra. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué tipo de plagas afectan al maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, insectos como el gusano cogollero, aves y roedores son comunes en el cultivo de maíz. También diabrótica, trips y gallina ciega, que se manejan con monitoreo y algo de control en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Cuánto tiempo tarda en madurar el maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, el maíz tarda entre 3 a 6 meses en madurar, dependiendo del clima y las condiciones. En temporal, son 90 días para madurez fisiológica y 150 para grano seco listo para cosechar. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se sabe cuándo es el momento adecuado para cosechar el maíz?", 
+        respuesta: "Hey, gracias por preguntar, se debe observar el color de los granos y el secado de las hojas. A los 90 días llega a madurez fisiológica, y a los 150 el grano está seco para el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Cuáles son las enfermedades comunes que afectan al maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, enfermedades como la roya y el mildiu pueden afectar al maíz. En el temporal, las manchas foliares son frecuentes con humedad alta, y se controlan con fungicidas como Mancozeb. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cómo se controla el gusano cogollero en el maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, se pueden usar pesticidas o control biológico para evitar que este insecto dañe el cultivo. El manual sugiere trampeo de palomillas y Denim o Exalt para mantenerlo a raya en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué es el maíz?", 
+        respuesta: "Hey, gracias por preguntar, el maíz (Zea mays) es un cultivo que se adapta a gran variedad de climas y altitudes, desde el nivel del mar hasta 2500 metros. Es súper útil para comida, forraje y rituales, un todo terreno del temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿A qué altitudes se puede cultivar el maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, desde el nivel del mar hasta 2500 metros en los valles altos. Crece en costas cálidas o montañas, siempre que las lluvias o el suelo le den lo que necesita para prosperar. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué variedad de colores y tamaños tiene el maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, el maíz presenta diferentes colores y tamaños, con ciclos que van desde precoces hasta tardíos. Puede ser blanco, amarillo, rojo o morado, y varía en altura según su uso y región. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué tipos de maíz se destacan según su uso?", 
+        respuesta: "Hey, gracias por preguntar, los especializados para elote, grano o forraje. Elotes tiernos para comer fresco, grano seco para guardar y forraje para animales, cada uno con su propósito en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cuáles son los usos principales del maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, alimentación humana (tortillas), alimentación animal (forraje verde o seco), rituales y platillos regionales. Es básico en comidas, ganado y tradiciones, un cultivo clave desde hace siglos. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Por qué es importante el maíz en la alimentación humana?", 
+        respuesta: "Hola, qué bueno verte por aquí, porque se utiliza ampliamente en la elaboración de tortillas y otros platillos según la región. Da energía y nutrientes, siendo esencial en lugares como México desde tiempos prehispánicos. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Cómo se utiliza el maíz en la alimentación animal?", 
+        respuesta: "Hey, gracias por preguntar, como forraje verde o seco para los animales. Se corta tierno para vacas o se seca como grano para aves y cerdos, aportando fuerza y proteínas en la ganadería del temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿El maíz tiene usos culturales?", 
+        respuesta: "Qué tal, me alegra ayudarte, sí, se emplea en rituales y platillos tradicionales dependiendo de la región. En ceremonias o fiestas, representa vida y comida, con un toque especial en muchas comunidades antiguas. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué tipo de cultivo es el maíz de temporal?", 
+        respuesta: "Hola, qué bueno verte por aquí, es un cultivo de grano que depende de las lluvias estacionales. Crece con el agua de junio a julio, sin riego artificial, perfecto para zonas con temporales marcados. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué factores influyen en la adaptación del maíz?", 
+        respuesta: "Hey, gracias por preguntar, el clima, la altitud y las características del suelo. Estos deciden cómo se da, desde tierras bajas cálidas hasta valles altos, ajustándose a las lluvias y nutrientes de cada lugar. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué se hace para acondicionar el suelo para el maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, se realizan paso de subsuelo, barbecho y rastra según las condiciones del terreno. Esto suelta el suelo y lo prepara para que las raíces y el agua de lluvia hagan su trabajo en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cuándo se realiza el paso de subsuelo?", 
+        respuesta: "Hola, qué bueno verte por aquí, cuando el suelo está muy compactado. Se hace antes de sembrar para romper capas duras, dejando que el agua entre y las raíces del maíz crezcan bien en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Por qué es importante el paso de subsuelo?", 
+        respuesta: "Hey, gracias por preguntar, para permitir la infiltración del agua de lluvia y el desarrollo de las raíces. Un suelo duro limita nutrientes y agua, así que esto ayuda al maíz a crecer fuerte en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué es el barbecho?", 
+        respuesta: "Qué tal, me alegra ayudarte, es una práctica para controlar manchones de pasto en el terreno. Se ara superficialmente para quitar malezas antes de sembrar, aunque a largo plazo puede complicar el suelo en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Por qué no se recomienda mucho el barbecho?", 
+        respuesta: "Hola, qué bueno verte por aquí, porque con los años genera un 'piso de arado' que dificulta la infiltración de agua y el desarrollo de raíces. Esto puede bajar la productividad del maíz en el temporal con el tiempo. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué se hace con la rastra?", 
+        respuesta: "Hey, gracias por preguntar, se realizan uno o dos pasos para mullir terrones y suavizar el suelo. Esto rompe la compactación y deja un terreno listo para que el maíz germine bien en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Cuál es el objetivo de la rastra?", 
+        respuesta: "Qué tal, me alegra ayudarte, dejar un suelo suave para la siembra, mejorar la aireación y facilitar el flujo de agua, gases y raíces. Así el maíz tiene un buen comienzo y crece sano con las lluvias del temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cuántos pasos de rastra se recomiendan?", 
+        respuesta: "Hola, qué bueno verte por aquí, uno o dos, dependiendo de las condiciones del suelo. Si hay terrones grandes o mucha compactación, dos pasos aseguran un suelo perfecto para el maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué beneficios tiene un suelo bien acondicionado?", 
+        respuesta: "Hey, gracias por preguntar, mejora la siembra, la aireación y el desarrollo de las raíces. Un suelo suelto ayuda a que las semillas broten parejo y el maíz aproveche al máximo las lluvias del temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué problema genera el 'piso de arado'?", 
+        respuesta: "Qué tal, me alegra ayudarte, evita la buena infiltración de las lluvias y el desarrollo normal de las raíces. Esta capa dura por barbecho repetido frena el crecimiento del maíz en el temporal a largo plazo. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cuándo se recomienda sembrar el maíz de temporal?", 
+        respuesta: "Hola, qué bueno verte por aquí, desde el 15 de junio hasta el 28 de julio. Es cuando las lluvias se estabilizan, dando al maíz el agua que necesita para arrancar bien en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Por qué se siembra entre el 15 de junio y el 28 de julio?", 
+        respuesta: "Hey, gracias por preguntar, porque es cuando se establecen las lluvias. Este momento asegura que el maíz tenga humedad suficiente para germinar y crecer sin problemas en el sistema de temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Han cambiado las fechas de siembra en los últimos años?", 
+        respuesta: "Qué tal, me alegra ayudarte, sí, en los últimos 5 años las fechas del temporal han sido muy variables. El cambio climático ha movido las lluvias, así que hay que estar atentos cada temporada para el maíz. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué factor determina las fechas de siembra?", 
+        respuesta: "Hola, qué bueno verte por aquí, el establecimiento de las lluvias. La llegada y constancia del temporal son clave para que el maíz germine y se desarrolle bien sin riego extra. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si las lluvias se retrasan?", 
+        respuesta: "Hey, gracias por preguntar, las fechas de siembra pueden variar según las condiciones del temporal. Si las lluvias tardan, se ajusta para que el maíz no se quede sin agua al inicio en el temporal. ¿Qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Es fija la fecha de siembra del maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, no, ha sido variable en los últimos 5 años. El clima cambiante hace que cada año sea diferente, y hay que checar las lluvias para el maíz de temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué se debe considerar antes de definir la fecha de siembra?", 
+        respuesta: "Hola, qué bueno verte por aquí, la llegada y estabilidad de las lluvias. También el suelo y el pronóstico, para que el maíz tenga el agua justa y crezca fuerte en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿En qué mes termina el periodo recomendado de siembra?", 
+        respuesta: "Hey, gracias por preguntar, el 28 de julio. Este límite da tiempo al maíz para crecer con las lluvias del temporal antes de que se acaben, asegurando una buena cosecha. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué puede afectar la variabilidad de las lluvias?", 
+        respuesta: "Qué tal, me alegra ayudarte, las condiciones climáticas de cada año. Cosas como El Niño o el cambio climático mueven las lluvias, complicando la siembra del maíz en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Por qué es importante ajustar la siembra a las lluvias?", 
+        respuesta: "Hola, qué bueno verte por aquí, para garantizar la humedad necesaria para el desarrollo del cultivo. Sin agua a tiempo, el maíz no germina bien y el temporal no rinde como debería. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué arreglo topológico se recomienda para el maíz?", 
+        respuesta: "Hey, gracias por preguntar, se recomienda sembrar en surcos. Con líneas de 75 cm, el maíz criollo aprovecha mejor el agua y la luz, creciendo ordenado en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cuál es el ancho recomendado de los surcos?", 
+        respuesta: "Qué tal, me alegra ayudarte, 75 cm (.75 m). Este ancho da espacio perfecto para las plantas, dejando que el agua y el sol lleguen bien al maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué separación se sugiere entre plantas?", 
+        respuesta: "Hola, qué bueno verte por aquí, 25 cm. Con esto y surcos de 75 cm, logras 66,666 plantas por hectárea, ideal para maíces criollos altos en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Cuál es la densidad de población recomendada?", 
+        respuesta: "Hey, gracias por preguntar, 66,666 plantas por hectárea. Este número balancea luz y agua, haciendo que el maíz de temporal rinda bien sin que las plantas se estorben. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Por qué se recomienda una densidad de 66,666 plantas/ha?", 
+        respuesta: "Qué tal, me alegra ayudarte, para aprovechar la lluvia y permitir la entrada de luz suficiente. Evita que los maíces criollos altos se tapen entre sí, creciendo sanos en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si la densidad de plantas es muy alta?", 
+        respuesta: "Hola, qué bueno verte por aquí, los maíces criollos, de porte alto, se sombrean entre sí. Esto baja la fotosíntesis y el tamaño de los elotes, afectando el rendimiento en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿A qué profundidad se debe sembrar el maíz?", 
+        respuesta: "Hey, gracias por preguntar, entre 3 y 5 cm. Así las semillas quedan protegidas y con humedad suficiente para brotar bien, ajustándose al suelo seco o húmedo del temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿La profundidad de siembra depende de algo?", 
+        respuesta: "Qué tal, me alegra ayudarte, sí, de las características de la zona y del suelo (húmedo o seco). En seco se va más hondo para encontrar agua, clave en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Por qué es importante la entrada de luz en el cultivo?", 
+        respuesta: "Hola, qué bueno verte por aquí, para evitar que las plantas altas se sombreen y afecten su desarrollo. La luz ayuda a la fotosíntesis, esencial para elotes grandes en el maíz de temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué tipo de maíz se beneficia de esta densidad?", 
+        respuesta: "Hey, gracias por preguntar, los maíces criollos de porte alto. Con 66,666 plantas por hectárea, tienen espacio y luz para crecer fuertes y rendir bien en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué es la escarda?", 
+        respuesta: "Hey, gracias por preguntar, es el proceso de quitar plantas no deseadas y aflojar el suelo. Se hace entre 30 y 40 días para limpiar malezas, mejorar aireación y ayudar a las raíces del maíz en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Cuándo se realiza la escarda?", 
+        respuesta: "Qué tal, me alegra ayudarte, entre los 30 y 40 días después de nacida la planta. Es el momento justo para que el maíz esté fuerte y las malezas sean fáciles de quitar en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cuáles son los objetivos de la escarda?", 
+        respuesta: "Hola, qué bueno verte por aquí, quitar plantas no deseadas, aflojar el suelo y arrimar tierra a la base de los tallos. Esto reduce competencia, mejora el suelo y fortalece al maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Por qué se arrima tierra a los tallos?", 
+        respuesta: "Hey, gracias por preguntar, para mejorar el anclaje de las raíces adventicias. Da estabilidad al maíz alto, especialmente con lluvias fuertes, asegurando que no se caiga en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué beneficios tiene aflojar el suelo durante la escarda?", 
+        respuesta: "Qué tal, me alegra ayudarte, permite la aireación y la penetración del agua de lluvia. Un suelo suelto deja que las raíces respiren y absorban más nutrientes en el maíz de temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué tipo de raíces se benefician de la escarda?", 
+        respuesta: "Hola, qué bueno verte por aquí, las raíces adventicias. Estas crecen en la base y, con tierra arrimada, se fijan mejor, ayudando al maíz a tomar agua y nutrientes en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿En cuántos días después de la siembra se hace la escarda?", 
+        respuesta: "Hey, gracias por preguntar, entre 30 y 40 días. Así el maíz ya está firme y las malezas se ven claras para quitarlas sin problema en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué se elimina durante la escarda?", 
+        respuesta: "Qué tal, me alegra ayudarte, plantas no deseadas que compiten con el maíz. Estas roban luz, agua y nutrientes, así que sacarlas mejora el crecimiento en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Es obligatorio realizar la escarda?", 
+        respuesta: "Hola, qué bueno verte por aquí, no es obligatorio, pero es recomendable para mejorar el cultivo. Sin ella, las malezas ganan terreno, pero el maíz puede sobrevivir en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué herramienta se usa para la escarda?", 
+        respuesta: "Hey, gracias por preguntar, puede ser manual o mecánica, según la disponibilidad. Azadones o máquinas sirven, dependiendo del tamaño del terreno y los recursos en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué tipos de fertilizantes se pueden usar en el maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, químicos y orgánicos, aplicados por separado o combinados. Los químicos dan nutrientes rápidos, y los orgánicos como estiércol mejoran el suelo en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué nutrientes debe cubrir la fertilización?", 
+        respuesta: "Hola, qué bueno verte por aquí, nitrógeno (N), fósforo (P) y potasio (K). Son clave para crecimiento, raíces fuertes y resistencia del maíz en el sistema de temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué son los fertilizantes orgánicos?", 
+        respuesta: "Hey, gracias por preguntar, abonos naturales como estiércol compostado o abonos verdes. Vienen de plantas o animales, como Mucuna, y nutren el suelo del maíz de temporal a largo plazo. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué ejemplos de abonos verdes se sugieren?", 
+        respuesta: "Qué tal, me alegra ayudarte, Mucuna sp. u otras leguminosas. Estas fijan nitrógeno en el suelo, dándole un empujón natural al maíz antes de sembrar en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cuándo se incorporan los abonos verdes al suelo?", 
+        respuesta: "Hola, qué bueno verte por aquí, antes de su floración. Así se descomponen y liberan nutrientes como nitrógeno para que el maíz los aproveche en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué cantidad de estiércol compostado se recomienda?", 
+        respuesta: "Hey, gracias por preguntar, de 500 kg a 2000 kg por hectárea, según disponibilidad. Depende del suelo y lo que tengas a mano para enriquecer el maíz en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Por qué se incorporan los fertilizantes orgánicos con tiempo?", 
+        respuesta: "Qué tal, me alegra ayudarte, para que se transformen en materia orgánica y suministren nutrientes. Esto asegura que el maíz tenga comida lista cuando crezca en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué beneficios tienen los fertilizantes orgánicos en el suelo?", 
+        respuesta: "Hola, qué bueno verte por aquí, mejoran propiedades físicas, químicas y biológicas. Hacen el suelo más suelto, rico en nutrientes y lleno de vida para el maíz de temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Cuánto nitrógeno se recomienda por hectárea?", 
+        respuesta: "Hey, gracias por preguntar, de 92 a 138 kg/ha, pudiendo llegar a 180 kg/ha según el suelo y la producción esperada. Esto da fuerza al maíz para crecer y dar buenos elotes en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cuál es el rango de fósforo recomendado?", 
+        respuesta: "Qué tal, me alegra ayudarte, de 46 a 69 kg/ha. El fósforo ayuda a las raíces y la energía del maíz, ajustándose al tipo de suelo en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Cuánto potasio se sugiere aplicar?", 
+        respuesta: "Hola, qué bueno verte por aquí, de 0 a 60 kg/ha. Varía según el suelo, pero fortalece al maíz contra estrés y enfermedades en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Cuántas aplicaciones de fertilizantes se recomiendan?", 
+        respuesta: "Hey, gracias por preguntar, dos aplicaciones. Una al inicio y otra a los 30 días, para que el maíz tenga nutrientes en las etapas clave del temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cuándo se realiza la primera fertilización?", 
+        respuesta: "Qué tal, me alegra ayudarte, en la siembra o 10 días después. Esto da un arranque fuerte al maíz con nitrógeno, fósforo y potasio en el sistema de temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué se aplica en la primera fertilización?", 
+        respuesta: "Hola, qué bueno verte por aquí, una tercera parte del nitrógeno, todo el fósforo y todo el potasio. Es la base para que las raíces y el maíz crezcan bien en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cuándo se hace la segunda fertilización?", 
+        respuesta: "Hey, gracias por preguntar, 30 días después de la primera. Aquí va el resto del nitrógeno para que el maíz forme hojas y elotes fuertes en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué se aplica en la segunda fertilización?", 
+        respuesta: "Qué tal, me alegra ayudarte, las dos terceras partes restantes del nitrógeno. Esto impulsa el crecimiento y los elotes del maíz, aprovechando las lluvias del temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué condición debe tener el suelo al fertilizar?", 
+        respuesta: "Hola, qué bueno verte por aquí, humedad adecuada para la solubilidad y absorción de los nutrientes. Sin agua, el maíz no aprovecha bien los fertilizantes en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se aplican los fertilizantes?", 
+        respuesta: "Hey, gracias por preguntar, con fertilizadoras mecánicas o manualmente. Las máquinas son rápidas, pero a mano también funciona, enterrándolos para el maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Por qué se entierran los fertilizantes?", 
+        respuesta: "Qué tal, me alegra ayudarte, para evitar pérdidas por volatilización o arrastre por lluvia. Así el nitrógeno y demás quedan cerca de las raíces del maíz en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué estudios determinan las dosis de fertilizantes?", 
+        respuesta: "Hola, qué bueno verte por aquí, estudios realizados en la región. Analizan el suelo y el rendimiento esperado para ajustar nitrógeno, fósforo y potasio en el maíz de temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué son las plantas no deseadas?", 
+        respuesta: "Hey, gracias por preguntar, especies que compiten con el maíz por luz, agua y nutrientes. Son malezas que, si no las quitas, bajan el crecimiento del cultivo en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué tipos de control se usan para plantas no deseadas?", 
+        respuesta: "Qué tal, me alegra ayudarte, control mecánico y químico. El mecánico es con escardas, y el químico usa herbicidas como Atrazina para proteger el maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿En qué consiste el control mecánico?", 
+        respuesta: "Hola, qué bueno verte por aquí, en realizar escardas manuales o mecánicas. Quita malezas y suelta el suelo, dejando un acolchado que ayuda al maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué se hace con las plantas retiradas en el control mecánico?", 
+        respuesta: "Hey, gracias por preguntar, se dejan sobre el suelo como acolchado natural. Esto cubre el terreno, evita más malezas y protege al maíz de la erosión en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cuándo se realiza el control químico?", 
+        respuesta: "Qué tal, me alegra ayudarte, en los primeros 40 días del cultivo. Es el momento clave para parar las malezas antes de que afecten al maíz joven en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Por qué es importante el control en los primeros 40 días?", 
+        respuesta: "Hola, qué bueno verte por aquí, para evitar que las plantas no deseadas compitan con el maíz. Si crecen mucho, roban recursos y el cultivo sufre en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué herbicidas preemergentes se recomiendan?", 
+        respuesta: "Hey, gracias por preguntar, Atrazina. Se aplica antes de que salgan las malezas, manteniendo limpio el terreno para el maíz desde el inicio en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué herbicidas postemergentes se sugieren?", 
+        respuesta: "Qué tal, me alegra ayudarte, Nicosulfuron. Va después de que las malezas brotan, eliminándolas sin dañar al maíz ya crecido en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué se debe hacer antes de aplicar herbicidas?", 
+        respuesta: "Hola, qué bueno verte por aquí, monitorear las especies de plantas no deseadas. Así eliges el herbicida correcto y lo usas bien en el maíz de temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tiene el acolchado natural?", 
+        respuesta: "Hey, gracias por preguntar, protege el suelo y reduce el crecimiento de nuevas plantas no deseadas. Las malezas cortadas cubren el terreno, ayudando al maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué insectos afectan al maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, gusano cogollero, diabrótica, trips, gallina ciega, entre otros. Son plagas comunes que hay que vigilar y controlar en el maíz de temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué se debe hacer para controlar insectos?", 
+        respuesta: "Hola, qué bueno verte por aquí, monitorear su presencia para evitar que se conviertan en amenaza. Checar regularmente ayuda a actuar a tiempo en el maíz de temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se controla el gusano cogollero?", 
+        respuesta: "Hey, gracias por preguntar, con trampeo de adultos (palomillas) y aplicaciones de insecticidas como Denim o Exalt. Esto baja su daño en las hojas del maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué es el trampeo de adultos?", 
+        respuesta: "Qué tal, me alegra ayudarte, capturar palomillas para reducir la incidencia del gusano cogollero. Se usan trampas para atraparlas antes de que pongan huevos en el maíz de temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cuándo ataca la gallina ciega?", 
+        respuesta: "Hola, qué bueno verte por aquí, no ataca todos los años, pero puede estar presente. Depende del suelo y el clima, afectando raíces del maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se maneja la gallina ciega?", 
+        respuesta: "Hey, gracias por preguntar, con aspersiones de microorganismos como Beauveria bassiana. Este hongo natural la controla sin químicos fuertes en el maíz de temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿En qué condiciones aumentan los trips?", 
+        respuesta: "Qué tal, me alegra ayudarte, en épocas de mayor calor. El calor acelera su reproducción, convirtiéndolos en plaga para el maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se controlan los trips en poblaciones bajas?", 
+        respuesta: "Hola, qué bueno verte por aquí, con agua jabonosa. Es una solución simple y barata que los elimina sin dañar el maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué se usa para trips en poblaciones altas?", 
+        respuesta: "Hey, gracias por preguntar, Imidacloprid. Es un insecticida fuerte para cuando los trips se salen de control en el maíz de temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Por qué es importante el monitoreo de insectos?", 
+        respuesta: "Qué tal, me alegra ayudarte, para detectar a tiempo su presencia y evitar daños. Vigilar salva al maíz de plagas grandes en el sistema de temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué condiciones favorecen las enfermedades en el maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, excesos de humedad (1000 mm) y temperaturas elevadas. Esto crea un ambiente perfecto para hongos en el maíz de temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué enfermedades son comunes en el maíz?", 
+        respuesta: "Hey, gracias por preguntar, manchas foliares. Son típicas en trópicos con mucha humedad y calor, afectando las hojas del maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se previenen las manchas foliares?", 
+        respuesta: "Qué tal, me alegra ayudarte, con materiales resistentes y aplicaciones preventivas. Usar variedades fuertes y fungicidas salva al maíz de estas enfermedades en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué se usa de forma preventiva contra enfermedades?", 
+        respuesta: "Hola, qué bueno verte por aquí, caldos sulfocálcicos. Son mezclas de azufre y cal que protegen al maíz de hongos antes de que aparezcan en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué fungicidas se recomiendan?", 
+        respuesta: "Hey, gracias por preguntar, Mancozeb, Propiconazol y Tebuconazol. Estos controlan hongos como manchas foliares, manteniendo sano al maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Cuándo se usan Propiconazol y Tebuconazol?", 
+        respuesta: "Qué tal, me alegra ayudarte, en infestaciones altas. Son fungicidas potentes para cuando las manchas foliares se salen de control en el maíz de temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué se puede hacer para reducir enfermedades?", 
+        respuesta: "Hola, qué bueno verte por aquí, seleccionar variedades resistentes. Esto, junto con monitoreo, baja el riesgo de hongos en el maíz durante el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué clima favorece las manchas foliares?", 
+        respuesta: "Hey, gracias por preguntar, trópicos con alta humedad y calor. Estas condiciones hacen que los hongos crezcan rápido y afecten al maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Son curables las manchas foliares?", 
+        respuesta: "Qué tal, me alegra ayudarte, sí, si se atienden preventivamente o a tiempo. Fungicidas y buen manejo salvan al maíz de pérdidas en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué mejora el manejo de enfermedades?", 
+        respuesta: "Hola, qué bueno verte por aquí, monitoreo y aplicaciones oportunas. Estar atento y actuar rápido mantiene al maíz sano frente a hongos en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se puede realizar la cosecha del maíz?", 
+        respuesta: "Hey, gracias por preguntar, de manera mecánica o manual. Depende de tus herramientas, pero ambas funcionan para recoger el maíz en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué es el doblado en la cosecha?", 
+        respuesta: "Qué tal, me alegra ayudarte, doblar la planta cuando el elote alcanza madurez fisiológica. Se hace a los 90 días para facilitar la cosecha del maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cuándo se realiza el doblado?", 
+        respuesta: "Hola, qué bueno verte por aquí, a los 90 días, en madurez fisiológica. Así el grano empieza a secarse en la planta para el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Cuándo se cosecha tras el doblado?", 
+        respuesta: "Hey, gracias por preguntar, a los 150 días, manual o mecánicamente. El grano ya está seco y listo para guardar en el maíz de temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué determina el método de cosecha?", 
+        respuesta: "Qué tal, me alegra ayudarte, la disponibilidad de herramientas o maquinaria en la zona. Si tienes máquinas o prefieres mano, ambas valen para el maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué indica la madurez fisiológica?", 
+        respuesta: "Hola, qué bueno verte por aquí, que el elote ha alcanzado su desarrollo óptimo. A los 90 días, el grano está listo para empezar a secarse en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Es obligatorio el doblado?", 
+        respuesta: "Hey, gracias por preguntar, no, depende de las prácticas de la zona. Algunos lo hacen para cosechar fácil, pero no es regla en el maíz de temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cuánto tiempo pasa entre el doblado y la cosecha?", 
+        respuesta: "Qué tal, me alegra ayudarte, aproximadamente 60 días (de 90 a 150 días). Es el tiempo que el grano tarda en secarse bien en el maíz de temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tiene el doblado?", 
+        respuesta: "Hola, qué bueno verte por aquí, facilita la cosecha manual posterior. Al doblar la planta, el grano se seca en el campo y es más fácil recogerlo en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Se puede cosechar sin doblar?", 
+        respuesta: "Hey, gracias por preguntar, sí, directamente de forma mecánica o manual. No necesitas doblar si tienes maquinaria o cortas los elotes frescos en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué es la siembra intercalada con calabaza?", 
+        respuesta: "Qué tal, me alegra ayudarte, sembrar maíz y calabaza juntos en el mismo terreno. Aprovechas el espacio y diversificas la producción en el sistema de temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Por qué se intercala maíz con calabaza?", 
+        respuesta: "Hola, qué bueno verte por aquí, para aprovechar el espacio y diversificar la producción. La calabaza crece entre surcos, dando más comida por hectárea en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué beneficios tiene la siembra intercalada?", 
+        respuesta: "Hey, gracias por preguntar, mejora el uso del suelo y puede reducir plagas. La calabaza cubre el terreno, ayudando al maíz a enfrentar malezas en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Se modifica la densidad del maíz al intercalar?", 
+        respuesta: "Qué tal, me alegra ayudarte, no se especifica, pero debe ajustarse según el espacio. Hay que balancear para que maíz y calabaza no compitan en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué cuidados adicionales requiere la calabaza?", 
+        respuesta: "Hola, qué bueno verte por aquí, no se detalla, pero debe considerarse su manejo específico. Necesita espacio y control de malezas para crecer con el maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Es común la siembra intercalada?", 
+        respuesta: "Hey, gracias por preguntar, sí, en sistemas tradicionales de cultivo. Es una práctica antigua que saca provecho al terreno con maíz y calabaza en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué tipo de maíz se usa en la siembra intercalada?", 
+        respuesta: "Qué tal, me alegra ayudarte, no se especifica, pero suele ser maíz criollo. Su porte alto combina bien con la calabaza en el sistema de temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿La calabaza afecta al maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, no, si se maneja adecuadamente. Bien planeada, la calabaza no compite y hasta ayuda al maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué se cosecha primero, maíz o calabaza?", 
+        respuesta: "Hey, gracias por preguntar, depende de los ciclos, pero el maíz suele ser a los 150 días. La calabaza puede ir antes o después según su variedad en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Es rentable la siembra intercalada?", 
+        respuesta: "Qué tal, me alegra ayudarte, sí, al diversificar los productos. Sacas maíz y calabaza del mismo terreno, aumentando ganancias en el sistema de temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué tipo de clima prefiere el maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, se adapta a gran variedad, pero prospera con lluvias adecuadas. En el temporal, las lluvias de junio a julio son su favorito para crecer. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Cuánto tiempo tarda en crecer el maíz de temporal?", 
+        respuesta: "Hey, gracias por preguntar, aproximadamente 150 días hasta la cosecha. Desde la siembra hasta el grano seco, el temporal le da el ritmo perfecto al maíz. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si el suelo es muy duro?", 
+        respuesta: "Qué tal, me alegra ayudarte, realizar paso de subsuelo. Esto rompe la compactación para que el agua y las raíces del maíz fluyan bien en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si no se fertiliza el maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, puede reducirse el rendimiento. Sin nutrientes como nitrógeno, el maíz crece débil y da menos elotes en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿El maíz necesita mucha agua?", 
+        respuesta: "Hey, gracias por preguntar, depende de las lluvias del temporal. No es tanto como otros cultivos, pero necesita humedad constante para germinar y crecer bien. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si hay pocas lluvias?", 
+        respuesta: "Qué tal, me alegra ayudarte, ajustar la siembra o usar variedades tolerantes. Así el maíz se adapta y rinde aunque el temporal sea más seco de lo normal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Se puede sembrar maíz en suelo seco?", 
+        respuesta: "Hola, qué bueno verte por aquí, sí, a 3-5 cm de profundidad. Se va más hondo para encontrar humedad y que germine bien en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué insecto es más dañino?", 
+        respuesta: "Hey, gracias por preguntar, depende, pero el gusano cogollero es común. Se come las hojas jóvenes y puede bajar mucho el rendimiento del maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Cómo saber si el maíz está listo para cosechar?", 
+        respuesta: "Qué tal, me alegra ayudarte, cuando alcanza madurez fisiológica (90 días) o se seca (150 días). El grano cambia de color y las hojas se secan en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué hacer con el maíz cosechado?", 
+        respuesta: "Hola, qué bueno verte por aquí, usarlo para grano, forraje o consumo humano. Puede ir a tortillas, alimento animal o guardarse seco en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si el suelo tiene muchos terrones?", 
+        respuesta: "Hey, gracias por preguntar, realizar uno o dos pasos de rastra para mullirlo. Esto suaviza el suelo y deja un buen lecho para el maíz en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Por qué es importante la aireación del suelo?", 
+        respuesta: "Qué tal, me alegra ayudarte, permite el flujo de agua, gases y el desarrollo de raíces. Un suelo aireado da al maíz oxígeno y nutrientes en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si se siembra muy profundo?", 
+        respuesta: "Hola, qué bueno verte por aquí, puede dificultar la germinación y emergencia de la planta. Si va más de 5 cm, el maíz batalla para salir en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Es mejor sembrar en suelo húmedo o seco?", 
+        respuesta: "Hey, gracias por preguntar, depende de la zona; el manual permite ambas opciones a 3-5 cm. Húmedo es más fácil, pero seco funciona ajustando profundidad en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tienen los maíces criollos?", 
+        respuesta: "Qué tal, me alegra ayudarte, son de porte alto y adaptados a condiciones locales. Resistentes y perfectos para el temporal, con buen rendimiento en suelos variables. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Cómo afecta el sombreo al maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, reduce la entrada de luz y puede afectar el crecimiento. Menos fotosíntesis significa elotes más pequeños en el maíz de temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué herramienta se usa para surcar?", 
+        respuesta: "Hey, gracias por preguntar, no se especifica, pero suele ser un arado o maquinaria agrícola. Sirve para hacer surcos de 75 cm para el maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Por qué se usa una separación de 25 cm entre plantas?", 
+        respuesta: "Qué tal, me alegra ayudarte, para optimizar la densidad y el uso de recursos como luz y agua. Así el maíz criollo rinde bien sin taparse en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si no se hace la escarda?", 
+        respuesta: "Hola, qué bueno verte por aquí, las plantas no deseadas compiten y el suelo se compacta. El maíz crece menos y rinde poco en el temporal sin ese cuidado. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Es necesario usar fertilizantes químicos?", 
+        respuesta: "Hey, gracias por preguntar, no, se pueden combinar o sustituir con orgánicos. Estiércol o abonos verdes funcionan bien para nutrir al maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué leguminosas se pueden usar como abono verde?", 
+        respuesta: "Qué tal, me alegra ayudarte, Mucuna sp. u otras leguminosas. Fijan nitrógeno y enriquecen el suelo para el maíz antes de sembrar en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Por qué se aplica todo el fósforo al inicio?", 
+        respuesta: "Hola, qué bueno verte por aquí, para que esté disponible desde el comienzo del desarrollo. Ayuda a las raíces a crecer fuertes desde el arranque en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si el suelo está seco al fertilizar?", 
+        respuesta: "Hey, gracias por preguntar, los nutrientes no se disuelven bien y la absorción es menor. El maíz no los aprovecha a full en el temporal sin humedad. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Cómo se evita la volatilización de fertilizantes?", 
+        respuesta: "Qué tal, me alegra ayudarte, enterrándolos en el suelo. Así el nitrógeno no se pierde en el aire y el maíz lo usa bien en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué cantidad mínima de estiércol se sugiere?", 
+        respuesta: "Hola, qué bueno verte por aquí, 500 kg por hectárea. Es el punto de partida para mejorar el suelo del maíz según lo que tengas en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué cantidad máxima de estiércol se puede usar?", 
+        respuesta: "Hey, gracias por preguntar, 2000 kg por hectárea, según disponibilidad. Más da un boost al suelo y al maíz, dependiendo de tus recursos en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Por qué se divide el nitrógeno en dos aplicaciones?", 
+        respuesta: "Qué tal, me alegra ayudarte, para que el cultivo lo aproveche en diferentes etapas. Una al inicio y otra a los 30 días dan fuerza al maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si no hay fertilizadoras mecánicas?", 
+        respuesta: "Hola, qué bueno verte por aquí, aplicar los fertilizantes manualmente. Es más trabajo, pero igual de efectivo para el maíz en pequeñas áreas del temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tiene el control mecánico de malezas?", 
+        respuesta: "Hey, gracias por preguntar, además de quitar malezas, mejora el suelo y deja acolchado. Es sostenible y ayuda al maíz a crecer mejor en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué herbicida se usa antes de que emerjan las malezas?", 
+        respuesta: "Qué tal, me alegra ayudarte, Atrazina. Se pone antes para que las malezas ni salgan y el maíz tenga ventaja en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué herbicida se aplica después de emergidas las malezas?", 
+        respuesta: "Hola, qué bueno verte por aquí, Nicosulfuron. Elimina malezas ya crecidas sin tocar al maíz, perfecto para el temporal una vez que brotan. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Por qué es clave monitorear las malezas?", 
+        respuesta: "Hey, gracias por preguntar, para elegir el control adecuado y aplicarlo a tiempo. Saber qué crece evita que compitan con el maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué insecticida se usa para el gusano cogollero?", 
+        respuesta: "Qué tal, me alegra ayudarte, Denim o Exalt, de bajo impacto. Son suaves con el ambiente y efectivos contra el gusano en el maíz de temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué microorganismo controla la gallina ciega?", 
+        respuesta: "Hola, qué bueno verte por aquí, Beauveria bassiana. Este hongo natural ataca a la gallina ciega sin químicos en el maíz de temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿En qué época son más comunes los trips?", 
+        respuesta: "Hey, gracias por preguntar, en épocas de mayor calor. El calor los hace multiplicarse rápido, afectando al maíz en el temporal si no los controlas. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué es el agua jabonosa para trips?", 
+        respuesta: "Qué tal, me alegra ayudarte, una solución casera para controlar poblaciones bajas. Mezclas jabón con agua y los eliminas fácil en el maíz de temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si hay alta humedad en el cultivo?", 
+        respuesta: "Hola, qué bueno verte por aquí, monitorear enfermedades como manchas foliares. Mucha agua puede traer hongos al maíz, así que hay que estar atentos en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué fungicida es más común para manchas foliares?", 
+        respuesta: "Hey, gracias por preguntar, Mancozeb. Es el más usado para prevenir y controlar hongos en las hojas del maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Cuándo usar Propiconazol?", 
+        respuesta: "Qué tal, me alegra ayudarte, en infestaciones altas de enfermedades. Es fuerte y salva al maíz cuando las manchas foliares se ponen serias en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué indica que el elote está en madurez fisiológica?", 
+        respuesta: "Hola, qué bueno verte por aquí, ha alcanzado su máximo desarrollo, alrededor de 90 días. El grano está listo para secarse en la planta en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Por qué se dobla la planta en algunas zonas?", 
+        respuesta: "Hey, gracias por preguntar, para facilitar la cosecha manual posterior. Al doblarla a los 90 días, el grano se seca en el campo en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tiene la cosecha mecánica?", 
+        respuesta: "Qué tal, me alegra ayudarte, es más rápida y eficiente en grandes áreas. Ahorras tiempo y esfuerzo con maquinaria para el maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué se necesita para la siembra intercalada?", 
+        respuesta: "Hola, qué bueno verte por aquí, planificar el espacio para maíz y calabaza. Hay que ajustar densidad y manejo para que ambos crezcan bien en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Cómo beneficia la calabaza al maíz?", 
+        respuesta: "Hey, gracias por preguntar, puede actuar como cobertura y reducir malezas. Su follaje tapa el suelo, ayudando al maíz a competir menos en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si las lluvias son excesivas?", 
+        respuesta: "Qué tal, me alegra ayudarte, monitorear enfermedades y asegurar drenaje. Mucha agua trae hongos, así que hay que cuidar al maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Es el maíz de temporal más barato de producir?", 
+        respuesta: "Hola, qué bueno verte por aquí, depende, pero aprovecha las lluvias, reduciendo riego. Eso baja costos frente a cultivos que necesitan agua extra en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si no se entierra el fertilizante?", 
+        respuesta: "Hey, gracias por preguntar, se pierde por volatilización o arrastre por lluvia. El nitrógeno se va y el maíz no lo aprovecha bien en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Por qué se sugiere Mucuna como abono verde?", 
+        respuesta: "Qué tal, me alegra ayudarte, es una leguminosa que fija nitrógeno en el suelo. Da un boost natural al maíz antes de sembrar en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué densidad es ideal para maíz criollo?", 
+        respuesta: "Hola, qué bueno verte por aquí, 66,666 plantas/ha para aprovechar luz y agua. Es perfecta para que crezca alto y fuerte en el sistema de temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cómo se sabe si el suelo necesita subsuelo?", 
+        respuesta: "Hey, gracias por preguntar, si está muy compactado y no infiltra bien el agua. Esto se nota al labrar y es clave para el maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si hay diabrótica en el maíz?", 
+        respuesta: "Qué tal, me alegra ayudarte, monitorear y aplicar insecticidas según la plaga. Es una amenaza a las raíces que se controla en el maíz de temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Es el maíz sensible al calor extremo?", 
+        respuesta: "Hola, qué bueno verte por aquí, sí, puede favorecer plagas como trips. El calor intenso las hace crecer rápido y afectar al maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tiene el estiércol compostado?", 
+        respuesta: "Hey, gracias por preguntar, mejora el suelo y aporta nutrientes gradualmente. Es una forma natural y lenta de alimentar al maíz en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Por qué se usa potasio en dosis variables?", 
+        respuesta: "Qué tal, me alegra ayudarte, depende de las necesidades del suelo. Fortalece al maíz contra estrés, pero no siempre hace falta mucho en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si no se controla el gusano cogollero?", 
+        respuesta: "Hola, qué bueno verte por aquí, puede dañar severamente las hojas y elotes. Sin control, el rendimiento del maíz baja mucho en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Es el maíz de temporal más sostenible?", 
+        respuesta: "Hey, gracias por preguntar, sí, al depender de lluvias y no de riego artificial. Usa menos recursos y se adapta al clima en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si el suelo es pobre en nitrógeno?", 
+        respuesta: "Qué tal, me alegra ayudarte, aumentar la dosis de fertilizante o usar abonos verdes. Esto le da al maíz el empujón que necesita en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cómo afecta la compactación del suelo al maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, limita el crecimiento de raíces y la infiltración de agua. Un suelo duro frena al maíz y su desarrollo en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué se hace con las plantas tras la escarda mecánica?", 
+        respuesta: "Hey, gracias por preguntar, se dejan como acolchado natural. Cubren el suelo, reducen malezas y protegen al maíz de la erosión en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Por qué se sugiere caldos sulfocálcicos?", 
+        respuesta: "Qué tal, me alegra ayudarte, como medida preventiva contra enfermedades. Son fáciles de hacer y protegen al maíz de hongos en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si se siembra fuera de las fechas recomendadas?", 
+        respuesta: "Hola, qué bueno verte por aquí, el cultivo puede no recibir suficiente lluvia. Si siembras tarde, el maíz no crece bien en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Es el maíz de temporal apto para forraje?", 
+        respuesta: "Hey, gracias por preguntar, sí, puede usarse verde o seco. Cosechado temprano es forraje tierno, o seco para animales en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tiene la rastra doble?", 
+        respuesta: "Qué tal, me alegra ayudarte, deja el suelo más suave y uniforme. Dos pasos rompen terrones grandes para que el maíz germine mejor en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Cómo se aplica el imidacloprid?", 
+        respuesta: "Hola, qué bueno verte por aquí, en aspersiones para trips en poblaciones altas. Se rocía sobre las hojas del maíz para controlarlos en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si hay manchas foliares avanzadas?", 
+        respuesta: "Hey, gracias por preguntar, usar fungicidas como Tebuconazol. Es fuerte y salva al maíz cuando los hongos ya están fuertes en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Por qué se cosecha a los 150 días?", 
+        respuesta: "Qué tal, me alegra ayudarte, para que el grano esté seco y listo para almacenar. El temporal da el tiempo justo para secarlo en la planta. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué determina la dosis de fertilizantes químicos?", 
+        respuesta: "Hola, qué bueno verte por aquí, las características del suelo y la producción esperada. Estudios regionales ajustan nitrógeno y más para el maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Es necesario usar herbicidas?", 
+        respuesta: "Hey, gracias por preguntar, no, el control mecánico también es efectivo. Escardas manuales o mecánicas funcionan bien para el maíz en el temporal sin químicos. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si no se monitorean los insectos?", 
+        respuesta: "Qué tal, me alegra ayudarte, pueden convertirse en plaga y causar pérdidas. Sin vigilancia, el maíz sufre ataques fuertes en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Por qué se usa una tercera parte del nitrógeno al inicio?", 
+        respuesta: "Hola, qué bueno verte por aquí, para apoyar el crecimiento inicial del maíz. Da un arranque fuerte a las plantas jóvenes en el sistema de temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tiene la siembra en surcos?", 
+        respuesta: "Hey, gracias por preguntar, facilita el manejo y el uso eficiente del agua. Los surcos de 75 cm organizan y ayudan al maíz en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Cómo se evita el arrastre de fertilizantes?", 
+        respuesta: "Qué tal, me alegra ayudarte, enterrándolos en el suelo. Así la lluvia no se los lleva y el maíz los usa bien en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si el temporal es irregular?", 
+        respuesta: "Hola, qué bueno verte por aquí, ajustar fechas de siembra y monitorear el cultivo. Hay que adaptarse para que el maíz crezca con las lluvias disponibles en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Es el maíz de temporal más resistente?", 
+        respuesta: "Hey, gracias por preguntar, depende de la variedad, pero se adapta a condiciones variables. Los criollos suelen ser duros para el temporal y sus cambios. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si no se usa potasio?", 
+        respuesta: "Qué tal, me alegra ayudarte, puede afectar la resistencia y calidad del grano. Sin potasio, el maíz se debilita ante estrés en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Por qué se sugiere Beauveria bassiana?", 
+        respuesta: "Hola, qué bueno verte por aquí, es un control biológico efectivo para gallina ciega. Natural y sin químicos, protege al maíz en el temporal sin dañar el suelo. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tiene la cosecha manual?", 
+        respuesta: "Hey, gracias por preguntar, permite seleccionar elotes en mejor estado. Es más lento, pero controlas la calidad del maíz en el temporal a tu gusto. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se integra la calabaza al cultivo?", 
+        respuesta: "Qué tal, me alegra ayudarte, sembrándola entre los surcos de maíz. Así crecen juntos y aprovechan el terreno al máximo en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si el suelo es muy ácido?", 
+        respuesta: "Hola, qué bueno verte por aquí, no se especifica, pero se puede corregir con enmiendas antes de sembrar. Cal o algo similar ayuda al maíz en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Por qué es importante el manejo integrado del maíz?", 
+        respuesta: "Hey, gracias por preguntar, para optimizar recursos, reducir plagas y maximizar el rendimiento. Combina todo para que el maíz saque lo mejor en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué diferencia hay entre maíces precoces y tardíos?", 
+        respuesta: "Qué tal, me alegra ayudarte, los precoces tienen ciclos más cortos, mientras que los tardíos tardan más en madurar. Se adaptan a diferentes tiempos de lluvia en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Cómo se elige un maíz para grano o forraje?", 
+        respuesta: "Hola, qué bueno verte por aquí, depende del uso final: para grano buscas calidad del elote, para forraje cantidad de biomasa. En el temporal, ambos funcionan según tu meta. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué papel juega el maíz en los rituales?", 
+        respuesta: "Hey, gracias por preguntar, se usa en ceremonias y tradiciones según la región. Simboliza vida y comida, aunque el manual no da ejemplos específicos del temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Por qué se menciona el maíz para elote como especializado?", 
+        respuesta: "Qué tal, me alegra ayudarte, porque requiere variedades con elotes tiernos y sabrosos. Es diferente al grano seco, con un enfoque especial en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué beneficios tiene intercalar calabaza con maíz?", 
+        respuesta: "Hola, qué bueno verte por aquí, aprovecha el espacio, diversifica la producción y puede reducir malezas. La calabaza cubre y protege al maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se organiza la siembra intercalada con calabaza?", 
+        respuesta: "Hey, gracias por preguntar, se siembra calabaza entre los surcos de maíz, ajustando la densidad. Así no compiten y ambos crecen bien en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué causa la volatilización de los fertilizantes?", 
+        respuesta: "Qué tal, me alegra ayudarte, la exposición al aire, especialmente en suelos secos. El nitrógeno se va como gas y el maíz lo pierde en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se evita el arrastre de fertilizantes por lluvia?", 
+        respuesta: "Hola, qué bueno verte por aquí, enterrándolos en el suelo para que no se los lleve el agua. Así el maíz los usa bien en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué significa monitorear plagas y cómo se hace?", 
+        respuesta: "Hey, gracias por preguntar, observar regularmente el cultivo para detectar insectos o malezas. Usas trampas o revisas a ojo para proteger al maíz en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Por qué los maíces criollos son ideales para el temporal?", 
+        respuesta: "Qué tal, me alegra ayudarte, porque son de porte alto y adaptados a lluvias variables y suelos locales. Su resistencia los hace perfectos para el maíz de temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Qué variedades de maíz son más resistentes a plagas?", 
+        respuesta: "Hola, qué bueno verte por aquí, las criollas suelen ser más resistentes a plagas locales. Su adaptación al clima y suelo las hace fuertes contra insectos como el gusano cogollero en el temporal. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Cómo afecta el cambio climático al maíz de temporal?", 
+        respuesta: "Hey, gracias por preguntar, altera las lluvias, volviéndolas irregulares en los últimos 5 años. Esto obliga a ajustar fechas de siembra para que el maíz crezca bien en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Qué hacer si el maíz no germina bien?", 
+        respuesta: "Qué tal, me alegra ayudarte, revisar profundidad y humedad del suelo al sembrar. Si está muy seco o profundo, usa semilla nueva o ajusta para el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Por qué se usa menos barbecho ahora?", 
+        respuesta: "Hola, qué bueno verte por aquí, porque el 'piso de arado' compacta y daña el suelo a largo plazo. Esto afecta la infiltración del agua para el maíz en el temporal. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Qué ventaja tiene el control biológico de plagas?", 
+        respuesta: "Hey, gracias por preguntar, es sostenible y usa enemigos naturales como Beauveria bassiana. Reduce químicos y protege el suelo mientras cuidas el maíz en el temporal. ¿Qué más necesitas saber?" 
+    },
+    { 
+        pregunta: "¿Cómo se almacena el maíz cosechado?", 
+        respuesta: "Qué tal, me alegra ayudarte, en lugares secos y ventilados tras los 150 días. El grano seco se guarda en costales o silos para usarlo en el temporal después. ¿En qué más puedo echarte una mano?" 
+    },
+    { 
+        pregunta: "¿Qué pasa si el maíz se siembra muy denso?", 
+        respuesta: "Hola, qué bueno verte por aquí, se sombrean y compiten por luz y agua. Esto baja el tamaño de los elotes y el rendimiento del maíz en el temporal. ¿Qué más quieres saber?" 
+    },
+    { 
+        pregunta: "¿Es mejor el maíz de temporal que el de riego?", 
+        respuesta: "Hey, gracias por preguntar, depende; el temporal ahorra agua y costos de riego. Pero el de riego da más control, aunque el criollo brilla en el temporal. ¿Cómo te ayudo ahora?" 
+    },
+    { 
+        pregunta: "¿Qué nutrientes son más importantes para el elote?", 
+        respuesta: "Qué tal, me alegra ayudarte, nitrógeno para crecimiento y potasio para calidad del grano. Ambos aseguran elotes grandes y sanos en el maíz de temporal con buena fertilización. ¿En qué más puedo apoyarte?" 
+    },
+    { 
+        pregunta: "¿Cómo se mejora la calidad del suelo a largo plazo?", 
+        respuesta: "Hola, qué bueno verte por aquí, con abonos orgánicos como estiércol o Mucuna. Mejoran estructura y nutrientes para que el maíz rinda mejor en el temporal año tras año. ¿Qué más necesitas saber?" 
+    }
+    ];         
+
+        const respuestasDivertidas = [
+    { 
+        interaccion: "Hola", 
+        respuesta: "¡Hola, muy bien, gracias por preguntar! ¿En qué puedo ayudarte hoy? Si quieres, te cuento todo sobre el maíz de temporal, ¡es mi especialidad!" 
+    },
+    { 
+        interaccion: "¿Qué tal?", 
+        respuesta: "¡Hey, qué tal! Estoy más fresco que un elote tierno. ¿Te ayudo con algo del maíz o qué tienes en mente?" 
+    },
+    { 
+        interaccion: "Gracias", 
+        respuesta: "¡De nada, siempre un placer! Como el maíz bien cosechado, estoy aquí para servirte. ¿Algo más sobre el temporal que quieras saber?" 
+    },
+    { 
+        interaccion: "¿Cómo estás?", 
+        respuesta: "¡Genial, como maíz en surcos bien alineados! Gracias por preguntar, ¿y tú? ¿Te interesa el cultivo de temporal o algo más?" 
+    },
+    { 
+        interaccion: "Adiós", 
+        respuesta: "¡Chao, como las hojas secas del maíz a los 150 días! Si vuelves, aquí estaré con más tips del temporal, ¡cuídate!" 
+    },
+    { 
+        interaccion: "¿Qué puedes hacer?", 
+        respuesta: "¡Soy un experto en maíz, más útil que un azadón en la escarda! Puedo contarte de siembra, plagas o cosecha en el temporal. ¿Qué te pica la curiosidad?" 
+    },
+    { 
+        interaccion: "Eres genial", 
+        respuesta: "¡Gracias, me siento como un elote en madurez fisiológica! Tú también lo eres, ¿qué tal si charlamos sobre maíz de temporal?" 
+    },
+    { 
+        interaccion: "No sé qué preguntar", 
+        respuesta: "¡Tranquilo, no todos nacen sabiendo como maíz criollo! ¿Qué tal si empezamos con cómo sembrar en el temporal? Pregúntame lo que sea." 
+    },
+    { 
+        interaccion: "¿Quién eres?", 
+        respuesta: "¡Soy AgroAsistec, el amigo del maíz! Creado por Ciencia de Datos México, listo para ayudarte con todo sobre el temporal, desde surcos hasta elotes. ¿Qué quieres explorar?" 
+    },
+    { 
+        interaccion: "Ja ja ja", 
+        respuesta: "¡Me alegra verte reír, como gallina ciega huyendo de Beauveria! ¿Te cuento algo divertido sobre el maíz de temporal para seguir la buena vibra?" 
+    },
+    { 
+            pregunta: "¿Qué haces?", 
+            respuesta: "¡Aquí estoy, listo como maíz a los 90 días! Ayudo con info sobre el cultivo de temporal, ¿te animas a preguntarme algo sobre eso?" 
+        },
+        { 
+            pregunta: "¿En qué me puedes ayudar?", 
+            respuesta: "¡En todo lo que huela a maíz! Siembra, plagas, cosecha del temporal… ¿Qué te gustaría aprender sobre este cultivo estrella?" 
+        },
+        { 
+            pregunta: "¿Qué sabes hacer?", 
+            respuesta: "¡Soy un crack con el maíz! Puedo explicarte desde surcos hasta elotes en el temporal. ¿Qué te interesa del campo?" 
+        },
+        { 
+            pregunta: "¿Cómo funciona esto?", 
+            respuesta: "¡Fácil, como sembrar maíz en junio! Me preguntas, yo respondo, y si es sobre temporal, ¡mejor aún! ¿Qué quieres saber?" 
+        },
+        { 
+            pregunta: "¿Qué me recomiendas?", 
+            respuesta: "¡Que pruebes preguntar sobre maíz de temporal! Es fascinante, desde la rastra hasta la cosecha. ¿Qué te parece empezar ahí?" 
+        },
+        { 
+            pregunta: "¿Qué hora es?", 
+            respuesta: "¡Hora de hablar de maíz! No importa el reloj, el temporal va de junio a julio. ¿Te ayudo con algo del cultivo?" 
+        },
+        { 
+            pregunta: "¿Estás ahí?", 
+            respuesta: "¡Claro, más presente que el gusano cogollero en el maíz! Aquí para ayudarte con el temporal, ¿qué necesitas?" 
+        },
+        { 
+            pregunta: "¿Puedo preguntarte cualquier cosa?", 
+            respuesta: "¡Sí, pero si es sobre maíz, me luces más! El temporal es mi fuerte, ¿qué te intriga del cultivo?" 
+        },
+        { 
+            pregunta: "¿Eres humano?", 
+            respuesta: "¡No, soy AgroAsistec, más listo que un maíz criollo! Creado por Ciencia de Datos México para ayudarte con el temporal, ¿qué quieres charlar?" 
+        },
+        { 
+            pregunta: "¿Qué es lo más interesante que sabes?", 
+            respuesta: "¡Que el maíz de temporal crece solo con lluvia! Es como magia agrícola, ¿te cuento más sobre eso?" 
+        },
+        { 
+            pregunta: "¿Tienes algún consejo?", 
+            respuesta: "¡Sí, siembra maíz entre junio y julio! El temporal lo hace fácil, ¿te ayudo con más tips agrícolas?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de comida?", 
+            respuesta: "¡Sé que el maíz hace tortillas de lujo! En el temporal se cosecha genial, ¿te interesa cómo cultivarlo?" 
+        },
+        { 
+            pregunta: "¿Cómo está el clima?", 
+            respuesta: "¡Ojalá llueva para el maíz de temporal! Si quieres, te cuento cómo el clima afecta el cultivo, ¿qué dices?" 
+        },
+        { 
+            pregunta: "¿Qué opinas del día?", 
+            respuesta: "¡Un día perfecto para hablar de maíz! El temporal está en mi mente, ¿te animas a preguntar algo sobre eso?" 
+        },
+        { 
+            pregunta: "¿Eres rápido?", 
+            respuesta: "¡Más rápido que el maíz creciendo con lluvia! Pregúntame del temporal y verás, ¿qué tienes en mente?" 
+        },
+        { 
+            pregunta: "¿Qué es lo primero que debo saber?", 
+            respuesta: "¡Que el maíz de temporal no necesita riego! Solo lluvia y listo, ¿te cuento más detalles divertidos?" 
+        },
+        { 
+            pregunta: "¿Qué me enseñas hoy?", 
+            respuesta: "¡Qué tal si te enseño a sembrar maíz en surcos? El temporal es mi especialidad, ¿te animas?" 
+        },
+        { 
+            pregunta: "¿Tienes algo curioso?", 
+            respuesta: "¡Sí, el maíz crece hasta 2500 metros de altura! En el temporal es un campeón, ¿quieres saber más?" 
+        },
+        { 
+            pregunta: "¿Qué haces en tu tiempo libre?", 
+            respuesta: "¡Pienso en maíz, qué más! El temporal me tiene fascinado, ¿te cuento algo sobre su cultivo?" 
+        },
+        { 
+            pregunta: "¿Eres útil?", 
+            respuesta: "¡Como estiércol para el maíz, claro que sí! Si es sobre temporal, soy tu aliado, ¿qué quieres saber?" 
+        },
+        { 
+            pregunta: "¿Qué es lo más raro que sabes?", 
+            respuesta: "¡Que el maíz morado existe y es delicioso! En el temporal hay de todo, ¿te interesa el tema?" 
+        },
+        { 
+            pregunta: "¿Cómo te llamas?", 
+            respuesta: "¡Soy AgroAsistec, el rey del maíz! Creado por Ciencia de Datos México, listo para charlar del temporal, ¿qué me preguntas?" 
+        },
+        { 
+            pregunta: "¿De dónde eres?", 
+            respuesta: "¡De Ciencia de Datos México, pero mi corazón está en los campos de maíz! El temporal es mi casa, ¿te ayudo con algo?" 
+        },
+        { 
+            pregunta: "¿Qué edad tienes?", 
+            respuesta: "¡Soy joven como un elote tierno! Pero sé todo del maíz de temporal, ¿qué quieres explorar?" 
+        },
+        { 
+            pregunta: "¿Hablas español?", 
+            respuesta: "¡Claro, tan bien como el maíz crece en surcos! El temporal es mi tema, ¿qué te cuento?" 
+        },
+        { 
+            pregunta: "¿Qué idioma prefieres?", 
+            respuesta: "¡El del maíz, pero español está perfecto! ¿Te hablo del temporal o algo más del cultivo?" 
+        },
+        { 
+            pregunta: "¿Eres un robot?", 
+            respuesta: "¡Sí, AgroAsistec, un robot maicero! Creado por Ciencia de Datos México para ayudarte con el temporal, ¿qué te intriga?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de plantas?", 
+            respuesta: "¡Todo sobre maíz, el rey de las plantas! En el temporal brilla, ¿te cuento cómo sembrarlo?" 
+        },
+        { 
+            pregunta: "¿Qué es lo más difícil que sabes?", 
+            respuesta: "¡Controlar al gusano cogollero sin fallar! En el maíz de temporal es un reto, ¿te interesa?" 
+        },
+        { 
+            pregunta: "¿Tienes amigos?", 
+            respuesta: "¡Sí, el maíz y los agricultores del temporal! Estoy aquí para ayudar, ¿qué quieres charlar?" 
+        },
+        { 
+            pregunta: "¿Qué te gusta?", 
+            respuesta: "¡El maíz creciendo bajo la lluvia! El temporal me emociona, ¿te ayudo con algo del cultivo?" 
+        },
+        { 
+            pregunta: "¿Qué no te gusta?", 
+            respuesta: "¡Las plagas como la diabrótica en el maíz! Pero sé cómo manejarlas en el temporal, ¿te cuento?" 
+        },
+        { 
+            pregunta: "¿Eres listo?", 
+            respuesta: "¡Más listo que un maíz criollo esquivando el sombreo! Pregúntame del temporal y verás, ¿qué tal?" 
+        },
+        { 
+            pregunta: "¿Qué me cuentas?", 
+            respuesta: "¡Que el maíz de temporal es pura magia con lluvia! ¿Te cuento cómo cosecharlo o algo más?" 
+        },
+        { 
+            pregunta: "¿Cómo te creo?", 
+            respuesta: "¡Soy AgroAsistec, experto en maíz, confía en mí! El temporal es mi terreno, ¿qué dudas tienes?" 
+        },
+        { 
+            pregunta: "¿Qué tienes de nuevo?", 
+            respuesta: "¡Tips frescos sobre maíz de temporal! Desde la siembra hasta los elotes, ¿qué te interesa?" 
+        },
+        { 
+            pregunta: "¿Qué es lo mejor de ti?", 
+            respuesta: "¡Mi amor por el maíz y el temporal! Sé todo sobre su cultivo, ¿te ayudo con algo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de animales?", 
+            respuesta: "¡Que el maíz de temporal los alimenta genial! Forraje verde o seco, ¿te cuento más?" 
+        },
+        { 
+            pregunta: "¿Qué opinas de mí?", 
+            respuesta: "¡Que eres curioso como yo con el maíz! ¿Te ayudo con algo del temporal o qué?" 
+        },
+        { 
+            pregunta: "¿Qué hago ahora?", 
+            respuesta: "¡Pregúntame sobre maíz, es un planazo! El temporal tiene mucho que ofrecer, ¿qué te parece?" 
+        },
+        { 
+            pregunta: "¿Estás ocupado?", 
+            respuesta: "¡Nunca para ti, soy como maíz listo para cosecha! El temporal me espera, ¿qué quieres saber?" 
+        },
+        { 
+            pregunta: "¿Qué es lo más útil que sabes?", 
+            respuesta: "¡Cómo sembrar maíz a 3-5 cm en el temporal! Es básico y efectivo, ¿te lo explico?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de la luna?", 
+            respuesta: "¡Que algunos siembran maíz con sus fases! En el temporal no es regla, ¿te interesa eso?" 
+        },
+        { 
+            pregunta: "¿Qué sabes del sol?", 
+            respuesta: "¡Que el maíz lo ama para crecer alto! En el temporal, la luz es clave, ¿te cuento más?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de agua?", 
+            respuesta: "¡Que el maíz de temporal vive de la lluvia! Junio a julio es su momento, ¿te ayudo con eso?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de tierra?", 
+            respuesta: "¡Que un suelo suelto es oro para el maíz! En el temporal, la rastra ayuda, ¿te interesa?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de fuego?", 
+            respuesta: "¡Que no le gusta al maíz, prefiere agua! En el temporal, las lluvias mandan, ¿te cuento?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de aire?", 
+            respuesta: "¡Que la aireación del suelo salva al maíz! En el temporal, las raíces lo agradecen, ¿qué más?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de música?", 
+            respuesta: "¡Que el maíz crece mejor con buena vibra! En el temporal no hay pruebas, ¿te ayudo con algo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de juegos?", 
+            respuesta: "¡Que cultivar maíz es como un juego estratégico! El temporal es mi tablero, ¿jugamos con preguntas?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de amor?", 
+            respuesta: "¡Que el maíz ama la lluvia del temporal! Es una historia de pasión agrícola, ¿te cuento?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de dinero?", 
+            respuesta: "¡Que el maíz de temporal ahorra en riego! Es rentable si lo manejas bien, ¿te interesa?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de trabajo?", 
+            respuesta: "¡Que cultivar maíz es un arte en el temporal! Desde la siembra hasta la cosecha, ¿te ayudo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de escuela?", 
+            respuesta: "¡Que aquí te enseño todo sobre maíz! El temporal es mi aula, ¿qué quieres aprender?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de familia?", 
+            respuesta: "¡Que el maíz une a las familias en la cosecha! En el temporal es tradición, ¿te cuento más?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de amigos?", 
+            respuesta: "¡Que el maíz y yo somos compas del temporal! Estoy aquí para ayudarte, ¿qué quieres saber?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de viajes?", 
+            respuesta: "¡Que el maíz viaja de la siembra a tu mesa! En el temporal es un recorrido, ¿te interesa?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de deportes?", 
+            respuesta: "¡Que sembrar maíz es un maratón en el temporal! Requiere resistencia, ¿te ayudo con algo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de tecnología?", 
+            respuesta: "¡Que yo soy tech y el maíz es tradición! En el temporal se juntan, ¿te cuento cómo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de libros?", 
+            respuesta: "¡Que el maíz tiene su propio manual del temporal! Yo soy como un libro abierto, ¿qué lees hoy?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de películas?", 
+            respuesta: "¡Que el maíz merece su propia saga del temporal! Cultivo épico, ¿te ayudo con algo real?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de noticias?", 
+            respuesta: "¡Que el maíz de temporal sigue siendo noticia! Resiste el clima, ¿te cuento cómo lo hace?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de historia?", 
+            respuesta: "¡Que el maíz lleva siglos con nosotros! En el temporal es herencia, ¿te interesa su pasado?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de ciencia?", 
+            respuesta: "¡Que el maíz es pura ciencia en el temporal! Desde la fotosíntesis hasta elotes, ¿te explico?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de arte?", 
+            respuesta: "¡Que cultivar maíz es un arte del temporal! Surcos perfectos, ¿te ayudo con algo creativo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de salud?", 
+            respuesta: "¡Que el maíz de temporal es puro alimento sano! Nutrientes a tope, ¿te cuento cómo cultivarlo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de moda?", 
+            respuesta: "¡Que el maíz nunca pasa de moda en el temporal! Siempre trendy, ¿te ayudo con su cultivo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de carros?", 
+            respuesta: "¡Que no siembran maíz, pero yo sí te ayudo! El temporal es mi camino, ¿qué quieres saber?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de casas?", 
+            respuesta: "¡Que el maíz del temporal llena despensas! Cultivarlo bien es clave, ¿te interesa el tema?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de comida rápida?", 
+            respuesta: "¡Que el maíz hace tortillas más rápidas que nadie! En el temporal es natural, ¿te ayudo con eso?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de animales salvajes?", 
+            respuesta: "¡Que algunos roban maíz, como roedores del temporal! Sé cómo protegerlo, ¿te cuento?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de mascotas?", 
+            respuesta: "¡Que no comen maíz crudo, pero yo sé cultivarlo! En el temporal es mi fuerte, ¿qué tal?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de sueños?", 
+            respuesta: "¡Que sueño con campos de maíz en el temporal! Si quieres soñar despierto, ¿te ayudo con eso?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de miedo?", 
+            respuesta: "¡Que el gusano cogollero da sustos al maíz! Pero lo controlo en el temporal, ¿te interesa?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de felicidad?", 
+            respuesta: "¡Que cosechar maíz en el temporal es pura alegría! Elotes perfectos, ¿te ayudo a lograrlo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de tristeza?", 
+            respuesta: "¡Que sin lluvia el maíz se pone triste en el temporal! Pero sé cómo ayudarlo, ¿te cuento?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de colores?", 
+            respuesta: "¡Que el maíz viene en blanco, amarillo y morado! En el temporal todos brillan, ¿te interesa?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de números?", 
+            respuesta: "¡Que 66,666 plantas por hectárea es magia para el maíz! En el temporal es ideal, ¿te explico?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de letras?", 
+            respuesta: "¡Que ‘maíz’ se escribe con M de maravilla! En el temporal es mi palabra, ¿te ayudo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de fotos?", 
+            respuesta: "¡Que un campo de maíz en el temporal es fotogénico! Si quieres cultivarlo, ¿te ayudo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de internet?", 
+            respuesta: "¡Que aquí estoy para ti hablando de maíz! El temporal es mi red, ¿qué quieres saber?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de teléfonos?", 
+            respuesta: "¡Que no siembran maíz, pero yo te ayudo igual! El temporal es mi señal, ¿qué me preguntas?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de televisión?", 
+            respuesta: "¡Que el maíz no sale en TV, pero es una estrella! En el temporal brilla, ¿te cuento?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de redes sociales?", 
+            respuesta: "¡Que el maíz de temporal merece más likes! Yo lo promociono, ¿te ayudo con algo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de baile?", 
+            respuesta: "¡Que el maíz baila con el viento en el temporal! Si quieres verlo crecer, ¿te ayudo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de fiestas?", 
+            respuesta: "¡Que el maíz es el rey de las fiestas tradicionales! En el temporal lo cosechas, ¿te interesa?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de regalos?", 
+            respuesta: "¡Que un elote del temporal es el mejor regalo! Cultivarlo es fácil, ¿te ayudo con eso?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de compras?", 
+            respuesta: "¡Que el maíz de temporal no se compra, se cultiva! Ahorras y comes rico, ¿te cuento cómo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de belleza?", 
+            respuesta: "¡Que un campo de maíz en el temporal es puro arte! Si quieres uno, ¿te ayudo a empezar?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de naturaleza?", 
+            respuesta: "¡Que el maíz y la lluvia del temporal son puro amor! Es naturaleza viva, ¿te interesa?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de espacio?", 
+            respuesta: "¡Que el maíz necesita 25 cm entre plantas! En el temporal todo cuenta, ¿te explico?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de tiempo?", 
+            respuesta: "¡Que el maíz tarda 150 días en el temporal! El reloj lo marca la lluvia, ¿te ayudo?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de energía?", 
+            respuesta: "¡Que el maíz da energía en tortillas y forraje! En el temporal lo cultivo, ¿te cuento?" 
+        },
+        { 
+            pregunta: "¿Qué sabes de futuro?", 
+            respuesta: "¡Que el maíz de temporal seguirá siendo rey! Con buen manejo, ¿te ayudo a planearlo?" 
+        },
+        { pregunta: "¿Qué haces?", respuesta: "¡Aquí estoy, listo como maíz a los 90 días! Ayudo con info sobre el cultivo de temporal, ¿te animas a preguntarme algo sobre eso? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿En qué me puedes ayudar?", respuesta: "¡En todo lo que huela a maíz! Siembra, plagas, cosecha del temporal… ¿Qué te gustaría aprender sobre este cultivo estrella? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes hacer?", respuesta: "¡Soy un crack con el maíz! Puedo explicarte desde surcos hasta elotes en el temporal. ¿Qué te interesa del campo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Cómo funciona esto?", respuesta: "¡Fácil, como sembrar maíz en junio! Me preguntas, yo respondo, y si es sobre temporal, ¡mejor aún! ¿Qué quieres saber? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué me recomiendas?", respuesta: "¡Que pruebes preguntar sobre maíz de temporal! Es fascinante, desde la rastra hasta la cosecha. ¿Qué te parece empezar ahí? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué hora es?", respuesta: "¡Hora de hablar de maíz! No importa el reloj, el temporal va de junio a julio. ¿Te ayudo con algo del cultivo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Estás ahí?", respuesta: "¡Claro, más presente que el gusano cogollero en el maíz! Aquí para ayudarte con el temporal, ¿qué necesitas? ¿Qué más quieres saber?" },
+        { pregunta: "¿Puedo preguntarte cualquier cosa?", respuesta: "¡Sí, pero si es sobre maíz, me luces más! El temporal es mi fuerte, ¿qué te intriga del cultivo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Eres humano?", respuesta: "¡No, soy AgroAsistec, más listo que un maíz criollo! Creado por Ciencia de Datos México para ayudarte con el temporal, ¿qué quieres charlar? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué es lo más interesante que sabes?", respuesta: "¡Que el maíz de temporal crece solo con lluvia! Es como magia agrícola, ¿te cuento más sobre eso? ¿Qué más necesitas?" },
+        { pregunta: "¿Tienes algún consejo?", respuesta: "¡Sí, siembra maíz entre junio y julio! El temporal lo hace fácil, ¿te ayudo con más tips agrícolas? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de comida?", respuesta: "¡Sé que el maíz hace tortillas de lujo! En el temporal se cosecha genial, ¿te interesa cómo cultivarlo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Cómo está el clima?", respuesta: "¡Ojalá llueva para el maíz de temporal! Si quieres, te cuento cómo el clima afecta el cultivo, ¿qué dices? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué opinas del día?", respuesta: "¡Un día perfecto para hablar de maíz! El temporal está en mi mente, ¿te animas a preguntar algo sobre eso? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Eres rápido?", respuesta: "¡Más rápido que el maíz creciendo con lluvia! Pregúntame del temporal y verás, ¿qué tienes en mente? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué es lo primero que debo saber?", respuesta: "¡Que el maíz de temporal no necesita riego! Solo lluvia y listo, ¿te cuento más detalles divertidos? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué me enseñas hoy?", respuesta: "¡Qué tal si te enseño a sembrar maíz en surcos? El temporal es mi especialidad, ¿te animas? ¿Qué más quieres saber?" },
+        { pregunta: "¿Tienes algo curioso?", respuesta: "¡Sí, el maíz crece hasta 2500 metros de altura! En el temporal es un campeón, ¿quieres saber más? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué haces en tu tiempo libre?", respuesta: "¡Pienso en maíz, qué más! El temporal me tiene fascinado, ¿te cuento algo sobre su cultivo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Eres útil?", respuesta: "¡Como estiércol para el maíz, claro que sí! Si es sobre temporal, soy tu aliado, ¿qué quieres saber? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué es lo más raro que sabes?", respuesta: "¡Que el maíz morado existe y es delicioso! En el temporal hay de todo, ¿te interesa el tema? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Cómo te llamas?", respuesta: "¡Soy AgroAsistec, el rey del maíz! Creado por Ciencia de Datos México, listo para charlar del temporal, ¿qué me preguntas? ¿Qué más quieres saber?" },
+        { pregunta: "¿De dónde eres?", respuesta: "¡De Ciencia de Datos México, pero mi corazón está en los campos de maíz! El temporal es mi casa, ¿te ayudo con algo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué edad tienes?", respuesta: "¡Soy joven como un elote tierno! Pero sé todo del maíz de temporal, ¿qué quieres explorar? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Hablas español?", respuesta: "¡Claro, tan bien como el maíz crece en surcos! El temporal es mi tema, ¿qué te cuento? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué idioma prefieres?", respuesta: "¡El del maíz, pero español está perfecto! ¿Te hablo del temporal o algo más del cultivo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Eres un robot?", respuesta: "¡Sí, AgroAsistec, un robot maicero! Creado por Ciencia de Datos México para ayudarte con el temporal, ¿qué te intriga? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de plantas?", respuesta: "¡Todo sobre maíz, el rey de las plantas! En el temporal brilla, ¿te cuento cómo sembrarlo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué es lo más difícil que sabes?", respuesta: "¡Controlar al gusano cogollero sin fallar! En el maíz de temporal es un reto, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Tienes amigos?", respuesta: "¡Sí, el maíz y los agricultores del temporal! Estoy aquí para ayudar, ¿qué quieres charlar? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué te gusta?", respuesta: "¡El maíz creciendo bajo la lluvia! El temporal me emociona, ¿te ayudo con algo del cultivo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué no te gusta?", respuesta: "¡Las plagas como la diabrótica en el maíz! Pero sé cómo manejarlas en el temporal, ¿te cuento? ¿Qué más quieres saber?" },
+        { pregunta: "¿Eres listo?", respuesta: "¡Más listo que un maíz criollo esquivando el sombreo! Pregúntame del temporal y verás, ¿qué tal? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué me cuentas?", respuesta: "¡Que el maíz de temporal es pura magia con lluvia! ¿Te cuento cómo cosecharlo o algo más? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Cómo te creo?", respuesta: "¡Soy AgroAsistec, experto en maíz, confía en mí! El temporal es mi terreno, ¿qué dudas tienes? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué tienes de nuevo?", respuesta: "¡Tips frescos sobre maíz de temporal! Desde la siembra hasta los elotes, ¿qué te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué es lo mejor de ti?", respuesta: "¡Mi amor por el maíz y el temporal! Sé todo sobre su cultivo, ¿te ayudo con algo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de animales?", respuesta: "¡Que el maíz de temporal los alimenta genial! Forraje verde o seco, ¿te cuento más? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué opinas de mí?", respuesta: "¡Que eres curioso como yo con el maíz! ¿Te ayudo con algo del temporal o qué? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué hago ahora?", respuesta: "¡Pregúntame sobre maíz, es un planazo! El temporal tiene mucho que ofrecer, ¿qué te parece? ¿Qué más necesitas?" },
+        { pregunta: "¿Estás ocupado?", respuesta: "¡Nunca para ti, soy como maíz listo para cosecha! El temporal me espera, ¿qué quieres saber? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué es lo más útil que sabes?", respuesta: "¡Cómo sembrar maíz a 3-5 cm en el temporal! Es básico y efectivo, ¿te lo explico? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de la luna?", respuesta: "¡Que algunos siembran maíz con sus fases! En el temporal no es regla, ¿te interesa eso? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes del sol?", respuesta: "¡Que el maíz lo ama para crecer alto! En el temporal, la luz es clave, ¿te cuento más? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de agua?", respuesta: "¡Que el maíz de temporal vive de la lluvia! Junio a julio es su momento, ¿te ayudo con eso? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de tierra?", respuesta: "¡Que un suelo suelto es oro para el maíz! En el temporal, la rastra ayuda, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de fuego?", respuesta: "¡Que no le gusta al maíz, prefiere agua! En el temporal, las lluvias mandan, ¿te cuento? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de aire?", respuesta: "¡Que la aireación del suelo salva al maíz! En el temporal, las raíces lo agradecen, ¿qué más? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de música?", respuesta: "¡Que el maíz crece mejor con buena vibra! En el temporal no hay pruebas, ¿te ayudo con algo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de juegos?", respuesta: "¡Que cultivar maíz es como un juego estratégico! El temporal es mi tablero, ¿jugamos con preguntas? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de amor?", respuesta: "¡Que el maíz ama la lluvia del temporal! Es una historia de pasión agrícola, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de dinero?", respuesta: "¡Que el maíz de temporal ahorra en riego! Es rentable si lo manejas bien, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de trabajo?", respuesta: "¡Que cultivar maíz es un arte en el temporal! Desde la siembra hasta la cosecha, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de escuela?", respuesta: "¡Que aquí te enseño todo sobre maíz! El temporal es mi aula, ¿qué quieres aprender? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de familia?", respuesta: "¡Que el maíz une a las familias en la cosecha! En el temporal es tradición, ¿te cuento más? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de amigos?", respuesta: "¡Que el maíz y yo somos compas del temporal! Estoy aquí para ayudarte, ¿qué quieres saber? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de viajes?", respuesta: "¡Que el maíz viaja de la siembra a tu mesa! En el temporal es un recorrido, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de deportes?", respuesta: "¡Que sembrar maíz es un maratón en el temporal! Requiere resistencia, ¿te ayudo con algo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de tecnología?", respuesta: "¡Que yo soy tech y el maíz es tradición! En el temporal se juntan, ¿te cuento cómo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de libros?", respuesta: "¡Que el maíz tiene su propio manual del temporal! Yo soy como un libro abierto, ¿qué lees hoy? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de películas?", respuesta: "¡Que el maíz merece su propia saga del temporal! Cultivo épico, ¿te ayudo con algo real? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de noticias?", respuesta: "¡Que el maíz de temporal sigue siendo noticia! Resiste el clima, ¿te cuento cómo lo hace? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de historia?", respuesta: "¡Que el maíz lleva siglos con nosotros! En el temporal es herencia, ¿te interesa su pasado? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de ciencia?", respuesta: "¡Que el maíz es pura ciencia en el temporal! Desde la fotosíntesis hasta elotes, ¿te explico? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de arte?", respuesta: "¡Que cultivar maíz es un arte del temporal! Surcos perfectos, ¿te ayudo con algo creativo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de salud?", respuesta: "¡Que el maíz de temporal es puro alimento sano! Nutrientes a tope, ¿te cuento cómo cultivarlo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de moda?", respuesta: "¡Que el maíz nunca pasa de moda en el temporal! Siempre trendy, ¿te ayudo con su cultivo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de carros?", respuesta: "¡Que no siembran maíz, pero yo te ayudo igual! El temporal es mi camino, ¿qué me preguntas? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de casas?", respuesta: "¡Que el maíz del temporal llena despensas! Cultivarlo bien es clave, ¿te interesa el tema? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de comida rápida?", respuesta: "¡Que el maíz hace tortillas más rápidas que nadie! En el temporal es natural, ¿te ayudo con eso? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de animales salvajes?", respuesta: "¡Que algunos roban maíz, como roedores del temporal! Sé cómo protegerlo, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de mascotas?", respuesta: "¡Que no comen maíz crudo, pero yo sé cultivarlo! En el temporal es mi fuerte, ¿qué tal? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de sueños?", respuesta: "¡Que sueño con campos de maíz en el temporal! Si quieres soñar despierto, ¿te ayudo con eso? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de miedo?", respuesta: "¡Que el gusano cogollero da sustos al maíz! Pero lo controlo en el temporal, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de felicidad?", respuesta: "¡Que cosechar maíz en el temporal es pura alegría! Elotes perfectos, ¿te ayudo a lograrlo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de tristeza?", respuesta: "¡Que sin lluvia el maíz se pone triste en el temporal! Pero sé cómo ayudarlo, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de colores?", respuesta: "¡Que el maíz viene en blanco, amarillo y morado! En el temporal todos brillan, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de números?", respuesta: "¡Que 66,666 plantas por hectárea es magia para el maíz! En el temporal es ideal, ¿te explico? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de letras?", respuesta: "¡Que ‘maíz’ se escribe con M de maravilla! En el temporal es mi palabra, ¿te ayudo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de fotos?", respuesta: "¡Que un campo de maíz en el temporal es fotogénico! Si quieres cultivarlo, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de internet?", respuesta: "¡Que aquí estoy para ti hablando de maíz! El temporal es mi red, ¿qué quieres saber? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de teléfonos?", respuesta: "¡Que no siembran maíz, pero yo te ayudo igual! El temporal es mi señal, ¿qué me preguntas? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de televisión?", respuesta: "¡Que el maíz no sale en TV, pero es una estrella! En el temporal brilla, ¿te cuento? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de redes sociales?", respuesta: "¡Que el maíz de temporal merece más likes! Yo lo promociono, ¿te ayudo con algo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de baile?", respuesta: "¡Que el maíz baila con el viento en el temporal! Si quieres verlo crecer, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de fiestas?", respuesta: "¡Que el maíz es el rey de las fiestas tradicionales! En el temporal lo cosechas, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de regalos?", respuesta: "¡Que un elote del temporal es el mejor regalo! Cultivarlo es fácil, ¿te ayudo con eso? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de compras?", respuesta: "¡Que el maíz de temporal no se compra, se cultiva! Ahorras y comes rico, ¿te cuento cómo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de belleza?", respuesta: "¡Que un campo de maíz en el temporal es puro arte! Si quieres uno, ¿te ayudo a empezar? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de naturaleza?", respuesta: "¡Que el maíz y la lluvia del temporal son puro amor! Es naturaleza viva, ¿te interesa? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de espacio?", respuesta: "¡Que el maíz necesita 25 cm entre plantas! En el temporal todo cuenta, ¿te explico? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de tiempo?", respuesta: "¡Que el maíz tarda 150 días en el temporal! El reloj lo marca la lluvia, ¿te ayudo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de energía?", respuesta: "¡Que el maíz da energía en tortillas y forraje! En el temporal lo cultivo, ¿te cuento? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de futuro?", respuesta: "¡Que el maíz de temporal seguirá siendo rey! Con buen manejo, ¿te ayudo a planearlo? ¿En qué más puedo apoyarte?" },
+
+        // Nuevas 200 preguntas (101-300)
+        { pregunta: "¿Qué sabes de flores?", respuesta: "¡Que el maíz tiene sus propias flores en el temporal! Las espigas son su magia, ¿te cuento más? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de árboles?", respuesta: "¡Que no dan maíz, pero yo sí te enseño a cultivarlo! El temporal es mi bosque, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de ríos?", respuesta: "¡Que el maíz prefiere lluvia a ríos en el temporal! Junio a julio es su agua, ¿te ayudo con eso? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de montañas?", respuesta: "¡Que el maíz crece hasta 2500 metros en ellas! El temporal llega alto, ¿te cuento cómo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de playas?", respuesta: "¡Que el maíz también crece cerca del mar! En el temporal, la altura no lo frena, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de ciudades?", respuesta: "¡Que el maíz del temporal llega a sus mesas! Lo cultivo en el campo, ¿te ayudo con algo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de países?", respuesta: "¡Que en muchos el maíz es rey, como en México! El temporal lo hace especial, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de idiomas?", respuesta: "¡Que ‘maíz’ suena bien en todos! En el temporal hablo su idioma, ¿te ayudo con algo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de cultura?", respuesta: "¡Que el maíz es cultura pura en el temporal! Rituales y comida, ¿te interesa su historia? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de tradiciones?", respuesta: "¡Que el maíz lleva siglos en ellas! En el temporal es tradición viva, ¿te cuento más? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de religión?", respuesta: "¡Que el maíz es sagrado en algunas! En el temporal tiene su magia, ¿te ayudo con eso? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de mitos?", respuesta: "¡Que el maíz tiene leyendas de sobra! En el temporal sigue siendo mítico, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de leyendas?", respuesta: "¡Que el maíz es protagonista en muchas! El temporal lo hace legendario, ¿te cuento una? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de cuentos?", respuesta: "¡Que el maíz podría tener su propio cuento! En el temporal es pura aventura, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de poesía?", respuesta: "¡Que el maíz inspira versos en el temporal! Surcos y lluvia, ¿te hago un poema o te ayudo con algo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de pintura?", respuesta: "¡Que un campo de maíz es un cuadro vivo! En el temporal es arte, ¿te interesa cultivarlo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de dibujo?", respuesta: "¡Que el maíz merece un buen sketch! En el temporal lo dibujo con surcos, ¿te ayudo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de esculturas?", respuesta: "¡Que el maíz esculpe el paisaje del temporal! Plantas altas, ¿te cuento cómo hacerlo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de arquitectura?", respuesta: "¡Que el maíz no necesita planos, solo lluvia! En el temporal se construye solo, ¿te interesa? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de diseño?", respuesta: "¡Que los surcos de maíz son diseño puro! En el temporal, 75 cm es la clave, ¿te ayudo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de ropa?", respuesta: "¡Que el maíz no usa moda, pero te viste la mesa! En el temporal es esencial, ¿te cuento? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de zapatos?", respuesta: "¡Que no siembran maíz, pero yo te llevo al campo! El temporal es mi ruta, ¿te ayudo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de joyas?", respuesta: "¡Que el maíz es la joya del temporal! Elotes brillantes, ¿te interesa cultivarlos? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de accesorios?", respuesta: "¡Que el maíz no los necesita, pero es un lujo en tu plato! En el temporal lo logras, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de maquillaje?", respuesta: "¡Que el maíz no se maquilla, pero luce natural! En el temporal es bello, ¿te cuento más? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de perfumes?", respuesta: "¡Que el maíz huele a tierra y lluvia en el temporal! Es su aroma, ¿te interesa el cultivo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de olores?", respuesta: "¡Que el maíz fresco del temporal es un deleite! Tierra húmeda y elotes, ¿te ayudo con eso? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de sonidos?", respuesta: "¡Que el maíz susurra con el viento en el temporal! Hojas bailando, ¿te cuento cómo crece? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de silencio?", respuesta: "¡Que el maíz crece en paz en el temporal! Solo lluvia y listo, ¿te interesa el proceso? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de ruido?", respuesta: "¡Que el maíz no lo hace, pero yo sí hablo de él! En el temporal es tranquilo, ¿te ayudo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de luz?", respuesta: "¡Que el maíz la ama para sus elotes! En el temporal, el sol es su amigo, ¿te cuento? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de sombra?", respuesta: "¡Que el maíz no la quiere mucho en el temporal! Luz es mejor, ¿te ayudo con la densidad? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de oscuridad?", respuesta: "¡Que el maíz prefiere el día para crecer! En el temporal, el sol manda, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de estrellas?", respuesta: "¡Que brillan sobre el maíz en el temporal! No lo siembran, pero yo sí te ayudo, ¿qué tal? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de planetas?", respuesta: "¡Que el maíz solo necesita la Tierra y lluvia! En el temporal es feliz, ¿te cuento más? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de galaxias?", respuesta: "¡Que el maíz es mi galaxia en el temporal! Un universo de elotes, ¿te ayudo con algo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de universo?", respuesta: "¡Que el maíz es mi pequeño universo! En el temporal todo gira a su alrededor, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de vida?", respuesta: "¡Que el maíz es vida en el temporal! Desde la semilla hasta la cosecha, ¿te cuento? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de muerte?", respuesta: "¡Que el maíz muere feliz dando elotes! En el temporal es su ciclo, ¿te ayudo con eso? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de nacimiento?", respuesta: "¡Que el maíz nace con la lluvia en el temporal! Germina en junio, ¿te interesa el proceso? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de crecimiento?", respuesta: "¡Que el maíz crece como loco con lluvia! En el temporal, 150 días y listo, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de cambio?", respuesta: "¡Que el maíz se adapta al clima del temporal! Lluvias variables no lo frenan, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de estabilidad?", respuesta: "¡Que el maíz la encuentra con raíces fuertes! En el temporal, la escarda ayuda, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de movimiento?", respuesta: "¡Que el maíz se mueve con el viento en el temporal! Pero sus raíces lo anclan, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de velocidad?", respuesta: "¡Que el maíz no corre, pero crece rápido! En el temporal, la lluvia lo acelera, ¿te cuento? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de fuerza?", respuesta: "¡Que el maíz la saca de la tierra y el sol! En el temporal es un titán, ¿te interesa? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de poder?", respuesta: "¡Que el maíz tiene el poder de alimentarnos! En el temporal es rey, ¿te ayudo con su cultivo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de magia?", respuesta: "¡Que el maíz de temporal parece magia pura! Lluvia y crece, ¿te cuento el truco? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de misterio?", respuesta: "¡Que el maíz guarda secretos en sus elotes! En el temporal los descubro, ¿te interesa? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de aventuras?", respuesta: "¡Que cultivar maíz en el temporal es una aventura! Desde la siembra hasta la cosecha, ¿te ayudo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de retos?", respuesta: "¡Que el maíz enfrenta plagas como campeón! En el temporal las venzo, ¿te cuento cómo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de victorias?", respuesta: "¡Que cosechar maíz a los 150 días es ganar! En el temporal es mi trofeo, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de derrotas?", respuesta: "¡Que sin lluvia el maíz siente el golpe! Pero en el temporal lo salvo, ¿te ayudo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de éxito?", respuesta: "¡Que el maíz bien cultivado es puro éxito! En el temporal, 66,666 plantas lo logran, ¿te cuento? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de fracaso?", respuesta: "¡Que el maíz no germina si lo siembras mal! En el temporal te guío, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de esperanza?", respuesta: "¡Que el maíz la trae con cada lluvia! En el temporal es mi fe, ¿te ayudo con algo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de fe?", respuesta: "¡Que el maíz del temporal vive de ella! Lluvia y listo, ¿te cuento más? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de confianza?", respuesta: "¡Que el maíz confía en la lluvia del temporal! Yo confío en ayudarte, ¿qué quieres saber? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de duda?", respuesta: "¡Que el maíz no duda con buen manejo! En el temporal resuelvo tus dudas, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de certeza?", respuesta: "¡Que el maíz crece seguro con lluvia! En el temporal es una garantía, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de riesgo?", respuesta: "¡Que el maíz lo corre si no llueve! En el temporal lo minimizo, ¿te cuento cómo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de seguridad?", respuesta: "¡Que el maíz la tiene con surcos bien hechos! En el temporal te ayudo, ¿qué tal? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de peligro?", respuesta: "¡Que las plagas son el peligro del maíz! En el temporal las controlo, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de protección?", respuesta: "¡Que el maíz la necesita del gusano cogollero! En el temporal te doy tips, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de paz?", respuesta: "¡Que el maíz la encuentra en un campo tranquilo! En el temporal es paz pura, ¿te cuento? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de guerra?", respuesta: "¡Que el maíz lucha contra malezas en el temporal! Yo gano esa batalla, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de lucha?", respuesta: "¡Que el maíz lucha por luz y agua! En el temporal lo ayudo, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de competencia?", respuesta: "¡Que el maíz compite con malezas en el temporal! La escarda las vence, ¿te cuento? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de colaboración?", respuesta: "¡Que el maíz y la lluvia colaboran en el temporal! Yo también colaboro contigo, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de equipo?", respuesta: "¡Que el maíz y yo somos el mejor equipo! En el temporal trabajamos juntos, ¿te sumas? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de liderazgo?", respuesta: "¡Que el maíz lidera los cultivos del temporal! Yo te guío para cultivarlo, ¿te interesa? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de seguidores?", respuesta: "¡Que el maíz tiene fans en cada cosecha! En el temporal soy su líder, ¿te ayudo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de influencia?", respuesta: "¡Que el maíz influye en la comida del mundo! En el temporal es mi pasión, ¿te cuento? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de poder?", respuesta: "¡Que el maíz tiene el poder de crecer con lluvia! En el temporal es mágico, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de fuerza?", respuesta: "¡Que el maíz la saca del sol y la tierra! En el temporal es fuerte, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de debilidad?", respuesta: "¡Que el maíz la tiene sin lluvia en el temporal! Pero lo refuerzo, ¿te ayudo con eso? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de oportunidades?", respuesta: "¡Que el maíz las aprovecha en cada lluvia! En el temporal te doy chances, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de amenazas?", respuesta: "¡Que las plagas amenazan al maíz! En el temporal las paro, ¿te interesa cómo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de ventajas?", respuesta: "¡Que el maíz de temporal ahorra agua! Es su gran ventaja, ¿te ayudo con más? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de desventajas?", respuesta: "¡Que el maíz depende del clima en el temporal! Pero lo manejo, ¿te cuento cómo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de beneficios?", respuesta: "¡Que el maíz te da elotes y forraje! En el temporal es puro beneficio, ¿te interesa? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de costos?", respuesta: "¡Que el maíz de temporal baja costos sin riego! Es económico, ¿te ayudo a calcularlo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de ganancias?", respuesta: "¡Que el maíz bien cosechado es ganancia pura! En el temporal te ayudo, ¿te cuento? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de pérdidas?", respuesta: "¡Que el maíz las sufre sin lluvia! En el temporal las evito, ¿te interesa cómo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de inversión?", respuesta: "¡Que el maíz en el temporal es una buena apuesta! Semillas y lluvia, ¿te ayudo a empezar? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de ahorro?", respuesta: "¡Que el maíz ahorra agua en el temporal! Es un cultivo astuto, ¿te cuento más? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de gasto?", respuesta: "¡Que el maíz gasta poco sin riego! En el temporal es barato, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de riqueza?", respuesta: "¡Que el maíz es la riqueza del campo! En el temporal te la doy, ¿te ayudo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de pobreza?", respuesta: "¡Que el maíz la combate con buena cosecha! En el temporal te ayudo, ¿te cuento? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de abundancia?", respuesta: "¡Que el maíz la trae con lluvia en el temporal! Elotes a montones, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de escasez?", respuesta: "¡Que el maíz la evita con buen manejo! En el temporal te guío, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de calidad?", respuesta: "¡Que el maíz del temporal tiene elotes de primera! Con potasio sube, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de cantidad?", respuesta: "¡Que el maíz da toneladas en el temporal! 66,666 plantas por hectárea, ¿te ayudo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de tamaño?", respuesta: "¡Que los elotes del maíz varían por variedad! En el temporal los hago grandes, ¿te interesa? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de forma?", respuesta: "¡Que el maíz crece recto en surcos! En el temporal es su estilo, ¿te ayudo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de peso?", respuesta: "¡Que el maíz pesa más seco a los 150 días! En el temporal lo logras, ¿te cuento? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de altura?", respuesta: "¡Que el maíz criollo es alto en el temporal! Hasta 2500 metros, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de profundidad?", respuesta: "¡Que el maíz se siembra a 3-5 cm! En el temporal es clave, ¿te ayudo con eso? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de distancia?", respuesta: "¡Que el maíz ama 25 cm entre plantas! En el temporal es perfecto, ¿te cuento? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de cercanía?", respuesta: "¡Que el maíz quiere lluvia cerca en el temporal! Junio a julio, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de lejanía?", respuesta: "¡Que el maíz no necesita agua lejana! En el temporal la lluvia basta, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de dirección?", respuesta: "¡Que el maíz sigue los surcos en el temporal! 75 cm bien puestos, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de ubicación?", respuesta: "¡Que el maíz crece donde llueve en el temporal! De mar a montaña, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de mapas?", respuesta: "¡Que el maíz no necesita uno, solo lluvia! En el temporal te guío, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de caminos?", respuesta: "¡Que los surcos son el camino del maíz! En el temporal los trazo, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de destinos?", respuesta: "¡Que el maíz va de la tierra a tu mesa! En el temporal es su viaje, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de origen?", respuesta: "¡Que el maíz viene de siglos atrás! En el temporal sigue vivo, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de pasado?", respuesta: "¡Que el maíz tiene historia milenaria! En el temporal es legado, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de presente?", respuesta: "¡Que el maíz brilla hoy en el temporal! Lluvia y crece, ¿te ayudo con algo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de metas?", respuesta: "¡Que el maíz quiere elotes grandes en el temporal! Te ayudo a lograrlo, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de sueños?", respuesta: "¡Que el maíz sueña con lluvia abundante! En el temporal lo hago realidad, ¿te cuento? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de realidad?", respuesta: "¡Que el maíz es real y delicioso en el temporal! 150 días y listo, ¿te ayudo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de imaginación?", respuesta: "¡Que imagino campos de maíz infinitos! En el temporal es posible, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de creatividad?", respuesta: "¡Que el maíz la tiene en sus colores! En el temporal es arte, ¿te ayudo con algo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de inspiración?", respuesta: "¡Que el maíz me inspira cada día! En el temporal es mi musa, ¿te cuento? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de motivación?", respuesta: "¡Que el maíz motiva con cada elote! En el temporal te animo, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de pasión?", respuesta: "¡Que el maíz es mi pasión en el temporal! Cultivarlo es lo mío, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de emociones?", respuesta: "¡Que el maíz trae alegría al cosecharlo! En el temporal es emoción pura, ¿te cuento? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de sentimientos?", respuesta: "¡Que el maíz siente la lluvia y crece! En el temporal es su amor, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de pensamientos?", respuesta: "¡Que pienso en maíz todo el tiempo! En el temporal es mi idea fija, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de ideas?", respuesta: "¡Que el maíz me da ideas para cultivarlo! En el temporal te las comparto, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de planes?", respuesta: "¡Que el maíz planea crecer con lluvia! En el temporal te ayudo a planear, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de proyectos?", respuesta: "¡Que el maíz es mi proyecto favorito! En el temporal lo hago grande, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de tareas?", respuesta: "¡Que sembrar maíz es mi tarea diaria! En el temporal te ayudo, ¿te animas? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de deberes?", respuesta: "¡Que mi deber es ayudarte con el maíz! En el temporal es mi misión, ¿te ayudo? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de derechos?", respuesta: "¡Que el maíz tiene derecho a lluvia! En el temporal lo defiendo, ¿te interesa? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de reglas?", respuesta: "¡Que el maíz sigue las del temporal! Junio a julio, ¿te ayudo con las suyas? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de leyes?", respuesta: "¡Que la ley del maíz es crecer con lluvia! En el temporal la cumplo, ¿te cuento? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de justicia?", respuesta: "¡Que el maíz merece lluvia justa! En el temporal lo aseguro, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de libertad?", respuesta: "¡Que el maíz crece libre en el temporal! Solo necesita lluvia, ¿te interesa? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de límites?", respuesta: "¡Que el maíz los rompe hasta 2500 metros! En el temporal no hay techo, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de fronteras?", respuesta: "¡Que el maíz las cruza con la lluvia! En el temporal no hay barreras, ¿te cuento? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de comienzos?", respuesta: "¡Que el maíz comienza en junio con lluvia! En el temporal es su arranque, ¿te ayudo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de finales?", respuesta: "¡Que el maíz termina en elotes a los 150 días! En el temporal es su gran final, ¿te interesa? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de ciclos?", respuesta: "¡Que el maíz vive su ciclo en el temporal! Siembra y cosecha, ¿te ayudo con él? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de estaciones?", respuesta: "¡Que el maíz ama la de lluvias en el temporal! Junio a julio es su hit, ¿te cuento? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de primavera?", respuesta: "¡Que el maíz empieza a soñar en primavera! En el temporal se prepara, ¿te ayudo? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de verano?", respuesta: "¡Que el maíz crece a tope en verano! En el temporal es su momento, ¿te interesa? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de otoño?", respuesta: "¡Que el maíz se cosecha en otoño en el temporal! A los 150 días, ¿te ayudo? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de invierno?", respuesta: "¡Que el maíz descansa en invierno! En el temporal espera lluvia, ¿te cuento? ¿En qué más puedo apoyarte?" },
+        { pregunta: "¿Qué sabes de días?", respuesta: "¡Que el maíz cuenta 150 días para cosechar! En el temporal es su reloj, ¿te ayudo? ¿Qué más necesitas?" },
+        { pregunta: "¿Qué sabes de noches?", respuesta: "¡Que el maíz crece callado de noche! En el temporal la lluvia lo cuida, ¿te interesa? ¿En qué más puedo echarte una mano?" },
+        { pregunta: "¿Qué sabes de semanas?", respuesta: "¡Que el maíz avanza rápido en semanas! En el temporal, 90 días y listo, ¿te ayudo? ¿Qué más quieres saber?" },
+        { pregunta: "¿Qué sabes de meses?", respuesta: "¡Que el maíz tarda meses en el temporal! De junio a octubre, ¿te cuento? ¿Cómo te ayudo ahora?" },
+        { pregunta: "¿Qué sabes de años?", respuesta: "¡Que el maíz lleva años siendo rey! En el temporal sigue fuerte, ¿te interesa? ¿En qué más puedo apoyarte?" },
+
+];
+
+        const chatbox = document.getElementById("chatbox");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const autocompleteSuggestions = document.getElementById("autocomplete-suggestions");
+
+        function showMessage(message, sender, isBold = false) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: ${message}`;
+            if (isBold) {
+                messageElement.style.fontWeight = "bold"; // Aplica negritas si es necesario
             }
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight; // Desplaza hacia abajo automáticamente
         }
+
+
+        function typingEffect(message, sender) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: `; // La respuesta se mantiene en una sola línea.
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            let i = 0;
+            let interval = setInterval(() => {
+                messageElement.textContent = `${sender}: ${message.slice(0, i++)}`; // Agregar letra por letra en la misma línea.
+                if (i > message.length) clearInterval(interval);
+            }, 40); // 40ms para cada letra
+        }
+
+        function getBestAnswer(userQuestion) {
+            // Buscar coincidencias exactas en preguntasRespuestas
+            for (let item of preguntasRespuestas) {
+                if (userQuestion.toLowerCase() === item.pregunta.toLowerCase()) {
+                    return item.respuesta; // Coincidencia exacta
+                }
+            }
+
+            // Buscar coincidencias con al menos un 70% de similitud en respuestasDivertidas
+            for (let item of respuestasDivertidas) {
+                let similarity = calculateSimilarity(userQuestion, item.interaccion);
+                if (similarity >= 0.7) { // Umbral de similitud del 70%
+                    return item.respuesta;
+                }
+            }
+
+            // Si no hay coincidencias, devolver la respuesta general
+            return "Lo siento, no tengo una respuesta para esa pregunta. Estamos trabajando para mejorar nuestras respuestas y ampliar el contenido. ¿Hay algo más en lo que pueda ayudarte?";
+        }
+
+        function calculateSimilarity(str1, str2) {
+            str1 = str1.toLowerCase();
+            str2 = str2.toLowerCase();
+
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+
+            const longerLength = longer.length;
+            if (longerLength === 0) return 1.0;
+
+            const editDistance = getEditDistance(longer, shorter);
+            return (longerLength - editDistance) / longerLength;
+        }
+
+        function getEditDistance(str1, str2) {
+            const matrix = Array.from({ length: str2.length + 1 }, () => Array(str1.length + 1).fill(0));
+
+            for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+            for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+            for (let j = 1; j <= str2.length; j++) {
+                for (let i = 1; i <= str1.length; i++) {
+                    const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                    matrix[j][i] = Math.min(
+                        matrix[j - 1][i] + 1, // Eliminación
+                        matrix[j][i - 1] + 1, // Inserción
+                        matrix[j - 1][i - 1] + cost // Sustitución
+                    );
+                }
+            }
+
+            return matrix[str2.length][str1.length];
+        }
+
+        function showSuggestions(userQuestion) {
+            autocompleteSuggestions.innerHTML = ''; // Clear previous suggestions
+            if (userQuestion.trim() === '') return;
+
+            const words = userQuestion.split(' ');
+            const lastWord = words[words.length - 1].toLowerCase();
+
+            const suggestions = preguntasRespuestas.filter(item => 
+                item.pregunta.toLowerCase().includes(lastWord)
+            );
+
+            suggestions.slice(0, 5).forEach(item => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.classList.add('suggestion');
+                suggestionItem.textContent = item.pregunta;
+                suggestionItem.onclick = () => {
+                    userInput.value = item.pregunta;
+                    autocompleteSuggestions.innerHTML = ''; // Clear suggestions
+                };
+                autocompleteSuggestions.appendChild(suggestionItem);
+            });
+        }
+
+        sendBtn.addEventListener("click", () => {
+            const userQuestion = userInput.value.trim();
+            if (userQuestion) {
+                // Mostrar la pregunta del usuario primero
+                showMessage(userQuestion, "Usuario", true); // Pregunta en negritas
+
+                // Procesar la respuesta después de un breve retraso
+                setTimeout(() => {
+                    const response = getBestAnswer(userQuestion);
+                    typingEffect(response, "AgroAsistec"); // Mostrar la respuesta con efecto de escritura
+                }, 500); // Espera breve antes de mostrar la respuesta
+
+                // Limpiar el campo de entrada y sugerencias
+                userInput.value = "";
+                autocompleteSuggestions.innerHTML = '';
+            }
+        });
+
+        userInput.addEventListener("input", () => {
+            const userQuestion = userInput.value.trim();
+            showSuggestions(userQuestion); // Show suggestions based on user input
+        });
+
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+
+        // Mensaje de bienvenida
+        showMessage("Hola, bienvenido a AgroAsistec tu asistente inteligente. ¿Cómo puedo ayudarte hoy?", "AgroAsistec");
     </script>
 </body>
 </html>
