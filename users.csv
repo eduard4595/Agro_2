@@ -5,3 +5,4 @@ user1,1,user1@mail.com,pbkdf2:sha256:1000000$7WPdRADxJI0BwubC$34d6b28f570f09bcee
 Luis Maiz,1,maiz2@gmail.com,pbkdf2:sha256:1000000$jwiFWTnC54PUl0jI$9a97d02989b8889dd59c44057a1648c6028c405e1e3a8e16699befff5cd45d07,12/12/1990,mujer,Aceptado
 Luis Maiz,1,maiz2@gmail.com,pbkdf2:sha256:1000000$GHDskqbHmd5Gca2e$0e04c5d4aa69111ea2ae96c0c63422bad42ef39645faa607517940aeee56d229,12/12/1990,mujer,Aceptado
 Juan Cerdos ,1,cerdos_mx@gmail.com,pbkdf2:sha256:1000000$9EbSQFjQuevTpjqp$0c86d350f416136608fe0094127bfb85756c74fa2cad38585f7c6ce216850a7e,12/12/1990,personalizado,Aceptado
+ee,w,22222@3333,pbkdf2:sha256:1000000$den6cgGfFhZPBS2o$30a9452d747cf82ca017a4c0c8294df31ebab3ebd9c06e5ef404bee55135854c,2/12/2000,hombre,Aceptado
