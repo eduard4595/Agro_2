@@ -137,8 +137,8 @@
                 <h3>Activos</h3>
                 <table>
                     <tr><th>Concepto</th><th>Monto</th></tr>
-                    <tr><td>Maquinaria y equipo</td><td data-value="{{ data.activos.maquinaria_equipo }}"></td></tr>
                     <tr><td>Dinero disponible</td><td data-value="{{ data.activos.dinero_disponible }}"></td></tr>
+                    <tr><td>Maquinaria y equipo</td><td data-value="{{ data.activos.maquinaria_equipo }}"></td></tr>
                     <tr><td><strong>Total Activos</strong></td><td data-value="{{ data.activos.total_activos }}"></td></tr>
                 </table>
             </div>
@@ -164,7 +164,6 @@
                     <tr><td style="padding-left: 20px; font-size: 12px;"> Jornales</td><td style="font-size: 12px;" data-value="{{ data.gastos.jornales}}"></td></tr>
                     <tr><td style="padding-left: 20px; font-size: 12px;"> Servicios</td><td style="font-size: 12px;" data-value="{{ data.gastos.servicios }}"></td></tr>
                     <tr><td style="padding-left: 20px; font-size: 12px;"> Imprevistos</td><td style="font-size: 12px;" data-value="{{ data.gastos.imprevistos }}"></td></tr>
-                    <tr><td style="padding-left: 20px; font-size: 12px;"> Insumos</td><td style="font-size: 12px;" data-value="{{ data.gastos.insumos }}"></td></tr>
                     <tr><td><strong>Total Gastos</strong></td><td class="negative" data-value="{{ data.gastos.total_gastos }}"></td></tr>
                     <tr><td><strong>Utilidad Neta</strong></td><td data-value="{{ data.utilidad_neta }}"></td></tr>
                 </table>
@@ -207,7 +206,7 @@
 
         <button onclick="printPDF()" class="btn">Descargar en PDF</button>
 
-        <a href="{{  url_for(dashboard_maiz) }}" class="btn-back">
+        <a href="{{ url_for('dashboard_maiz') }}" class="btn-back">
             ← Volver al Panel de Maíz
         </a>
 
@@ -219,6 +218,7 @@
         {% else %}
         <p>No se encontraron datos para la fecha seleccionada.</p>
         {% endif %}
+
     </div>
 
     <script>

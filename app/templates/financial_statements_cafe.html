@@ -97,7 +97,7 @@
             .btn, .btn-back, .producer-input, form {
               display: none;
             }
-            h2 {
+            h2 {  
               font-size: 14px;
             }
             table {
@@ -240,13 +240,13 @@
     });
 
     function printPDF() {
-      const producerName = document.getElementById('producer_name').value;
-      if (!producerName) {
-        alert('Por favor, ingresa el nombre del productor o empresa antes de descargar el PDF.');
-        return;
-      }
-      window.print();
-    }
+        const producerName = document.getElementById('producer_name').value;
+        if (!producerName) {
+            alert('Por favor, ingresa el nombre del productor o empresa antes de descargar el PDF.');
+            return;
+        }
+        window.print();
+        }
   </script>
 
   <!-- Estilo para impresión -->
@@ -262,34 +262,5 @@
         font-size: 12px; /* Reduce el tamaño de las tablas */
       }
     }
-  </style>
-
-  <!-- Estilo para el botón -->
-  <style>
-    .btn-back {
-      display: inline-block;
-      padding: 10px 20px;
-      margin: 10px 0;
-      background-color: #FFA500; /* Naranja */
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 16px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .btn-back:hover {
-      background-color: #FF8C00; /* Naranja oscuro */
-    }
-
-    @media print {
-      .btn-back {
-        display: none; /* Oculta el botón en la impresión */
-      }
-    }
-  </style>
 </body>
 </html>

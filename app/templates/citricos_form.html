@@ -1,11 +1,146 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuestionario para Producción de Cítricos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/questionario.css') }}">
-    <script src="{{ url_for('static', filename='js/questionario.js') }}"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cuestionario para Producción de Café</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      background-color: white;
+      margin: 40px 20px;
+      padding: 30px 40px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+    }
+
+    h1, h2 {
+      color: #4CAF50;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 500;
+      margin-top: 15px;
+      display: block;
+    }
+
+    .required::after {
+      content: " *";
+      color: red;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1.1rem;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    p {
+      margin-top: 25px;
+      text-align: center;
+      color: #555;
+    }
+
+    .btn-back {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px 0;
+      background-color: #FFA500; /* Naranja */
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-back:hover {
+      background-color: #FF8C00; /* Naranja oscuro */
+    }
+
+    @media print {
+      .btn-back {
+        display: none; /* Oculta el botón en la impresión */
+      }
+    }
+  </style>
+  <script>
+    function validateForm() {
+      const form = document.getElementById('coffeeForm');
+      const inputs = form.querySelectorAll('input[required], select[required]');
+      
+      for (const input of inputs) {
+        if (input.value.trim() === '') {
+          if (input.type === 'text') {
+            input.value = '0'; // Asignar 0 si el campo está vacío
+          } else {
+            alert(`Por favor, complete el campo: ${input.previousElementSibling.innerText}`);
+            input.focus();
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function toggleOtherInput(selectId, inputId) {
+        const selectElement = document.getElementById(selectId);
+        const otherInput = document.getElementById(inputId);
+
+        // Verifica si "Otro" está seleccionado
+        const isOtherSelected = Array.from(selectElement.options).some(option => option.selected && option.value === 'other');
+        otherInput.style.display = isOtherSelected ? 'block' : 'none';
+    }
+
+    function formatNumberInput(input) {
+      const value = input.value.replace(/[^\d]/g, '');
+      input.value = new Intl.NumberFormat('es-MX').format(value);
+    }
+  </script>
 </head>
 <body>
     <div class="container">
@@ -17,7 +152,7 @@
             ← Volver al Panel de Cítricos
         </button>
 
-        <form id="citricosForm" action="{{ url_for('dashboard_citricos.submit_citrus_form') }}" method="POST" onsubmit="return validateForm()">
+        <form id="citricosForm" action="{{ url_for('submit_citrus_form') }}" method="POST" onsubmit="return validateForm()">
             <h2>Sección 1: Ingresos y Gastos</h2>
             <label class="required"><strong>1. ¿Cuál fue el total de ingresos por la venta de cítricos en tu última cosecha?</strong> (en pesos o moneda local)</label>
             <input type="text" id="q1" name="q1" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
@@ -27,22 +162,24 @@
             <input type="text" id="q1_2" name="q1_2" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
                    oninvalid="this.setCustomValidity('Por favor, completa este campo con la cantidad cosechada.')">
 
-            <label class="required"><strong>1.3 ¿Qué tipos de cítricos cosechaste?</strong></label>
-            <select id="q1_3" name="q1_3" multiple required oninput="this.setCustomValidity('');"
-                    oninvalid="this.setCustomValidity('Por favor, selecciona al menos un tipo de cítrico.')">
-                <option value="naranja">Naranja</option>
-                <option value="mandarina">Mandarina</option>
-                <option value="limon">Limón (persa, criollo)</option>
-                <option value="toronja">Toronja</option>
-                <option value="lima">Lima dulce</option>
-                <option value="tangelo">Tangelo</option>
-                <option value="pomelo">Pomelo</option>
-                <option value="cidra">CIDRA (limón real)</option>
-                <option value="kumquat">Kumquat</option>
-                <option value="otro">Otro</option>
-            </select>
+              <label class="required"><strong>1.3 ¿Qué tipos de cítricos cosechaste?</strong></label>
+              <select id="q1_3" name="q1_3" multiple required onchange="toggleOtherInput('q1_3', 'otherInput1')" oninput="this.setCustomValidity('');"
+                     oninvalid="this.setCustomValidity('Por favor, selecciona al menos un tipo de cítrico.')">
+                     <option value="naranja">Naranja</option>
+                     <option value="mandarina">Mandarina</option>
+                     <option value="limon">Limón (persa, criollo)</option>
+                     <option value="toronja">Toronja</option>
+                     <option value="lima">Lima dulce</option>
+                     <option value="tangelo">Tangelo</option>
+                     <option value="pomelo">Pomelo</option>
+                     <option value="cidra">CIDRA (limón real)</option>
+                     <option value="kumquat">Kumquat</option>
+                     <option value="other">Otro</option>
+              </select>
+              <!-- Campo de texto para "Otro" -->
+              <input type="text" id="otherInput1" name="otherInput1" style="display: none;" placeholder="Especificar otro tipo de cítrico">
 
-            <label class="required"><strong>1.4 ¿Cuántas hectáreas de terreno tienes sembradas con cítricos?</strong> (Ejemplo: 10 hectáreas.)</label>
+            <label class="required"><strong>1.4 ¿Cuántas hectáreas tienes sembradas con cítricos?</strong> (Ejemplo: 10 hectáreas.)</label>
             <input type="text" id="q1_4" name="q1_4" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
                    oninvalid="this.setCustomValidity('Por favor, completa este campo con la cantidad de hectáreas.')">
 
@@ -85,17 +222,17 @@
             <input type="text" id="q10" name="q10" required oninput="this.setCustomValidity(''); formatNumberInput(this);" 
                    oninvalid="this.setCustomValidity('Por favor, completa este campo con el número de días supervisados.')">
 
-            <label class="required"><strong>11. ¿En qué lugares comercializas tu fruta? (Selecciona las opciones que apliquen)</strong></label>
-            <select id="q11" name="q11" multiple required onchange="toggleOtherInput()" oninput="this.setCustomValidity('');"
-                    oninvalid="this.setCustomValidity('Por favor, selecciona al menos un lugar de comercialización.')">
-                <option value="acopio">Centro de acopio</option>
-                <option value="mercado">Mercado local</option>
-                <option value="central">Central de Abastos</option>
-                <option value="juguera">Juguera</option>
-                <option value="otro">Otro</option>
-            </select>
-            <!-- Campo de texto para "Otro" -->
-            <input type="text" id="otherInput" name="otherInput" style="display: none;" placeholder="Especificar otro lugar">
+              <label class="required"><strong>11. ¿En qué lugares comercializas tu fruta? (Selecciona las opciones que apliquen)</strong></label>
+              <select id="q11" name="q11" multiple required onchange="toggleOtherInput('q11', 'otherInput2')" oninput="this.setCustomValidity('');"
+                     oninvalid="this.setCustomValidity('Por favor, selecciona al menos un lugar de comercialización.')">
+                     <option value="acopio">Centro de acopio</option>
+                     <option value="mercado">Mercado local</option>
+                     <option value="central">Central de Abastos</option>
+                     <option value="juguera">Juguera</option>
+                     <option value="other">Otro</option>
+              </select>
+              <!-- Campo de texto para "Otro" -->
+              <input type="text" id="otherInput2" name="otherInput2" style="display: none;" placeholder="Especificar otro lugar">
 
             <label class="required">Fecha de captura:</label>
             <input type="date" id="fecha_captura" name="fecha_captura" required 

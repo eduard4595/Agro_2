@@ -113,6 +113,8 @@ def register_routes(app):
                                     return redirect(url_for('dashboard_cerdos'))
                                 elif actividad_principal == 'huevo':
                                     return redirect(url_for('dashboard_huevos'))
+                                elif actividad_principal == 'litchi':  # Nueva opción para Litchi
+                                    return redirect(url_for('dashboard_litchi'))
                                 else:
                                     flash('Actividad principal no válida. Contacte al administrador.', 'warning')
                                     return render_template('login.html')
@@ -196,6 +198,8 @@ def register_routes(app):
                         return redirect(url_for('dashboard_cerdos'))
                     elif actividad_principal == 'huevo':
                         return redirect(url_for('dashboard_huevos'))
+                    elif actividad_principal == 'litchi':  # Nueva opción para Litchi
+                        return redirect(url_for('dashboard_litchi'))
                     else:
                         flash('Actividad principal no válida. Contacte al administrador.', 'warning')
                         return render_template('datos_generales.html')
@@ -209,7 +213,8 @@ def register_routes(app):
             return redirect(url_for('login'))
 
         return render_template('coffee_form.html')
-
+    
+   
     # Ruta para guardar datos de café
     @app.route('/submit_coffee_form', methods=['POST'])
     def submit_coffee_form():
@@ -534,6 +539,16 @@ def register_routes(app):
             flash(f'Ocurrió un error inesperado: {e}', 'danger')
             return redirect(url_for('bovino_form'))
 
+    @app.route('/huevo_form', methods=['GET'])
+    def huevo_form():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder al formulario.', 'danger')
+            return redirect(url_for('login'))
+
+        return render_template('huevo_form.html')
+
+
     # Ruta para guardar datos de huevos
     @app.route('/submit_eggs_form', methods=['POST'])
     def submit_eggs_form():
@@ -542,32 +557,98 @@ def register_routes(app):
             flash('Por favor, inicia sesión.', 'danger')
             return redirect(url_for('login'))
 
-        # Datos específicos del formulario de huevos
-        data = {
-            'total_ingresos': request.form['q1'],
-            'cantidad_aves': request.form['q1_2'],
-            'porcentaje_produccion': request.form['q1_3'],
-            'huevos_diarios': request.form['q1_4'],
-            'gastos_alimento': request.form['q2'],
-            'pago_mano_obra': request.form['q3'],
-            'gastos_servicios': request.form['q4'],
-            'dinero_disponible': request.form['q5'],
-            'gastos_imprevistos': request.form['q6'],
-            'total_deudas': request.form['q7'],
-            'fecha_captura': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-        }
+        try:
+            # Función para limpiar y convertir valores numéricos
+            def parse_float(value):
+                return float(value.replace(',', '').strip()) if value else 0
 
-        # Guardar datos en un archivo CSV
-        file_path = f'{user_id}_huevos.csv'
-        file_exists = os.path.isfile(file_path)
-        with open(file_path, mode='a', newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames=data.keys())
-            if not file_exists:
-                writer.writeheader()
-            writer.writerow(data)
+            # Datos específicos del formulario de huevos
+            lugar_comercializacion = request.form.getlist('q14')
+            if 'otro' in lugar_comercializacion:
+                lugar_comercializacion.append(f"Otro: {request.form.get('q14_other', '').strip()}")
 
-        flash('Datos de huevos guardados exitosamente.', 'success')
-        return redirect(url_for('dashboard_huevos'))
+            data = {
+                # Sección 1: Ingresos y Gastos
+                'total_ingresos': parse_float(request.form.get('q1', '0')),
+                'cantidad_aves': parse_float(request.form.get('q1_1', '0')),
+                'porcentaje_produccion': parse_float(request.form.get('q1_2', '0')),
+                'huevos_diarios': parse_float(request.form.get('q1_3', '0')),
+                'precio_promedio_gallinas': parse_float(request.form.get('q1_4', '0')),  # Nuevo campo
+                'gastos_alimento': parse_float(request.form.get('q2', '0')),
+                'pago_mano_obra': parse_float(request.form.get('q3', '0')),
+                'gastos_servicios': parse_float(request.form.get('q4', '0')),
+                'dinero_disponible': parse_float(request.form.get('q5', '0')),
+                'gastos_imprevistos': parse_float(request.form.get('q6', '0')),
+                'total_deudas': parse_float(request.form.get('q7', '0')),
+                'valor_maquinaria': parse_float(request.form.get('q7_1', '0')),  # Nuevo campo
+
+                # Sección 2: Procesos Productivos
+                'horas_preparacion_alimento': parse_float(request.form.get('q8', '0')),
+                'horas_supervision': parse_float(request.form.get('q9', '0')),
+                'dias_tratamientos': parse_float(request.form.get('q10', '0')),
+                'tiempo_recoleccion': parse_float(request.form.get('q11', '0')),
+                'trabajadores': parse_float(request.form.get('q12', '0')),
+                'dias_inicio_produccion': parse_float(request.form.get('q13', '0')),
+                'lugar_comercializacion': ', '.join(lugar_comercializacion),
+
+                # Fecha de captura y comentarios
+                'fecha_captura': request.form.get('fecha_captura', ''),
+                'comentarios': request.form.get('comments', '')
+            }
+
+            # Validar datos obligatorios
+            if not data['total_ingresos'] or not data['cantidad_aves'] or not data['huevos_diarios']:
+                flash('Por favor, completa todos los campos obligatorios.', 'danger')
+                return redirect(url_for('huevo_form'))
+
+            # Cálculos financieros
+            costos_directos = (
+                data['gastos_alimento'] +
+                data['pago_mano_obra'] +
+                data['gastos_servicios'] +
+                data['gastos_imprevistos']
+            )
+            valor_aves = data['cantidad_aves'] * data['precio_promedio_gallinas']  # Valor estimado de las aves
+            activos_totales = data['dinero_disponible'] + data['valor_maquinaria'] + valor_aves  # Activos totales
+
+            data['utilidad_bruta'] = data['total_ingresos'] - costos_directos
+            data['utilidad_neta'] = data['utilidad_bruta'] - data['total_deudas']
+            data['activos_totales'] = activos_totales
+            data['patrimonio_neto'] = activos_totales - data['total_deudas']
+            data['costo_por_huevo'] = costos_directos / (data['huevos_diarios'] * 30) if data['huevos_diarios'] else 0
+            data['margen_ganancia'] = (data['utilidad_bruta'] / data['total_ingresos']) * 100 if data['total_ingresos'] else 0
+            data['razon_endeudamiento'] = data['total_deudas'] / activos_totales if activos_totales else 0
+            data['productividad_por_ave'] = (data['huevos_diarios'] / data['cantidad_aves']) if data['cantidad_aves'] else 0
+            data['gastos_totales'] = costos_directos
+            data['valor_aves'] = valor_aves  # Agregar el valor estimado de las aves
+
+            # Crear carpeta del usuario si no existe
+            user_folder = os.path.join('data', user_id)
+            if not os.path.exists(user_folder):
+                os.makedirs(user_folder)
+
+            # Ruta del archivo CSV
+            file_path = os.path.join(user_folder, 'datos_financieros_huevos.csv')
+
+            # Verificar si el archivo existe
+            file_exists = os.path.isfile(file_path)
+
+            # Guardar los datos en el archivo CSV
+            with open(file_path, mode='a', newline='', encoding='utf-8') as file:
+                writer = csv.DictWriter(file, fieldnames=data.keys())
+                if not file_exists:
+                    writer.writeheader()  # Escribir encabezado si el archivo no existe
+                writer.writerow(data)  # Agregar los datos al archivo
+
+            flash('Datos de huevos guardados exitosamente.', 'success')
+            return redirect(url_for('dashboard_huevos'))
+
+        except ValueError as e:
+            flash(f'Error en los datos ingresados: {e}', 'danger')
+            return redirect(url_for('huevo_form'))
+        except Exception as e:
+            flash(f'Ocurrió un error inesperado: {e}', 'danger')
+            return redirect(url_for('huevo_form'))
 
 
     @app.route('/maiz_form', methods=['GET'])
@@ -579,6 +660,26 @@ def register_routes(app):
 
         return render_template('maiz_form.html')
 
+    # Ruta para el dashboard de maíz
+    @app.route('/dashboard_maiz')
+    def dashboard_maiz():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder al dashboard.', 'danger')
+            return redirect(url_for('login'))
+
+        # Leer datos generales desde el archivo CSV
+        user_folder = os.path.join('data', user_id)
+        file_path = os.path.join(user_folder, 'datos_generales.csv')
+        general_data = {}
+        if os.path.isfile(file_path):
+            with open(file_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                general_data = next(reader, {})
+
+        return render_template('dashboard_maiz.html', data=general_data)
+  
+    
     # Ruta para guardar datos de maíz
     @app.route('/submit_corn_form', methods=['POST'])
     def submit_corn_form():
@@ -594,9 +695,8 @@ def register_routes(app):
 
             # Datos específicos del formulario de maíz
             lugar_comercializacion = request.form.get('q15', '')
-            if lugar_comercializacion == 'Other':
-                lugar_comercializacion = f"Otro: {request.form.get('q15_other', '').strip()}"
-
+            if lugar_comercializacion.lower() == 'otro':  # Verifica si se seleccionó "Otro"
+                lugar_comercializacion = request.form.get('q15_other', '').strip()  # Toma el valor del campo de texto
 
             # Datos específicos del formulario de maíz
             data = {
@@ -620,7 +720,7 @@ def register_routes(app):
                 'trabajadores_cosecha': parse_float(request.form.get('q12', '0')),
                 'dias_secado_procesamiento': parse_float(request.form.get('q13', '0')),
                 'dias_venta_semanal': parse_float(request.form.get('q14', '0')),
-                'lugar_comercializacion': lugar_comercializacion,
+                'lugar_comercializacion': lugar_comercializacion,  # Incluye el valor procesado
                 'porcentaje_autoconsumo': parse_float(request.form.get('q16', '0')),
                 'horas_supervision_diaria': parse_float(request.form.get('q17', '0')),
 
@@ -754,25 +854,6 @@ def register_routes(app):
 
         return render_template('dashboard_huevos.html', data=general_data)
    
-    # Ruta para el dashboard de maíz
-    @app.route('/dashboard_maiz')
-    def dashboard_maiz():
-        user_id = session.get('user_id')
-        if not user_id:
-            flash('Por favor, inicia sesión para acceder al dashboard.', 'danger')
-            return redirect(url_for('login'))
-
-        # Leer datos generales desde el archivo CSV
-        user_folder = os.path.join('data', user_id)
-        file_path = os.path.join(user_folder, 'datos_generales.csv')
-        general_data = {}
-        if os.path.isfile(file_path):
-            with open(file_path, mode='r', encoding='utf-8') as file:
-                reader = csv.DictReader(file)
-                general_data = next(reader, {})
-
-        return render_template('dashboard_maiz.html', data=general_data)
-  
     
 
     # Ruta para acceder a los datos financieros de café
@@ -910,25 +991,7 @@ def register_routes(app):
 
         return render_template('database_access_ganado.html', data=financial_data, rubros=rubros)
 
-    # Ruta para acceder a los datos financieros de huevos
-    @app.route('/database_access_huevos')
-    def database_access_huevos():
-        user_id = session.get('user_id')
-        if not user_id:
-            flash('Por favor, inicia sesión para acceder a la base de datos.', 'danger')
-            return redirect(url_for('login'))
-
-        # Leer datos financieros desde el archivo CSV
-        file_path = f'{user_id}_huevos.csv'
-        financial_data = []
-        if os.path.isfile(file_path):
-            with open(file_path, mode='r', encoding='utf-8') as file:
-                reader = csv.DictReader(file)
-                financial_data = list(reader)
-
-        return render_template('database_access_huevos.html', data=financial_data)
-
-    # Ruta para acceder a los datos financieros de maíz
+     # Ruta para acceder a los datos financieros de maíz
     @app.route('/database_access_maiz', methods=['GET'])
     def database_access_maiz():
         user_id = session.get('user_id')
@@ -982,6 +1045,64 @@ def register_routes(app):
 
         return render_template('database_access_maiz.html', data=financial_data, rubros=rubros, fechas=fechas)
 
+
+
+
+    # Ruta para acceder a los datos financieros de huevos
+    @app.route('/database_access_huevos', methods=['GET'])
+    def database_access_huevos():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder a la base de datos.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        user_folder = os.path.join('data', user_id)
+        file_path = os.path.join(user_folder, 'datos_financieros_huevos.csv')
+
+        data = []
+        fechas = []
+        rubros = [
+            {'key': 'total_ingresos', 'label': 'Total Ingresos'},
+            {'key': 'cantidad_aves', 'label': 'Cantidad de Aves'},
+            {'key': 'porcentaje_produccion', 'label': 'Porcentaje de Producción'},
+            {'key': 'huevos_diarios', 'label': 'Huevos Diarios'},
+            {'key': 'precio_promedio_gallinas', 'label': 'Precio Promedio Gallinas'},
+            {'key': 'gastos_alimento', 'label': 'Gastos en Alimento'},
+            {'key': 'pago_mano_obra', 'label': 'Pago de Mano de Obra'},
+            {'key': 'gastos_servicios', 'label': 'Gastos en Servicios'},
+            {'key': 'dinero_disponible', 'label': 'Dinero Disponible'},
+            {'key': 'gastos_imprevistos', 'label': 'Gastos Imprevistos'},
+            {'key': 'total_deudas', 'label': 'Total Deudas'},
+            {'key': 'valor_maquinaria', 'label': 'Valor de Maquinaria'},
+            {'key': 'horas_preparacion_alimento', 'label': 'Horas de Preparación de Alimento'},
+            {'key': 'horas_supervision', 'label': 'Horas de Supervisión'},
+            {'key': 'dias_tratamientos', 'label': 'Días de Tratamientos'},
+            {'key': 'tiempo_recoleccion', 'label': 'Tiempo de Recolección'},
+            {'key': 'trabajadores', 'label': 'Trabajadores'},
+            {'key': 'dias_inicio_produccion', 'label': 'Días para Inicio de Producción'},
+            {'key': 'lugar_comercializacion', 'label': 'Lugar de Comercialización'},
+            {'key': 'fecha_captura', 'label': 'Fecha de Captura'},
+            {'key': 'comentarios', 'label': 'Comentarios'},
+            {'key': 'utilidad_bruta', 'label': 'Utilidad Bruta'},
+            {'key': 'utilidad_neta', 'label': 'Utilidad Neta'},
+            {'key': 'activos_totales', 'label': 'Activos Totales'},
+            {'key': 'patrimonio_neto', 'label': 'Patrimonio Neto'},
+            {'key': 'costo_por_huevo', 'label': 'Costo por Huevo'},
+            {'key': 'margen_ganancia', 'label': 'Margen de Ganancia'},
+            {'key': 'razon_endeudamiento', 'label': 'Razón de Endeudamiento'},
+            {'key': 'productividad_por_ave', 'label': 'Productividad por Ave'},
+            {'key': 'gastos_totales', 'label': 'Gastos Totales'},
+            {'key': 'valor_aves', 'label': 'Valor de las Aves'}
+        ]
+
+        if os.path.isfile(file_path):
+            with open(file_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                data = list(reader)
+                fechas = sorted({row['fecha_captura'] for row in data}, reverse=True)
+
+        return render_template('database_access_huevos.html', data=data, fechas=fechas, rubros=rubros)
    
         # Ruta para generar estados financieros de café
     @app.route('/financial_statements_cafe', methods=['GET', 'POST'])
@@ -1422,26 +1543,8 @@ def register_routes(app):
         return render_template('financial_statements_ganado.html', data=financial_summary, fechas=fechas_disponibles)
 
     # Ruta para generar estados financieros de huevos
-    @app.route('/financial_statements_huevos')
+    @app.route('/financial_statements_huevos', methods=['GET', 'POST'])
     def financial_statements_huevos():
-        user_id = session.get('user_id')
-        if not user_id:
-            flash('Por favor, inicia sesión para acceder a los estados financieros.', 'danger')
-            return redirect(url_for('login'))
-
-        # Leer datos financieros desde el archivo CSV
-        file_path = f'{user_id}_huevos.csv'
-        financial_data = []
-        if os.path.isfile(file_path):
-            with open(file_path, mode='r', encoding='utf-8') as file:
-                reader = csv.DictReader(file)
-                financial_data = list(reader)
-
-        return render_template('financial_statements_huevos.html', data=financial_data)
-
-    # Ruta para generar estados financieros de maíz
-    @app.route('/financial_statements_maiz', methods=['GET', 'POST'])
-    def financial_statements_maiz():
         user_id = session.get('user_id')
         if not user_id:
             flash('Por favor, inicia sesión para acceder a los estados financieros.', 'danger')
@@ -1449,7 +1552,7 @@ def register_routes(app):
 
         # Ruta del archivo CSV
         user_folder = os.path.join('data', user_id)
-        file_path = os.path.join(user_folder, 'datos_financieros_maiz.csv')
+        file_path = os.path.join(user_folder, 'datos_financieros_huevos.csv')
 
         financial_data = []
         selected_date = None
@@ -1477,25 +1580,25 @@ def register_routes(app):
 
             # Calcular costos directos
             costos_directos = (
-                float(data['gastos_insumos']) +
-                float(data['pago_jornales']) +
+                float(data['gastos_alimento']) +
+                float(data['pago_mano_obra']) +
                 float(data['gastos_servicios']) +
                 float(data['gastos_imprevistos'])
             )
             utilidad_bruta = float(data['total_ingresos']) - costos_directos
-            utilidad_neta = utilidad_bruta 
-            activos_totales = float(data['dinero_disponible']) + float(data['valor_maquinaria'])
+            utilidad_neta = utilidad_bruta - float(data['total_deudas'])
+
+            # Calcular activos
+            valor_maquinaria = float(data.get('valor_maquinaria', 0))  # Valor de maquinaria y equipo
+            valor_aves = float(data.get('cantidad_aves', 0)) * float(data.get('precio_promedio_gallinas', 0))  # Cantidad de aves * precio promedio por ave
+            activos_totales = float(data['dinero_disponible']) + valor_maquinaria + valor_aves
             patrimonio_neto = activos_totales - float(data['total_deudas'])
-            total_gastos = costos_directos
+
+            # Calcular razones financieras
             margen_ganancia = (utilidad_bruta / float(data['total_ingresos'])) * 100 if float(data['total_ingresos']) else 0
             razon_endeudamiento = float(data['total_deudas']) / activos_totales if activos_totales else 0
-
-            # Calcular productividad por hectárea
-            productividad_por_hectarea = float(data['total_ingresos']) / float(data['hectareas']) if float(data['hectareas']) > 0 else 0
-
-            # Calcular costo por hectárea
-            costo_por_hectarea = costos_directos / float(data['hectareas']) if float(data['hectareas']) > 0 else 0
-
+            productividad_por_ave = float(data['huevos_diarios']) / float(data['cantidad_aves']) if float(data['cantidad_aves']) > 0 else 0
+            costo_por_huevo = costos_directos / (float(data['huevos_diarios']) * 30) if float(data['huevos_diarios']) > 0 else 0
             # Calcular Capital más Pasivo
             capital_mas_pasivo = patrimonio_neto + float(data['total_deudas'])
             # Valores de referencia para razones financieras
@@ -1506,18 +1609,17 @@ def register_routes(app):
 
             # Agregar datos de referencia
             datos_referencia = {
-                'variedad_maiz': data['variedad_maiz'],
-                'hectareas': float(data['hectareas']),
-                'dias_preparacion_terreno': float(data['dias_preparacion_terreno']),
-                'dias_aplicacion_fertilizantes': float(data['dias_aplicacion_fertilizantes']),
-                'dias_secado_procesamiento': float(data['dias_secado_procesamiento']),
+                'cantidad_aves': float(data['cantidad_aves']),
+                'huevos_diarios': float(data['huevos_diarios']),
+                'valor_promedio_ave': float(data.get('precio_promedio_gallinas', 0)),
+                'valor_maquinaria': valor_maquinaria,
                 'lugar_comercializacion': data['lugar_comercializacion']
             }
 
             # Generar interpretación AI
             interpretacion_ai = []
 
-            if float(data['total_ingresos']) > total_gastos:
+            if float(data['total_ingresos']) > costos_directos:
                 interpretacion_ai.append("Los ingresos son mayores que los gastos, lo cual es positivo.")
             else:
                 interpretacion_ai.append("Los gastos superan los ingresos, lo que indica posibles pérdidas.")
@@ -1532,8 +1634,10 @@ def register_routes(app):
             else:
                 interpretacion_ai.append(f"La razón de endeudamiento es del {razon_endeudamiento:.2%}, se recomienda reducir deudas.")
 
-            interpretacion_ai.append(f"La productividad por hectárea es de ${productividad_por_hectarea:.2f}.")
-            interpretacion_ai.append(f"El costo por hectárea es de ${costo_por_hectarea:.2f}.")
+            interpretacion_ai.append(f"La productividad por ave es de {productividad_por_ave:.2f} huevos diarios.")
+            interpretacion_ai.append(f"El costo por huevo producido es de ${costo_por_huevo:.2f}.")
+            interpretacion_ai.append(f"El valor promedio estimado por ave es de ${float(data.get('precio_promedio_gallinas', 0)):.2f}.")
+            interpretacion_ai.append(f"El valor de la maquinaria y equipo es de ${valor_maquinaria:.2f}.")
 
             # Convertir lista a string
             interpretacion_ai = " ".join(interpretacion_ai)
@@ -1541,8 +1645,9 @@ def register_routes(app):
             # Preparar datos para el HTML
             financial_summary = {
                 'activos': {
-                    'maquinaria_equipo': float(data['valor_maquinaria']),
                     'dinero_disponible': float(data['dinero_disponible']),
+                    'valor_maquinaria': valor_maquinaria,
+                    'valor_aves': valor_aves,
                     'total_activos': activos_totales
                 },
                 'pasivos': {
@@ -1552,21 +1657,21 @@ def register_routes(app):
                 'patrimonio': patrimonio_neto,
                 'capital_mas_pasivo': capital_mas_pasivo,
                 'ingresos': {
-                    'venta_maiz': float(data['total_ingresos'])
+                    'venta_huevos': float(data['total_ingresos'])
                 },
                 'gastos': {
-                    'insumos': float(data['gastos_insumos']),
-                    'jornales': float(data['pago_jornales']),
+                    'alimento': float(data['gastos_alimento']),
+                    'mano_obra': float(data['pago_mano_obra']),
                     'servicios': float(data['gastos_servicios']),
                     'imprevistos': float(data['gastos_imprevistos']),
-                    'total_gastos': total_gastos
+                    'total_gastos': costos_directos
                 },
                 'utilidad_neta': utilidad_neta,
                 'razones_financieras': {
                     'margen_ganancia': margen_ganancia,
                     'razon_endeudamiento': razon_endeudamiento,
-                    'productividad_por_hectarea': productividad_por_hectarea,
-                    'costo_por_hectarea': costo_por_hectarea
+                    'productividad_por_ave': productividad_por_ave,
+                    'costo_por_huevo': costo_por_huevo
                 },
                 'referencias': referencias,
                 'datos_referencia': datos_referencia,
@@ -1576,9 +1681,156 @@ def register_routes(app):
         else:
             financial_summary = None
 
-        return render_template('financial_statements_maiz.html', data=financial_summary, fechas=fechas_disponibles)
+        return render_template('financial_statements_huevos.html', data=financial_summary, fechas=fechas_disponibles)
 
-   
+    # Ruta para generar estados financieros de maíz
+    @app.route('/financial_statements_maiz', methods=['GET', 'POST'])
+    def financial_statements_maiz():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder a los estados financieros.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        user_folder = os.path.join('data', user_id)
+        file_path = os.path.join(user_folder, 'datos_financieros_maiz.csv')
+
+        financial_data = []
+        selected_date = None
+
+        if os.path.isfile(file_path):
+            with open(file_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                financial_data = list(reader)
+
+        # Verificar si hay datos disponibles
+        if not financial_data:
+            flash('No se encontraron datos financieros para maíz.', 'danger')
+            return render_template('financial_statements_maiz.html', data=None, fechas=[])
+
+        # Ordenar las fechas de captura en orden descendente
+        fechas_disponibles = sorted([row['fecha_captura'] for row in financial_data], reverse=True)
+
+        # Si no se envía una fecha desde el formulario, usar la fecha más reciente
+        if request.method == 'POST':
+            selected_date = request.form.get('fecha_captura')
+        elif fechas_disponibles:
+            selected_date = fechas_disponibles[0]  # Fecha más reciente
+
+        # Filtrar los datos por la fecha seleccionada
+        filtered_data = [row for row in financial_data if row['fecha_captura'] == selected_date]
+
+        # Calcular estados financieros y razones financieras
+        if filtered_data:
+            data = filtered_data[0]  # Tomar el primer registro filtrado
+
+            try:
+                # Calcular costos directos
+                costos_directos = (
+                    float(data.get('gastos_insumos', 0)) +
+                    float(data.get('pago_jornales', 0)) +
+                    float(data.get('gastos_servicios', 0)) +
+                    float(data.get('gastos_imprevistos', 0))
+                )
+                utilidad_bruta = float(data.get('total_ingresos', 0)) - costos_directos
+                utilidad_neta = utilidad_bruta
+                activos_totales = float(data.get('dinero_disponible', 0)) + float(data.get('valor_maquinaria', 0))
+                patrimonio_neto = activos_totales - float(data.get('total_deudas', 0))
+                total_gastos = costos_directos
+                margen_ganancia = (utilidad_bruta / float(data.get('total_ingresos', 1))) * 100 if float(data.get('total_ingresos', 0)) else 0
+                razon_endeudamiento = float(data.get('total_deudas', 0)) / activos_totales if activos_totales else 0
+
+                # Calcular productividad por hectárea
+                productividad_por_hectarea = float(data.get('total_ingresos', 0)) / float(data.get('hectareas', 1)) if float(data.get('hectareas', 0)) > 0 else 0
+
+                # Calcular costo por hectárea
+                costo_por_hectarea = costos_directos / float(data.get('hectareas', 1)) if float(data.get('hectareas', 0)) > 0 else 0
+
+                # Calcular Capital más Pasivo
+                capital_mas_pasivo = patrimonio_neto + float(data.get('total_deudas', 0))
+
+                # Valores de referencia para razones financieras
+                referencias = {
+                    'margen_ganancia': 'Mayor al 20% es favorable',
+                    'razon_endeudamiento': 'Menor al 50% es favorable'
+                }
+
+                # Agregar datos de referencia
+                datos_referencia = {
+                    'variedad_maiz': data.get('variedad_maiz', 'N/A'),
+                    'hectareas': float(data.get('hectareas', 0)),
+                    'dias_preparacion_terreno': float(data.get('dias_preparacion_terreno', 0)),
+                    'dias_aplicacion_fertilizantes': float(data.get('dias_aplicacion_fertilizantes', 0)),
+                    'dias_secado_procesamiento': float(data.get('dias_secado_procesamiento', 0)),
+                    'lugar_comercializacion': data.get('lugar_comercializacion', 'N/A')
+                }
+
+                # Generar interpretación AI
+                interpretacion_ai = []
+
+                if float(data.get('total_ingresos', 0)) > total_gastos:
+                    interpretacion_ai.append("Los ingresos son mayores que los gastos, lo cual es positivo.")
+                else:
+                    interpretacion_ai.append("Los gastos superan los ingresos, lo que indica posibles pérdidas.")
+
+                if margen_ganancia >= 20:
+                    interpretacion_ai.append(f"El margen de ganancia es del {margen_ganancia:.2f}%, lo cual es favorable.")
+                else:
+                    interpretacion_ai.append(f"El margen de ganancia es del {margen_ganancia:.2f}%, podría mejorar.")
+
+                if razon_endeudamiento < 0.5:
+                    interpretacion_ai.append(f"La razón de endeudamiento es del {razon_endeudamiento:.2%}, lo cual es manejable.")
+                else:
+                    interpretacion_ai.append(f"La razón de endeudamiento es del {razon_endeudamiento:.2%}, se recomienda reducir deudas.")
+
+                interpretacion_ai.append(f"La productividad por hectárea es de ${productividad_por_hectarea:.2f}.")
+                interpretacion_ai.append(f"El costo por hectárea es de ${costo_por_hectarea:.2f}.")
+
+                # Convertir lista a string
+                interpretacion_ai = " ".join(interpretacion_ai)
+
+                # Preparar datos para el HTML
+                financial_summary = {
+                    'activos': {
+                        'maquinaria_equipo': float(data.get('valor_maquinaria', 0)),
+                        'dinero_disponible': float(data.get('dinero_disponible', 0)),
+                        'total_activos': activos_totales
+                    },
+                    'pasivos': {
+                        'deudas': float(data.get('total_deudas', 0)),
+                        'total_pasivos': float(data.get('total_deudas', 0))
+                    },
+                    'patrimonio': patrimonio_neto,
+                    'capital_mas_pasivo': capital_mas_pasivo,
+                    'ingresos': {
+                        'venta_maiz': float(data.get('total_ingresos', 0))
+                    },
+                    'gastos': {
+                        'insumos': float(data.get('gastos_insumos', 0)),
+                        'jornales': float(data.get('pago_jornales', 0)),
+                        'servicios': float(data.get('gastos_servicios', 0)),
+                        'imprevistos': float(data.get('gastos_imprevistos', 0)),
+                        'total_gastos': total_gastos
+                    },
+                    'utilidad_neta': utilidad_neta,
+                    'razones_financieras': {
+                        'margen_ganancia': margen_ganancia,
+                        'razon_endeudamiento': razon_endeudamiento,
+                        'productividad_por_hectarea': productividad_por_hectarea,
+                        'costo_por_hectarea': costo_por_hectarea
+                    },
+                    'referencias': referencias,
+                    'datos_referencia': datos_referencia,
+                    'fecha_captura': selected_date,
+                    'interpretacion_ai': interpretacion_ai
+                }
+            except (ValueError, KeyError) as e:
+                flash(f'Error al procesar los datos: {e}', 'danger')
+                financial_summary = None
+        else:
+            financial_summary = None
+
+        return render_template('financial_statements_maiz.html', data=financial_summary, fechas=fechas_disponibles)
     
     @app.route('/submit_registro_cliente', methods=['POST'])
     def submit_registro_cliente():
@@ -2462,3 +2714,1088 @@ def register_routes(app):
         except FileNotFoundError:
             flash('No se encontraron datos para generar el análisis.', 'danger')
             return render_template('my_analysis_cerdos.html')
+
+
+    @app.route('/my_analysis_huevos', methods=['GET', 'POST'])
+    def my_analysis_huevos():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder al análisis.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        file_path = f"data/{user_id}/datos_financieros_huevos.csv"
+        try:
+            data = pd.read_csv(file_path)
+
+            # Ordenar las fechas y obtener la más reciente
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y', errors='coerce')
+            data = data.sort_values(by='fecha_captura', ascending=False)
+            fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
+            fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
+
+            # Filtrar los datos por la fecha seleccionada
+            data_filtrada = data[data['fecha_captura'] == pd.to_datetime(fecha_seleccionada)]
+
+            # Cálculos obligatorios
+            if 'gastos_alimento' in data.columns and 'pago_mano_obra' in data.columns and \
+            'gastos_servicios' in data.columns and 'gastos_imprevistos' in data.columns:
+                data['gastos_totales'] = (
+                    data['gastos_alimento'] + data['pago_mano_obra'] + data['gastos_servicios'] +
+                    data['gastos_imprevistos']
+                )
+            else:
+                flash('Faltan columnas necesarias para calcular gastos totales.', 'danger')
+                return render_template('my_analysis_huevos.html')
+
+            # Verifica que la columna 'gastos_totales' exista
+            if 'gastos_totales' not in data.columns:
+                flash('Error al calcular gastos totales. Verifica los datos.', 'danger')
+                return render_template('my_analysis_huevos.html')
+
+            # Gráficos para Rentabilidad
+            fig_sunburst = px.sunburst(
+                data_filtrada,
+                path=['gastos_alimento', 'pago_mano_obra', 'gastos_servicios', 'gastos_imprevistos'],
+                values='gastos_totales',
+                title="Jerarquía de Gastos"
+            )
+            fig_line = px.line(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'utilidad_neta'],
+                title="Ingresos vs. Utilidad Neta"
+            )
+            fig_bar = px.bar(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'gastos_totales'],
+                title="Ingresos vs. Gastos Totales"
+            )
+
+            # Convertir gráficos a HTML
+            sunburst_html = fig_sunburst.to_html(full_html=False)
+            line_html = fig_line.to_html(full_html=False)
+            bar_html = fig_bar.to_html(full_html=False)
+
+            # Gráficos para Producción
+            # Productividad por ave
+            data['productividad_por_ave'] = data['huevos_diarios'] / data['cantidad_aves']
+            fig_bar_produccion = px.bar(
+                data,
+                x='fecha_captura',
+                y='productividad_por_ave',
+                title="Productividad por Ave"
+            )
+
+            # Costos de alimento vs ingresos
+            fig_line_costos_vs_ingresos = px.line(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'gastos_alimento'],
+                title="Costos de Alimento vs Ingresos Totales"
+            )
+
+            # Costo por huevo
+            data['costo_por_huevo'] = data['gastos_totales'] / (data['huevos_diarios'] * 30)
+            fig_line_costo_por_huevo = px.line(
+                data,
+                x='fecha_captura',
+                y='costo_por_huevo',
+                title="Costo por Huevo"
+            )
+
+            # Convertir gráficos a HTML
+            bar_produccion_html = fig_bar_produccion.to_html(full_html=False)
+            line_costos_vs_ingresos_html = fig_line_costos_vs_ingresos.to_html(full_html=False)
+            line_costo_por_huevo_html = fig_line_costo_por_huevo.to_html(full_html=False)
+
+            # Gráficos para Mano de Obra
+            # Distribución de costos laborales
+            fig_pie_costos_laborales = px.pie(
+                data_filtrada,
+                names=['pago_mano_obra', 'gastos_totales'],
+                values=[data_filtrada['pago_mano_obra'].sum(), data_filtrada['gastos_totales'].sum()],
+                title="Distribución de Costos Laborales"
+            )
+
+            # Horas de supervisión vs tiempo de recolección
+            fig_line_supervision_vs_recoleccion = px.line(
+                data,
+                x='fecha_captura',
+                y=['horas_supervision', 'tiempo_recoleccion'],
+                title="Horas de Supervisión vs Tiempo de Recolección"
+            )
+
+            # Convertir gráficos a HTML
+            pie_costos_laborales_html = fig_pie_costos_laborales.to_html(full_html=False)
+            line_supervision_vs_recoleccion_html = fig_line_supervision_vs_recoleccion.to_html(full_html=False)
+
+            # Gráficos para Patrimonio
+            # Composición del patrimonio neto
+            fig_pie_patrimonio = px.pie(
+                data_filtrada,
+                names=['patrimonio_neto', 'activos_totales', 'valor_maquinaria'],
+                values=[data_filtrada['patrimonio_neto'].sum(), data_filtrada['activos_totales'].sum(), data_filtrada['valor_maquinaria'].sum()],
+                title="Composición del Patrimonio Neto"
+            )
+
+            # Razón de endeudamiento
+            fig_line_razon_endeudamiento = px.line(
+                data,
+                x='fecha_captura',
+                y='razon_endeudamiento',
+                title="Razón de Endeudamiento vs Tiempo"
+            )
+
+            # Activos vs deudas
+            fig_bar_activos_vs_deudas = px.bar(
+                data,
+                x='fecha_captura',
+                y=['activos_totales', 'total_deudas'],
+                barmode='group',
+                title="Activos Totales vs Total de Deudas"
+            )
+
+            # Convertir gráficos a HTML
+            pie_patrimonio_html = fig_pie_patrimonio.to_html(full_html=False)
+            line_razon_endeudamiento_html = fig_line_razon_endeudamiento.to_html(full_html=False)
+            bar_activos_vs_deudas_html = fig_bar_activos_vs_deudas.to_html(full_html=False)
+
+            return render_template(
+                'my_analysis_huevos.html',
+                sunburst_html=sunburst_html,
+                line_html=line_html,
+                bar_html=bar_html,
+                bar_produccion_html=bar_produccion_html,
+                line_costos_vs_ingresos_html=line_costos_vs_ingresos_html,
+                line_costo_por_huevo_html=line_costo_por_huevo_html,
+                pie_costos_laborales_html=pie_costos_laborales_html,
+                line_supervision_vs_recoleccion_html=line_supervision_vs_recoleccion_html,
+                pie_patrimonio_html=pie_patrimonio_html,
+                line_razon_endeudamiento_html=line_razon_endeudamiento_html,
+                bar_activos_vs_deudas_html=bar_activos_vs_deudas_html,
+                ultimos_valores=data_filtrada.iloc[0].to_dict(),
+                fechas_disponibles=fechas_disponibles,
+                fecha_seleccionada=fecha_seleccionada
+            )
+        except FileNotFoundError:
+            flash('No se encontraron datos para generar el análisis.', 'danger')
+            return render_template('my_analysis_huevos.html')
+
+
+    @app.route('/litchi_form', methods=['GET'])
+    def litchi_form():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder al formulario.', 'danger')
+            return redirect(url_for('login'))
+
+        return render_template('litchi_form.html')
+    
+
+    # Ruta para guardar datos de litchi
+    @app.route('/submit_litchi_form', methods=['POST'])
+    def submit_litchi_form():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión.', 'danger')
+            return redirect(url_for('login'))
+
+        try:
+            # Función para limpiar y convertir valores numéricos
+            def parse_float(value):
+                return float(value.replace(',', '').strip()) if value else 0
+
+            # Datos específicos del formulario de litchi
+            lugar_comercializacion = request.form.get('q10', '')
+            if lugar_comercializacion == 'Other':
+                lugar_comercializacion = f"Otro: {request.form.get('q10_other', '').strip()}"
+
+            # Datos específicos del formulario de litchi
+            data = {
+                # Sección 1: Ingresos y Gastos
+                'total_ingresos': parse_float(request.form.get('q1', '0')),
+                'toneladas_cosechadas': parse_float(request.form.get('q1_1', '0')),
+                'hectareas_sembradas': parse_float(request.form.get('q1_2', '0')),
+                'gastos_insumos': parse_float(request.form.get('q2', '0')),
+                'pago_jornales': parse_float(request.form.get('q3', '0')),
+                'gastos_servicios': parse_float(request.form.get('q4', '0')),
+                'valor_maquinaria': parse_float(request.form.get('q5', '0')),
+                'dinero_disponible': parse_float(request.form.get('q6', '0')),
+                'gastos_imprevistos': parse_float(request.form.get('q7', '0')),
+                'total_deudas': parse_float(request.form.get('q8', '0')),
+
+                # Sección 2: Procesos Productivos
+                'trabajadores_necesarios': parse_float(request.form.get('q9', '0')),
+                'lugar_comercializacion': lugar_comercializacion,
+
+                # Fecha de captura enviada desde el formulario
+                'fecha_captura': request.form.get('fecha_captura', '')
+            }
+
+            # Validar datos obligatorios
+            if not data['total_ingresos'] or not data['toneladas_cosechadas'] or not data['hectareas_sembradas']:
+                flash('Por favor, completa todos los campos obligatorios.', 'danger')
+                return redirect(url_for('litchi_form'))
+
+            # Cálculos financieros
+            costos_directos = (
+                data['gastos_insumos'] +
+                data['pago_jornales'] +
+                data['gastos_servicios'] +
+                data['gastos_imprevistos']
+            )
+            data['utilidad_bruta'] = data['total_ingresos'] - costos_directos
+            data['utilidad_neta'] = data['utilidad_bruta'] - data['total_deudas']
+            activos_totales = data['dinero_disponible'] + data['valor_maquinaria']
+            data['activos_totales'] = activos_totales
+            data['patrimonio_neto'] = activos_totales - data['total_deudas']
+            data['costo_por_hectarea'] = costos_directos / data['hectareas_sembradas'] if data['hectareas_sembradas'] else 0
+            data['margen_ganancia'] = (data['utilidad_bruta'] / data['total_ingresos']) * 100 if data['total_ingresos'] else 0
+            data['razon_endeudamiento'] = data['total_deudas'] / activos_totales if activos_totales else 0
+            data['productividad_por_hectarea'] = data['toneladas_cosechadas'] / data['hectareas_sembradas'] if data['hectareas_sembradas'] else 0
+            data['gastos_totales'] = costos_directos
+
+            # Crear carpeta del usuario si no existe
+            user_folder = os.path.join('data', user_id)
+            if not os.path.exists(user_folder):
+                os.makedirs(user_folder)
+
+            # Ruta del archivo CSV
+            file_path = os.path.join(user_folder, 'datos_financieros_litchi.csv')
+
+            # Verificar si el archivo existe
+            file_exists = os.path.isfile(file_path)
+
+            # Guardar los datos en el archivo CSV
+            with open(file_path, mode='a', newline='', encoding='utf-8') as file:
+                writer = csv.DictWriter(file, fieldnames=data.keys())
+                if not file_exists:
+                    writer.writeheader()  # Escribir encabezado si el archivo no existe
+                writer.writerow(data)  # Agregar los datos al archivo
+
+            flash('Datos de litchi guardados exitosamente.', 'success')
+            return redirect(url_for('dashboard_litchi'))
+
+        except ValueError as e:
+            flash(f'Error en los datos ingresados: {e}', 'danger')
+            return redirect(url_for('litchi_form'))
+        except Exception as e:
+            flash(f'Ocurrió un error inesperado: {e}', 'danger')
+            return redirect(url_for('litchi_form'))
+        
+        # Ruta para el dashboard de litchi
+    @app.route('/dashboard_litchi')
+    def dashboard_litchi():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder al dashboard.', 'danger')
+            return redirect(url_for('login'))
+
+        # Leer datos generales desde el archivo CSV
+        user_folder = os.path.join('data', user_id)
+        file_path = os.path.join(user_folder, 'datos_generales.csv')
+        general_data = {}
+        if os.path.isfile(file_path):
+            with open(file_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                general_data = next(reader, {})
+
+        return render_template('dashboard_litchi.html', data=general_data)
+    
+
+
+    # Ruta para generar estados financieros de litchi
+    @app.route('/financial_statements_litchi', methods=['GET', 'POST'])
+    def financial_statements_litchi():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder a los estados financieros.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        user_folder = os.path.join('data', user_id)
+        file_path = os.path.join(user_folder, 'datos_financieros_litchi.csv')
+
+        financial_data = []
+        selected_date = None
+
+        if os.path.isfile(file_path):
+            with open(file_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                financial_data = list(reader)
+
+        # Ordenar las fechas de captura en orden descendente
+        fechas_disponibles = sorted([row['fecha_captura'] for row in financial_data], reverse=True)
+
+        # Si no se envía una fecha desde el formulario, usar la fecha más reciente
+        if request.method == 'POST':
+            selected_date = request.form.get('fecha_captura')
+        elif fechas_disponibles:
+            selected_date = fechas_disponibles[0]  # Fecha más reciente
+
+        # Filtrar los datos por la fecha seleccionada
+        filtered_data = [row for row in financial_data if row['fecha_captura'] == selected_date]
+
+        # Calcular estados financieros y razones financieras
+        if filtered_data:
+            data = filtered_data[0]  # Tomar el primer registro filtrado
+
+            # Calcular costos directos
+            costos_directos = (
+                float(data['gastos_insumos']) +
+                float(data['pago_jornales']) +
+                float(data['gastos_servicios']) +
+                float(data['gastos_imprevistos'])
+            )
+            utilidad_bruta = float(data['total_ingresos']) - costos_directos
+            utilidad_neta = utilidad_bruta 
+            activos_totales = float(data['dinero_disponible']) + float(data['valor_maquinaria'])
+            patrimonio_neto = activos_totales - float(data['total_deudas'])
+            total_gastos = costos_directos
+            margen_ganancia = (utilidad_bruta / float(data['total_ingresos'])) * 100 if float(data['total_ingresos']) else 0
+            razon_endeudamiento = float(data['total_deudas']) / activos_totales if activos_totales else 0
+
+            # Calcular productividad por hectárea
+            productividad_por_hectarea = float(data['toneladas_cosechadas']) / float(data['hectareas_sembradas']) if float(data['hectareas_sembradas']) > 0 else 0
+
+            # Calcular costo por hectárea
+            costo_por_hectarea = costos_directos / float(data['hectareas_sembradas']) if float(data['hectareas_sembradas']) > 0 else 0
+
+            # Calcular Capital más Pasivo
+            capital_mas_pasivo = patrimonio_neto + float(data['total_deudas'])
+
+            # Valores de referencia para razones financieras
+            referencias = {
+                'margen_ganancia': 'Mayor al 20% es favorable',
+                'razon_endeudamiento': 'Menor al 50% es favorable'
+            }
+
+            # Agregar datos de referencia
+            datos_referencia = {
+                'toneladas_cosechadas': float(data['toneladas_cosechadas']),
+                'hectareas_sembradas': float(data['hectareas_sembradas']),
+                'trabajadores_necesarios': float(data['trabajadores_necesarios']),
+                'lugar_comercializacion': data['lugar_comercializacion']
+            }
+
+            # Generar interpretación AI
+            interpretacion_ai = []
+
+            if float(data['total_ingresos']) > total_gastos:
+                interpretacion_ai.append("Los ingresos son mayores que los gastos, lo cual es positivo.")
+            else:
+                interpretacion_ai.append("Los gastos superan los ingresos, lo que indica posibles pérdidas.")
+
+            if margen_ganancia >= 20:
+                interpretacion_ai.append(f"El margen de ganancia es del {margen_ganancia:.2f}%, lo cual es favorable.")
+            else:
+                interpretacion_ai.append(f"El margen de ganancia es del {margen_ganancia:.2f}%, podría mejorar.")
+
+            if razon_endeudamiento < 0.5:
+                interpretacion_ai.append(f"La razón de endeudamiento es del {razon_endeudamiento:.2%}, lo cual es manejable.")
+            else:
+                interpretacion_ai.append(f"La razón de endeudamiento es del {razon_endeudamiento:.2%}, se recomienda reducir deudas.")
+
+            interpretacion_ai.append(f"La productividad por hectárea es de {productividad_por_hectarea:.2f} toneladas.")
+            interpretacion_ai.append(f"El costo por hectárea es de ${costo_por_hectarea:.2f}.")
+
+            # Convertir lista a string
+            interpretacion_ai = " ".join(interpretacion_ai)
+
+            # Preparar datos para el HTML
+            financial_summary = {
+                'activos': {
+                    'maquinaria_equipo': float(data['valor_maquinaria']),
+                    'dinero_disponible': float(data['dinero_disponible']),
+                    'total_activos': activos_totales
+                },
+                'pasivos': {
+                    'deudas': float(data['total_deudas']),
+                    'total_pasivos': float(data['total_deudas'])
+                },
+                'patrimonio': patrimonio_neto,
+                'capital_mas_pasivo': capital_mas_pasivo,
+                'ingresos': {
+                    'venta_litchi': float(data['total_ingresos'])
+                },
+                'gastos': {
+                    'insumos': float(data['gastos_insumos']),
+                    'jornales': float(data['pago_jornales']),
+                    'servicios': float(data['gastos_servicios']),
+                    'imprevistos': float(data['gastos_imprevistos']),
+                    'total_gastos': total_gastos
+                },
+                'utilidad_neta': utilidad_neta,
+                'razones_financieras': {
+                    'margen_ganancia': margen_ganancia,
+                    'razon_endeudamiento': razon_endeudamiento,
+                    'productividad_por_hectarea': productividad_por_hectarea,
+                    'costo_por_hectarea': costo_por_hectarea
+                },
+                'referencias': referencias,
+                'datos_referencia': datos_referencia,
+                'fecha_captura': selected_date,
+                'interpretacion_ai': interpretacion_ai
+            }
+        else:
+            financial_summary = None
+
+        return render_template('financial_statements_litchi.html', data=financial_summary, fechas=fechas_disponibles)
+    
+    @app.route('/database_access_litchi', methods=['GET'])
+    def database_access_litchi():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder a la base de datos.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        user_folder = os.path.join('data', user_id)
+        file_path = os.path.join(user_folder, 'datos_financieros_litchi.csv')
+
+        data = []
+        fechas = []
+        rubros = [
+            {'key': 'total_ingresos', 'label': 'Total de Ingresos'},
+            {'key': 'toneladas_cosechadas', 'label': 'Toneladas Cosechadas'},
+            {'key': 'hectareas_sembradas', 'label': 'Hectáreas Sembradas'},
+            {'key': 'gastos_insumos', 'label': 'Gastos en Insumos'},
+            {'key': 'pago_jornales', 'label': 'Pago de Jornales'},
+            {'key': 'gastos_servicios', 'label': 'Gastos en Servicios'},
+            {'key': 'valor_maquinaria', 'label': 'Valor de Maquinaria'},
+            {'key': 'dinero_disponible', 'label': 'Dinero Disponible'},
+            {'key': 'gastos_imprevistos', 'label': 'Gastos Imprevistos'},
+            {'key': 'total_deudas', 'label': 'Total de Deudas'},
+            {'key': 'trabajadores_necesarios', 'label': 'Trabajadores Necesarios'},
+            {'key': 'lugar_comercializacion', 'label': 'Lugar de Comercialización'},
+            {'key': 'fecha_captura', 'label': 'Fecha de Captura'},
+            {'key': 'utilidad_bruta', 'label': 'Utilidad Bruta'},
+            {'key': 'utilidad_neta', 'label': 'Utilidad Neta'},
+            {'key': 'activos_totales', 'label': 'Activos Totales'},
+            {'key': 'patrimonio_neto', 'label': 'Patrimonio Neto'},
+            {'key': 'costo_por_hectarea', 'label': 'Costo por Hectárea'},
+            {'key': 'margen_ganancia', 'label': 'Margen de Ganancia (%)'},
+            {'key': 'razon_endeudamiento', 'label': 'Razón de Endeudamiento'},
+            {'key': 'productividad_por_hectarea', 'label': 'Productividad por Hectárea'},
+            {'key': 'gastos_totales', 'label': 'Gastos Totales'}
+        ]
+
+        if os.path.isfile(file_path):
+            with open(file_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                data = list(reader)
+                fechas = sorted({row['fecha_captura'] for row in data}, reverse=True)
+
+        return render_template('database_access_litchi.html', data=data, rubros=rubros, fechas=fechas)
+    
+
+
+    @app.route('/my_analysis_litchi', methods=['GET', 'POST'])
+    def my_analysis_litchi():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder al análisis.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        file_path = f"data/{user_id}/datos_financieros_litchi.csv"
+        try:
+            data = pd.read_csv(file_path)
+
+            # Ordenar las fechas y obtener la más reciente
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y', errors='coerce')
+            data = data.sort_values(by='fecha_captura', ascending=False)
+            fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
+            fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
+
+            # Filtrar los datos por la fecha seleccionada
+            data_filtrada = data[data['fecha_captura'] == pd.to_datetime(fecha_seleccionada)]
+
+            # Cálculos obligatorios
+            if 'gastos_insumos' in data.columns and 'pago_jornales' in data.columns and \
+            'gastos_servicios' in data.columns and 'gastos_imprevistos' in data.columns:
+                data['gastos_totales'] = (
+                    data['gastos_insumos'] + data['pago_jornales'] + data['gastos_servicios'] +
+                    data['gastos_imprevistos']
+                )
+            else:
+                flash('Faltan columnas necesarias para calcular gastos totales.', 'danger')
+                return render_template('my_analysis_litchi.html')
+
+            # Verifica que la columna 'gastos_totales' exista
+            if 'gastos_totales' not in data.columns:
+                flash('Error al calcular gastos totales. Verifica los datos.', 'danger')
+                return render_template('my_analysis_litchi.html')
+
+            # Gráficos para Rentabilidad
+            fig_sunburst = px.sunburst(
+                data_filtrada,
+                path=['gastos_insumos', 'pago_jornales', 'gastos_servicios', 'gastos_imprevistos'],
+                values='gastos_totales',
+                title="Jerarquía de Gastos"
+            )
+            fig_line = px.line(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'utilidad_neta'],
+                title="Ingresos vs. Utilidad Neta"
+            )
+            fig_bar = px.bar(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'gastos_totales'],
+                title="Ingresos vs. Gastos Totales"
+            )
+
+            # Convertir gráficos a HTML
+            sunburst_html = fig_sunburst.to_html(full_html=False)
+            line_html = fig_line.to_html(full_html=False)
+            bar_html = fig_bar.to_html(full_html=False)
+
+            # Gráficos para Producción
+            # Productividad por hectárea
+            data['productividad_por_hectarea'] = data['toneladas_cosechadas'] / data['hectareas_sembradas']
+            fig_bar_produccion = px.bar(
+                data,
+                x='fecha_captura',
+                y='productividad_por_hectarea',
+                title="Productividad por Hectárea"
+            )
+
+            # Costos de insumos vs ingresos
+            fig_line_costos_vs_ingresos = px.line(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'gastos_insumos'],
+                title="Costos de Insumos vs Ingresos Totales"
+            )
+
+            # Costo por hectárea
+            data['costo_por_hectarea'] = data['gastos_totales'] / data['hectareas_sembradas']
+            fig_line_costo_por_hectarea = px.line(
+                data,
+                x='fecha_captura',
+                y='costo_por_hectarea',
+                title="Costo por Hectárea"
+            )
+
+            # Convertir gráficos a HTML
+            bar_produccion_html = fig_bar_produccion.to_html(full_html=False)
+            line_costos_vs_ingresos_html = fig_line_costos_vs_ingresos.to_html(full_html=False)
+            line_costo_por_hectarea_html = fig_line_costo_por_hectarea.to_html(full_html=False)
+
+            # Gráficos para Patrimonio
+            # Composición del patrimonio neto
+            fig_pie_patrimonio = px.pie(
+                data_filtrada,
+                names=['patrimonio_neto', 'activos_totales', 'valor_maquinaria'],
+                values=[data_filtrada['patrimonio_neto'].sum(), data_filtrada['activos_totales'].sum(), data_filtrada['valor_maquinaria'].sum()],
+                title="Composición del Patrimonio Neto"
+            )
+
+            # Razón de endeudamiento
+            fig_line_razon_endeudamiento = px.line(
+                data,
+                x='fecha_captura',
+                y='razon_endeudamiento',
+                title="Razón de Endeudamiento vs Tiempo"
+            )
+
+            # Activos vs deudas
+            fig_bar_activos_vs_deudas = px.bar(
+                data,
+                x='fecha_captura',
+                y=['activos_totales', 'total_deudas'],
+                barmode='group',
+                title="Activos Totales vs Total de Deudas"
+            )
+
+            # Convertir gráficos a HTML
+            pie_patrimonio_html = fig_pie_patrimonio.to_html(full_html=False)
+            line_razon_endeudamiento_html = fig_line_razon_endeudamiento.to_html(full_html=False)
+            bar_activos_vs_deudas_html = fig_bar_activos_vs_deudas.to_html(full_html=False)
+
+            return render_template(
+                'my_analysis_litchi.html',
+                sunburst_html=sunburst_html,
+                line_html=line_html,
+                bar_html=bar_html,
+                bar_produccion_html=bar_produccion_html,
+                line_costos_vs_ingresos_html=line_costos_vs_ingresos_html,
+                line_costo_por_hectarea_html=line_costo_por_hectarea_html,
+                pie_patrimonio_html=pie_patrimonio_html,
+                line_razon_endeudamiento_html=line_razon_endeudamiento_html,
+                bar_activos_vs_deudas_html=bar_activos_vs_deudas_html,
+                ultimos_valores=data_filtrada.iloc[0].to_dict(),
+                fechas_disponibles=fechas_disponibles,
+                fecha_seleccionada=fecha_seleccionada
+            )
+        except FileNotFoundError:
+            flash('No se encontraron datos para generar el análisis.', 'danger')
+            return render_template('my_analysis_litchi.html')
+
+
+    
+    @app.route('/dashboard_citricos')
+    def dashboard_citricos():
+            user_id = session.get('user_id')
+            if not user_id:
+                flash('Por favor, inicia sesión para acceder al dashboard.', 'danger')
+                return redirect(url_for('login'))
+
+            # Leer datos generales desde el archivo CSV
+            user_folder = os.path.join('data', user_id)
+            file_path = os.path.join(user_folder, 'datos_generales.csv')
+            general_data = {}
+            if os.path.isfile(file_path):
+                with open(file_path, mode='r', encoding='utf-8') as file:
+                    reader = csv.DictReader(file)
+                    general_data = next(reader, {})
+
+            return render_template('dashboard_citricos.html', data=general_data)
+
+    # Ruta para guardar datos de cítricos
+    @app.route('/submit_citrus_form', methods=['POST'])
+    def submit_citrus_form():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión.', 'danger')
+            return redirect(url_for('login'))
+
+        try:
+            # Función para limpiar y convertir valores numéricos
+            def parse_float(value):
+                return float(value.replace(',', '').strip()) if value else 0
+
+            # Procesar el campo "Otro" para tipos de cítricos (q1_3)
+            tipos_citricos = request.form.getlist('q1_3')
+            if 'other' in tipos_citricos:
+                otros_citricos = request.form.get('otherInput1', '').strip()
+                if otros_citricos:
+                    tipos_citricos.append(f"Otro: {otros_citricos}")
+                tipos_citricos.remove('other')  # Eliminar la opción "other" de la lista
+
+            # Procesar el campo "Otro" para lugares de comercialización (q11)
+            lugares_comercializacion = request.form.getlist('q11')
+            if 'other' in lugares_comercializacion:
+                otro_lugar = request.form.get('otherInput2', '').strip()
+                if otro_lugar:
+                    lugares_comercializacion.append(f"Otro: {otro_lugar}")
+                lugares_comercializacion.remove('other')  # Eliminar la opción "other" de la lista
+
+            # Datos específicos del formulario de cítricos
+            data = {
+                'total_ingresos': parse_float(request.form.get('q1', '0')),
+                'toneladas_cosechadas': parse_float(request.form.get('q1_2', '0')),
+                'tipos_citricos': ', '.join(tipos_citricos),  # Convertir lista a cadena
+                'hectareas': parse_float(request.form.get('q1_4', '0')),
+                'gastos_insumos': parse_float(request.form.get('q2', '0')),
+                'pago_jornales': parse_float(request.form.get('q3', '0')),
+                'gastos_servicios': parse_float(request.form.get('q4', '0')),
+                'valor_maquinaria': parse_float(request.form.get('q5', '0')),
+                'dinero_disponible': parse_float(request.form.get('q6', '0')),
+                'gastos_imprevistos': parse_float(request.form.get('q7', '0')),
+                'total_deudas': parse_float(request.form.get('q8', '0')),
+                'trabajadores_necesarios': parse_float(request.form.get('q9', '0')),
+                'dias_supervision': parse_float(request.form.get('q10', '0')),
+                'lugares_comercializacion': ', '.join(lugares_comercializacion),  # Convertir lista a cadena
+                'fecha_captura': request.form.get('fecha_captura', ''),
+                'comentarios': request.form.get('comments', '').strip()
+            }
+
+            # Validar datos obligatorios
+            if not data['total_ingresos'] or not data['toneladas_cosechadas'] or not data['hectareas']:
+                flash('Por favor, completa todos los campos obligatorios.', 'danger')
+                return redirect(url_for('citricos_form'))
+
+            # Cálculos financieros
+            costos_directos = (
+                data['gastos_insumos'] +
+                data['pago_jornales'] +
+                data['gastos_servicios'] +
+                data['gastos_imprevistos']
+            )
+            data['utilidad_bruta'] = data['total_ingresos'] - costos_directos
+            data['utilidad_neta'] = data['utilidad_bruta'] - data['total_deudas']
+            activos_totales = data['dinero_disponible'] + data['valor_maquinaria']
+            data['activos_totales'] = activos_totales
+            data['patrimonio_neto'] = activos_totales - data['total_deudas']
+            data['costo_por_hectarea'] = costos_directos / data['hectareas'] if data['hectareas'] else 0
+            data['margen_ganancia'] = (data['utilidad_bruta'] / data['total_ingresos']) * 100 if data['total_ingresos'] else 0
+            data['razon_endeudamiento'] = data['total_deudas'] / activos_totales if activos_totales else 0
+            data['productividad_por_hectarea'] = data['toneladas_cosechadas'] / data['hectareas'] if data['hectareas'] else 0
+            data['gastos_totales'] = costos_directos
+
+            # Crear carpeta del usuario si no existe
+            user_folder = os.path.join('data', user_id)
+            if not os.path.exists(user_folder):
+                os.makedirs(user_folder)
+
+            # Ruta del archivo CSV
+            file_path = os.path.join(user_folder, 'datos_financieros_citricos.csv')
+
+            # Verificar si el archivo existe
+            file_exists = os.path.isfile(file_path)
+
+            # Guardar los datos en el archivo CSV
+            with open(file_path, mode='a', newline='', encoding='utf-8') as file:
+                writer = csv.DictWriter(file, fieldnames=data.keys())
+                if not file_exists:
+                    writer.writeheader()  # Escribir encabezado si el archivo no existe
+                writer.writerow(data)  # Agregar los datos al archivo
+
+            flash('Datos de cítricos guardados exitosamente.', 'success')
+            return redirect(url_for('dashboard_citricos'))
+
+        except ValueError as e:
+            flash(f'Error en los datos ingresados: {e}', 'danger')
+            return redirect(url_for('citricos_form'))
+        except Exception as e:
+            flash(f'Ocurrió un error inesperado: {e}', 'danger')
+            return redirect(url_for('citricos_form'))
+    
+    # Ruta para acceder a los datos financieros de cítricos
+    # @app.route('/database_access_citricos')
+    @app.route('/database_access_citricos', methods=['GET'])
+    def database_access_citricos():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder a la base de datos.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        user_folder = os.path.join('data', user_id)
+        file_path = os.path.join(user_folder, 'datos_financieros_citricos.csv')
+
+        data = []
+        fechas = []
+        rubros = [
+            {'key': 'total_ingresos', 'label': 'Total de Ingresos'},
+            {'key': 'toneladas_cosechadas', 'label': 'Toneladas Cosechadas'},
+            {'key': 'tipos_citricos', 'label': 'Tipos de Cítricos'},
+            {'key': 'hectareas', 'label': 'Hectáreas'},
+            {'key': 'gastos_insumos', 'label': 'Gastos en Insumos'},
+            {'key': 'pago_jornales', 'label': 'Pago de Jornales'},
+            {'key': 'gastos_servicios', 'label': 'Gastos en Servicios'},
+            {'key': 'valor_maquinaria', 'label': 'Valor de Maquinaria'},
+            {'key': 'dinero_disponible', 'label': 'Dinero Disponible'},
+            {'key': 'gastos_imprevistos', 'label': 'Gastos Imprevistos'},
+            {'key': 'total_deudas', 'label': 'Total de Deudas'},
+            {'key': 'trabajadores_necesarios', 'label': 'Trabajadores Necesarios'},
+            {'key': 'dias_supervision', 'label': 'Días de Supervisión'},
+            {'key': 'lugares_comercializacion', 'label': 'Lugares de Comercialización'},
+            {'key': 'fecha_captura', 'label': 'Fecha de Captura'},
+            {'key': 'comentarios', 'label': 'Comentarios'},
+            {'key': 'utilidad_bruta', 'label': 'Utilidad Bruta'},
+            {'key': 'utilidad_neta', 'label': 'Utilidad Neta'},
+            {'key': 'activos_totales', 'label': 'Activos Totales'},
+            {'key': 'patrimonio_neto', 'label': 'Patrimonio Neto'},
+            {'key': 'costo_por_hectarea', 'label': 'Costo por Hectárea'},
+            {'key': 'margen_ganancia', 'label': 'Margen de Ganancia (%)'},
+            {'key': 'razon_endeudamiento', 'label': 'Razón de Endeudamiento'},
+            {'key': 'productividad_por_hectarea', 'label': 'Productividad por Hectárea'},
+            {'key': 'gastos_totales', 'label': 'Gastos Totales'}
+        ]
+
+        if os.path.isfile(file_path):
+            with open(file_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                data = list(reader)
+                fechas = sorted({row['fecha_captura'] for row in data}, reverse=True)
+
+        return render_template('database_access_citricos.html', data=data, rubros=rubros, fechas=fechas)
+
+
+    # Ruta para generar estados financieros de cítricos
+    # @app.route('/financial_statements_citricos')
+    @app.route('/financial_statements_citricos', methods=['GET', 'POST'])
+    def financial_statements_citricos():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder a los estados financieros.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        user_folder = os.path.join('data', user_id)
+        file_path = os.path.join(user_folder, 'datos_financieros_citricos.csv')
+
+        financial_data = []
+        selected_date = None
+
+        if os.path.isfile(file_path):
+            with open(file_path, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                financial_data = list(reader)
+
+        # Ordenar las fechas de captura en orden descendente
+        fechas_disponibles = sorted([row['fecha_captura'] for row in financial_data], reverse=True)
+
+        # Si no se envía una fecha desde el formulario, usar la fecha más reciente
+        if request.method == 'POST':
+            selected_date = request.form.get('fecha_captura')
+        elif fechas_disponibles:
+            selected_date = fechas_disponibles[0]  # Fecha más reciente
+
+        # Filtrar los datos por la fecha seleccionada
+        filtered_data = [row for row in financial_data if row['fecha_captura'] == selected_date]
+
+        # Calcular estados financieros y razones financieras
+        if filtered_data:
+            data = filtered_data[0]  # Tomar el primer registro filtrado
+
+            # Calcular costos directos
+            costos_directos = (
+                float(data['gastos_insumos']) +
+                float(data['pago_jornales']) +
+                float(data['gastos_servicios']) +
+                float(data['gastos_imprevistos'])
+            )
+            utilidad_bruta = float(data['total_ingresos']) - costos_directos
+            utilidad_neta = utilidad_bruta
+            activos_totales = float(data['dinero_disponible']) + float(data['valor_maquinaria'])
+            patrimonio_neto = activos_totales - float(data['total_deudas'])
+            total_gastos = costos_directos
+            margen_ganancia = (utilidad_bruta / float(data['total_ingresos'])) * 100 if float(data['total_ingresos']) else 0
+            razon_endeudamiento = float(data['total_deudas']) / activos_totales if activos_totales else 0
+
+            # Calcular productividad por hectárea
+            productividad_por_hectarea = float(data['toneladas_cosechadas']) / float(data['hectareas']) if float(data['hectareas']) > 0 else 0
+
+            # Calcular costo por hectárea
+            costo_por_hectarea = costos_directos / float(data['hectareas']) if float(data['hectareas']) > 0 else 0
+
+            # Calcular Capital más Pasivo
+            capital_mas_pasivo = patrimonio_neto + float(data['total_deudas'])
+
+            # Valores de referencia para razones financieras
+            referencias = {
+                'margen_ganancia': 'Mayor al 20% es favorable',
+                'razon_endeudamiento': 'Menor al 50% es favorable'
+            }
+
+            # Agregar datos de referencia
+            datos_referencia = {
+                'toneladas_cosechadas': float(data['toneladas_cosechadas']),
+                'hectareas': float(data['hectareas']),
+                'trabajadores_necesarios': float(data['trabajadores_necesarios']),
+                'lugares_comercializacion': data['lugares_comercializacion']
+            }
+
+            # Generar interpretación AI
+            interpretacion_ai = []
+
+            if float(data['total_ingresos']) > total_gastos:
+                interpretacion_ai.append("Los ingresos son mayores que los gastos, lo cual es positivo.")
+            else:
+                interpretacion_ai.append("Los gastos superan los ingresos, lo que indica posibles pérdidas.")
+
+            if margen_ganancia >= 20:
+                interpretacion_ai.append(f"El margen de ganancia es del {margen_ganancia:.2f}%, lo cual es favorable.")
+            else:
+                interpretacion_ai.append(f"El margen de ganancia es del {margen_ganancia:.2f}%, podría mejorar.")
+
+            if razon_endeudamiento < 0.5:
+                interpretacion_ai.append(f"La razón de endeudamiento es del {razon_endeudamiento:.2%}, lo cual es manejable.")
+            else:
+                interpretacion_ai.append(f"La razón de endeudamiento es del {razon_endeudamiento:.2%}, se recomienda reducir deudas.")
+
+            interpretacion_ai.append(f"La productividad por hectárea es de {productividad_por_hectarea:.2f} toneladas.")
+            interpretacion_ai.append(f"El costo por hectárea es de ${costo_por_hectarea:.2f}.")
+
+            # Convertir lista a string
+            interpretacion_ai = " ".join(interpretacion_ai)
+
+            # Preparar datos para el HTML
+            financial_summary = {
+                'activos': {
+                    'maquinaria_equipo': float(data['valor_maquinaria']),
+                    'dinero_disponible': float(data['dinero_disponible']),
+                    'total_activos': activos_totales
+                },
+                'pasivos': {
+                    'deudas': float(data['total_deudas']),
+                    'total_pasivos': float(data['total_deudas'])
+                },
+                'patrimonio': patrimonio_neto,
+                'capital_mas_pasivo': capital_mas_pasivo,
+                'ingresos': {
+                    'venta_citricos': float(data['total_ingresos'])
+                },
+                'gastos': {
+                    'insumos': float(data['gastos_insumos']),
+                    'jornales': float(data['pago_jornales']),
+                    'servicios': float(data['gastos_servicios']),
+                    'imprevistos': float(data['gastos_imprevistos']),
+                    'total_gastos': total_gastos
+                },
+                'utilidad_neta': utilidad_neta,
+                'razones_financieras': {
+                    'margen_ganancia': margen_ganancia,
+                    'razon_endeudamiento': razon_endeudamiento,
+                    'productividad_por_hectarea': productividad_por_hectarea,
+                    'costo_por_hectarea': costo_por_hectarea
+                },
+                'referencias': referencias,
+                'datos_referencia': datos_referencia,
+                'fecha_captura': selected_date,
+                'interpretacion_ai': interpretacion_ai
+            }
+        else:
+            financial_summary = None
+
+        return render_template('financial_statements_citricos.html', data=financial_summary, fechas=fechas_disponibles)
+    
+    @app.route('/citricos_form', methods=['GET'])
+    def citricos_form():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder al formulario.', 'danger')
+            return redirect(url_for('login'))
+
+        return render_template('citricos_form.html')
+
+    @app.route('/my_analysis_citricos', methods=['GET', 'POST'])
+    def my_analysis_citricos():
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Por favor, inicia sesión para acceder al análisis.', 'danger')
+            return redirect(url_for('login'))
+
+        # Ruta del archivo CSV
+        file_path = f"data/{user_id}/datos_financieros_citricos.csv"
+        try:
+            data = pd.read_csv(file_path)
+
+            # Ordenar las fechas y obtener la más reciente
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y', errors='coerce')
+            data = data.sort_values(by='fecha_captura', ascending=False)
+            fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
+            fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
+
+            # Filtrar los datos por la fecha seleccionada
+            data_filtrada = data[data['fecha_captura'] == pd.to_datetime(fecha_seleccionada)]
+
+            # Cálculos obligatorios
+            if 'gastos_insumos' in data.columns and 'pago_jornales' in data.columns and \
+            'gastos_servicios' in data.columns and 'gastos_imprevistos' in data.columns:
+                data['gastos_totales'] = (
+                    data['gastos_insumos'] + data['pago_jornales'] + data['gastos_servicios'] +
+                    data['gastos_imprevistos']
+                )
+            else:
+                flash('Faltan columnas necesarias para calcular gastos totales.', 'danger')
+                return render_template('my_analysis_citricos.html')
+
+            # Verifica que la columna 'gastos_totales' exista
+            if 'gastos_totales' not in data.columns:
+                flash('Error al calcular gastos totales. Verifica los datos.', 'danger')
+                return render_template('my_analysis_citricos.html')
+
+            # Gráficos para Rentabilidad
+            fig_sunburst = px.sunburst(
+                data_filtrada,
+                path=['gastos_insumos', 'pago_jornales', 'gastos_servicios', 'gastos_imprevistos'],
+                values='gastos_totales',
+                title="Jerarquía de Gastos"
+            )
+            fig_line = px.line(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'utilidad_neta'],
+                title="Ingresos vs. Utilidad Neta"
+            )
+            fig_bar = px.bar(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'gastos_totales'],
+                title="Ingresos vs. Gastos Totales"
+            )
+
+            # Convertir gráficos a HTML
+            sunburst_html = fig_sunburst.to_html(full_html=False)
+            line_html = fig_line.to_html(full_html=False)
+            bar_html = fig_bar.to_html(full_html=False)
+
+            # Gráficos para Producción
+            # Productividad por hectárea
+            data['productividad_por_hectarea'] = data['toneladas_cosechadas'] / data['hectareas']
+            fig_bar_produccion = px.bar(
+                data,
+                x='fecha_captura',
+                y='productividad_por_hectarea',
+                title="Productividad por Hectárea"
+            )
+
+            # Costos de insumos vs ingresos
+            fig_line_costos_vs_ingresos = px.line(
+                data,
+                x='fecha_captura',
+                y=['total_ingresos', 'gastos_insumos'],
+                title="Costos de Insumos vs Ingresos Totales"
+            )
+
+            # Costo por hectárea
+            data['costo_por_hectarea'] = data['gastos_totales'] / data['hectareas']
+            fig_line_costo_por_hectarea = px.line(
+                data,
+                x='fecha_captura',
+                y='costo_por_hectarea',
+                title="Costo por Hectárea"
+            )
+
+            # Convertir gráficos a HTML
+            bar_produccion_html = fig_bar_produccion.to_html(full_html=False)
+            line_costos_vs_ingresos_html = fig_line_costos_vs_ingresos.to_html(full_html=False)
+            line_costo_por_hectarea_html = fig_line_costo_por_hectarea.to_html(full_html=False)
+
+            # Gráficos para Patrimonio
+            # Composición del patrimonio neto
+            fig_pie_patrimonio = px.pie(
+                data_filtrada,
+                names=['patrimonio_neto', 'activos_totales', 'valor_maquinaria'],
+                values=[data_filtrada['patrimonio_neto'].sum(), data_filtrada['activos_totales'].sum(), data_filtrada['valor_maquinaria'].sum()],
+                title="Composición del Patrimonio Neto"
+            )
+
+            # Razón de endeudamiento
+            fig_line_razon_endeudamiento = px.line(
+                data,
+                x='fecha_captura',
+                y='razon_endeudamiento',
+                title="Razón de Endeudamiento vs Tiempo"
+            )
+
+            # Activos vs deudas
+            fig_bar_activos_vs_deudas = px.bar(
+                data,
+                x='fecha_captura',
+                y=['activos_totales', 'total_deudas'],
+                barmode='group',
+                title="Activos Totales vs Total de Deudas"
+            )
+
+            # Convertir gráficos a HTML
+            pie_patrimonio_html = fig_pie_patrimonio.to_html(full_html=False)
+            line_razon_endeudamiento_html = fig_line_razon_endeudamiento.to_html(full_html=False)
+            bar_activos_vs_deudas_html = fig_bar_activos_vs_deudas.to_html(full_html=False)
+
+            return render_template(
+                'my_analysis_citricos.html',
+                sunburst_html=sunburst_html,
+                line_html=line_html,
+                bar_html=bar_html,
+                bar_produccion_html=bar_produccion_html,
+                line_costos_vs_ingresos_html=line_costos_vs_ingresos_html,
+                line_costo_por_hectarea_html=line_costo_por_hectarea_html,
+                pie_patrimonio_html=pie_patrimonio_html,
+                line_razon_endeudamiento_html=line_razon_endeudamiento_html,
+                bar_activos_vs_deudas_html=bar_activos_vs_deudas_html,
+                ultimos_valores=data_filtrada.iloc[0].to_dict(),
+                fechas_disponibles=fechas_disponibles,
+                fecha_seleccionada=fecha_seleccionada
+            )
+        except FileNotFoundError:
+            flash('No se encontraron datos para generar el análisis.', 'danger')
+            return render_template('my_analysis_citricos.html')

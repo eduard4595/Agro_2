@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot de Cultivo de Maíz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #EAEAEA;
+            color: #3C3C3C;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #004F73;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        header img {
+            height: 90px;
+        }
+        .ticker-container {
+            background-color: #76A728;
+            color: white;
+            padding: 10px;
+            font-size: 1em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .ticker {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker span {
+            display: inline-block;
+            padding-left: 2%;
+            animation: ticker 380s linear infinite;
+        }
+        @keyframes ticker {
+            from { transform: translateX(10%); }
+            to { transform: translateX(-100%); }
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+        }
+        .tools-container {
+            background-color: #004F73;
+            color: white;
+            width: 200px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+        .tools-container a {
+            background-color: #D9A404;
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .tools-container a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+        .content-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .highlight-btn {
+            background-color: #D9A404;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            flex: 1;
+            white-space: normal; /* Para evitar que el texto se divida */
+            word-wrap: break-word;
+        }
+        .chat-input {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 0;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #76A728;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-input button:hover {
+            background-color: #D9A404;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #004F73;
+            color: white;
+        }
+
+        /* Media Queries para diseño responsivo */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .tools-container {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .tools-container a {
+                flex: 1 1 200px;
+                max-width: 250px;
+            }
+            header img {
+                height: 70px;
+            }
+            .highlight-btn {
+                font-size: 1.2em;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+            header h1 {
+                font-size: 1.5em;
+                margin: 10px 0;
+            }
+            header img {
+                height: 60px;
+            }
+            .ticker-container {
+                font-size: 0.9em;
+            }
+            .chat-box {
+                height: 200px;
+            }
+            .highlight-btn {
+                font-size: 1em;
+                max-width: 300px;
+            }
+            .tools-container a {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 10px;
+            }
+            header img {
+                height: 50px;
+            }
+            .ticker-container {
+                font-size: 0.8em;
+            }
+            .content-container {
+                padding: 10px;
+            }
+            .chat-container {
+                padding: 10px;
+            }
+            .chat-box {
+                height: 150px;
+            }
+            .chat-input {
+                flex-direction: column;
+            }
+            .chat-input input {
+                width: 100%;
+            }
+            .chat-input button {
+                width: 100%;
+                padding: 10px;
+            }
+            .highlight-btn {
+                font-size: 0.9em;
+                padding: 10px;
+                max-width: 100%;
+            }
+            .tools-container {
+                padding: 10px;
+            }
+            .tools-container a {
+                flex: 1 1 100%;
+                max-width: none;
+            }
+        }
+        
+
+        #userInput {
+            width: 70%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        #sendBtn {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .suggestion {
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin-top: 5px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+        }
+        .suggestion:hover {
+            background-color: #ddd;
+        }
+        #autocomplete-suggestions {
+            width: 70%;
+            border: 1px solid #ccc;
+            position: absolute;
+            z-index: 1;
+            background-color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 5px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .thinking-message {
+            font-style: italic;
+            color: #777;
+        }
+        .dot {
+            font-size: 30px; /* Tamaño más grande de los puntos */
+            animation: dot-blink 1s steps(1, end) infinite; /* Animación de parpadeo de puntos */
+        }
+        @keyframes dot-blink {
+            0% { content: "."; }
+            33% { content: ".."; }
+            66% { content: "..."; }
+            100% { content: "."; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Botón para Ir al Panel General -->
+        <a href="{{ url_for('main.index') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-right: 5px;">
+                <path d="M15 19l-7-7 7-7"/>
+            </svg>
+            Ir al Panel General
+        </a>
+      <h1 style="text-align: center;">Plataforma de gestión agrícola</h1>
+      <img src="{{ url_for('static', filename='logo_Asistec.png') }}" alt="Logo Asistec" style="height: 90px;"> <!-- Ajuste del tamaño -->
+      <!-- Botón para Sign Out -->
+      <a href="{{ url_for('logout') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em;">
+        Salir
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-left: 5px;">
+            <path d="M16 13v-2H7V8l-5 4 5 4v-3h9z"/>
+            <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/>
+        </svg>
+    </a>
+    </header>
+    <div class="ticker-container">
+      <h2 style="text-align: center;"></h2>
+        <div class="ticker">
+            <span>
+                                </span> 
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="tools-container">
+            <a href="{{ url_for('financial_statements_litchi') }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <rect x="3" y="4" width="18" height="16" rx="2" ry="2" stroke="white" stroke-width="2" fill="none"></rect>
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="2"></line>
+                </svg>
+                Ver Estados Financieros
+            </a>
+            <a href="{{ url_for('database_access_litchi') }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <ellipse cx="12" cy="5" rx="9" ry="3" stroke="white" stroke-width="2" fill="none"></ellipse>
+                    <path d="M3 5v6c0 1.5 4 3 9 3s9-1.5 9-3V5" stroke="white" stroke-width="2" fill="none"></path>
+                    <path d="M3 11v6c0 1.5 4 3 9 3s9-1.5 9-3v-6" stroke="white" stroke-width="2" fill="none"></path>
+                </svg>
+                Acceso a Base de Datos
+            </a>
+            <a href="{{ url_for('my_analysis_litchi') }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <path d="M3 17h18v2H3v-2zm0-5h12v2H3v-2zm0-5h8v2H3V7z"/>
+                </svg>
+                Análisis Histórico
+            </a>
+          
+        </div>
+        <div class="content-container">
+            <p>Aquí podrás registrar tus finanzas y procesos</p>
+            <div class="highlight-btn">
+                <a href="{{ url_for('litchi_form') }}" style="color: white; text-decoration: none;">Responder Cuestionario</a>
+            </div>
+            
+            <div class="chat-container">
+                <h2> AI Chat Agrícola AgroAsistec</h2>
+                <div class="chat-box" id="chat-box">
+                    <!-- Mensajes del chat aparecerán aquí -->
+                </div>
+                <div class="chat-input">
+                    <div id="chatbox"></div>
+                        <div class="welcome-message">Bienvenido a AgroAsistec Litchi</div>
+                        <input type="text" id="userInput" list="listaRespuestas" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <!--Se agrego este datalist reemplazando el div de sugerencias-->
+                        <datalist id="listaRespuestas">
+
+                        </datalist>
+                        <button id="sendBtn">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
+    </footer>
+
+    
+    
+    <script>
+        const preguntasRespuestas = [
+        { 
+            pregunta: "¿Qué es el litchi?", 
+            respuesta: "Hola, qué bueno tu interés. El litchi (Litchi chinensis) es una fruta tropical de origen chino que se cultiva en México, en zonas como San Luis Potosí, Veracruz y Sinaloa. Su cáscara rojiza cubre una pulpa blanca, dulce, con un sabor que mezcla notas florales y cítricas. Tiene mucha vitamina C y antioxidantes, lo que la hace atractiva para vender. ¿Qué opinas de probar cultivos nuevos en tu área?" 
+        },
+        { 
+            pregunta: "¿Dónde se cultiva el litchi en México?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi prospera en regiones cálidas y húmedas de México, como San Luis Potosí, Veracruz, Sinaloa, Michoacán y Chiapas. Ahí el suelo y el clima son perfectos para su crecimiento. Lugares como Martínez de la Torre destacan por su producción, que impulsa tanto el mercado local como la exportación. ¿Qué cultivos predominan en los terrenos cercanos a donde estás?" 
+        },
+        { 
+            pregunta: "¿Cuál es el sabor del litchi?", 
+            respuesta: "Saludos, buena pregunta. El litchi ofrece un sabor dulce con un leve toque ácido, acompañado de un aroma floral que recuerda a rosas o uvas. Su pulpa jugosa lo hace ideal para días calurosos en México. Este perfil tan especial lo distingue de otras frutas y atrae a consumidores. ¿Qué otros sabores de frutas has notado que gustan en tu región?" 
+        },
+        { 
+            pregunta: "¿Es el litchi una fruta saludable?", 
+            respuesta: "Hola, gracias por consultar. Sí, el litchi es muy nutritivo: aporta vitamina C para las defensas, antioxidantes que cuidan las células, además de fibra y potasio. En México se come fresco o en recetas, siendo una opción sana que puede subir el valor de tu cosecha. ¿Qué productos saludables crees que tienen buena salida en el mercado?" 
+        },
+        { 
+            pregunta: "¿Cómo se come el litchi?", 
+            respuesta: "Qué bueno verte por aquí. Para comer litchi, pelas su cáscara dura y rojiza con las manos, dejando al descubierto una pulpa blanca y jugosa. Se come directo, pero ojo, el hueso del centro no es comestible. En México lo disfrutan tal cual o en postres. Es fácil y rápido. ¿Qué frutas frescas son populares donde trabajas?" 
+        },
+        { 
+            pregunta: "¿En qué época se cosecha el litchi en México?", 
+            respuesta: "Saludos, gracias por tu interés. El litchi se cosecha en México entre mayo y julio, dependiendo del clima y la región. Es una temporada corta pero clave, sobre todo en estados como Veracruz, donde madura con el calor. Preparar el terreno y el riego es esencial para sacarle provecho. ¿Cómo organizas tus cosechas en esos meses?" 
+        },
+        { 
+            pregunta: "¿Qué necesita el litchi para crecer?", 
+            respuesta: "Hola, qué bien tu pregunta. El litchi requiere un clima cálido y húmedo, suelos bien drenados y ricos en materia orgánica, con un pH de 5.5 a 6.5. Necesita sol pleno y riego constante, pero sin encharcamientos. En México, estas condiciones se dan en el trópico. ¿Qué tipo de suelo tienes en tu parcela?" 
+        },
+        { 
+            pregunta: "¿Cuánto tarda en dar fruto un árbol de litchi?", 
+            respuesta: "Qué tal, gracias por preguntar. Un árbol de litchi tarda entre 3 y 5 años en dar frutos si se planta de semilla, pero con injertos puede producir desde el segundo año. Es una inversión a mediano plazo que vale la pena por su demanda. Paciencia y cuidado son clave. ¿Qué cultivos de largo plazo has probado?" 
+        },
+        { 
+            pregunta: "¿El litchi se exporta desde México?", 
+            respuesta: "Saludos, buena duda. Sí, México exporta litchi, sobre todo a Estados Unidos y Canadá, desde estados productores como Veracruz y Sinaloa. La fruta fresca y su calidad han abierto puertas en el mercado internacional, sumando ingresos a los agricultores. Es un cultivo con futuro. ¿Qué opinas de buscar mercados fuera del país?" 
+        },
+        { 
+            pregunta: "¿Qué plagas afectan al litchi en México?", 
+            respuesta: "Hola, gracias por tu consulta. El litchi en México enfrenta plagas como el ácaro erinosis, la mosca de la fruta y el escarabajo barrenador. Controlarlas requiere monitoreo, trampas y, a veces, pesticidas permitidos. Proteger la cosecha es vital para mantener su valor. ¿Qué plagas son comunes en tus cultivos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita mucho riego?", 
+            respuesta: "Qué bueno tu interés. El litchi necesita riego regular, especialmente en la floración y desarrollo del fruto, pero no tolera suelos encharcados. En México, unas 2-3 sesiones por semana funcionan bien en temporada seca. Un buen drenaje es esencial para evitar problemas. ¿Cómo manejas el agua en tu terreno?" 
+        },
+        { 
+            pregunta: "¿Cuánto produce un árbol de litchi?", 
+            respuesta: "Saludos, gracias por preguntar. Un árbol de litchi adulto puede dar entre 50 y 100 kilos de fruta por temporada, según su cuidado, edad y clima. En México, con buen manejo, se logran cosechas rentables. Es un cultivo que recompensa la dedicación. ¿Qué tan productivos son los árboles en tu zona?" 
+        },
+        { 
+            pregunta: "¿Se puede cultivar litchi en maceta?", 
+            respuesta: "Hola, qué bien tu duda. Sí, el litchi se puede cultivar en maceta, pero solo como planta joven o decorativa, ya que en espacios pequeños no da frutos bien. Necesita raíz profunda y espacio para crecer. En México, mejor ir por campo abierto. ¿Has probado cultivos en contenedores?" 
+        },
+        { 
+            pregunta: "¿El litchi tiene buena demanda en México?", 
+            respuesta: "Qué tal, gracias por consultar. Sí, el litchi tiene demanda en México, tanto en mercados locales como para exportar. Su sabor único y beneficios lo hacen popular en temporadas, especialmente en zonas urbanas. Es una fruta que puede mover bien el negocio. ¿Qué productos venden más donde estás?" 
+        },
+        { 
+            pregunta: "¿Cómo se propaga el litchi?", 
+            respuesta: "Saludos, buena pregunta. El litchi se propaga mejor por injerto o acodo aéreo, ya que las semillas tardan más y no siempre garantizan frutos de calidad. En México, los injertos son comunes para acelerar la producción y mantener características. Es una técnica práctica. ¿Qué métodos usas para propagar tus plantas?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste el frío?", 
+            respuesta: "Hola, gracias por tu interés. El litchi no soporta bien el frío; prefiere temperaturas entre 20 y 35 °C. En México, heladas por debajo de 0 °C dañan sus hojas y frutos. Por eso se cultiva en zonas tropicales y no en altitudes altas. ¿Cómo afecta el clima a tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Qué tan grande crece un árbol de litchi?", 
+            respuesta: "Qué bueno verte por aquí. Un árbol de litchi puede alcanzar de 6 a 12 metros de altura en México, dependiendo del manejo y suelo. Con poda se controla para facilitar la cosecha. Es un árbol frondoso que necesita espacio para desarrollarse. ¿Qué tan grandes son los árboles en tu parcela?" 
+        },
+        { 
+            pregunta: "¿El litchi se vende caro en México?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi tiene un precio variable, pero suele venderse entre 50 y 100 pesos el kilo en México, según la temporada y región. Su rareza y sabor lo hacen más caro que frutas comunes, lo que beneficia a productores. ¿Qué precios manejas en tus ventas?" 
+        },
+        { 
+            pregunta: "¿Se usa fertilizante para el litchi?", 
+            respuesta: "Hola, qué bien tu consulta. Sí, el litchi necesita fertilizantes ricos en nitrógeno, fósforo y potasio, aplicados en etapas de crecimiento y fructificación. En México, combinarlos con materia orgánica mejora los resultados en suelos tropicales. La nutrición balanceada es clave. ¿Qué fertilizantes prefieres para tus cultivos?" 
+        },
+        { 
+            pregunta: "¿El litchi atrae muchas aves?", 
+            respuesta: "Qué tal, gracias por tu duda. Sí, el litchi atrae aves como pericos y tordos en México, sobre todo cuando los frutos maduran. Usar redes o espantapájaros ayuda a proteger la cosecha, ya que su dulzura las tienta. Es un reto común. ¿Cómo manejas las aves en tu terreno?" 
+        },
+        { 
+            pregunta: "¿Cuánto vive un árbol de litchi?", 
+            respuesta: "Saludos, buena pregunta. Un árbol de litchi puede vivir más de 50 años en buenas condiciones, aunque su pico de producción está entre los 10 y 30 años. En México, con cuidado, sigue siendo rentable por décadas. Es una apuesta duradera. ¿Qué tan longevos son tus cultivos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita poda?", 
+            respuesta: "Hola, gracias por consultar. Sí, el litchi requiere poda anual para quitar ramas secas, controlar su tamaño y mejorar la entrada de luz. En México, se hace tras la cosecha para preparar la próxima temporada. Un árbol bien podado rinde más. ¿Cómo manejas la poda en tu parcela?" 
+        },
+        { 
+            pregunta: "¿Se puede hacer jugo con litchi?", 
+            respuesta: "Qué bueno tu interés. Claro, el litchi se usa para jugos en México; su pulpa dulce y jugosa da una bebida refrescante. Solo se pela, se quita el hueso y se licúa, a veces con un toque de limón. Es una forma de aprovechar excedentes. ¿Qué procesas con tus frutas?" 
+        },
+        { 
+            pregunta: "¿El litchi crece rápido?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi no crece muy rápido; su desarrollo es moderado, tomando años para madurar y fructificar. Con injertos se acelera, pero sigue siendo un cultivo de paciencia. En México, el clima ayuda, pero no es instantáneo. ¿Qué tan rápido esperas resultados en tus siembras?" 
+        },
+        { 
+            pregunta: "¿Qué tan rentable es el litchi en México?", 
+            respuesta: "Hola, qué bien tu duda. El litchi es rentable en México por su precio y demanda, especialmente en exportación. Aunque la inversión inicial y el tiempo son altos, los márgenes compensan en regiones productoras como Veracruz. Es un negocio sólido. ¿Qué cultivos te han dado buena ganancia?" 
+        },
+        { 
+            pregunta: "¿El litchi se da en altitudes altas?", 
+            respuesta: "Qué tal, gracias por consultar. No, el litchi prefiere altitudes bajas, entre 0 y 500 metros sobre el nivel del mar, donde el calor y la humedad son constantes. En México, por eso se concentra en zonas tropicales y no en sierras frías. ¿A qué altura está tu terreno?" 
+        },
+        { 
+            pregunta: "¿Se usa el litchi en postres en México?", 
+            respuesta: "Saludos, buena pregunta. Sí, en México el litchi se usa en postres como gelatinas, ensaladas de frutas o helados, gracias a su dulzura natural. Es una forma creativa de darle valor agregado a la cosecha y atraer compradores. ¿Qué recetas conoces con frutas locales?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita sombra al inicio?", 
+            respuesta: "Hola, gracias por tu interés. Sí, los árboles jóvenes de litchi necesitan sombra parcial en sus primeros años para protegerlos del sol intenso. En México, se usan mallas o árboles vecinos hasta que se fortalezcan. Luego ya toleran pleno sol. ¿Cómo proteges tus plantas nuevas?" 
+        },
+        { 
+            pregunta: "¿Cuántos árboles de litchi caben por hectárea?", 
+            respuesta: "Qué bueno verte por aquí. En una hectárea caben entre 100 y 150 árboles de litchi, con un espaciamiento de 6 a 8 metros entre cada uno. En México, este diseño optimiza espacio y producción, según el terreno. ¿Cómo distribuyes tus cultivos por hectárea?" 
+        },
+        { 
+            pregunta: "¿El litchi se puede secar?", 
+            respuesta: "Saludos, gracias por preguntar. Sí, el litchi se puede secar para conservarlo; en México, aunque no es tan común, se hace quitando la cáscara y el hueso, dejando la pulpa al sol o en deshidratadores. Queda como pasa dulce. ¿Has intentado secar alguna fruta?" 
+        },
+        { 
+            pregunta: "¿Qué tan pesado es el fruto del litchi?", 
+            respuesta: "Hola, qué bien tu consulta. Un litchi individual pesa entre 20 y 30 gramos, dependiendo de la variedad y las condiciones de cultivo. En México, son frutos pequeños pero su cantidad por árbol suma buen volumen para venta. ¿Qué tan grandes son las frutas que cosechas?" 
+        },
+        { 
+            pregunta: "¿El litchi tiene variedades diferentes?", 
+            respuesta: "Qué tal, gracias por tu duda. Sí, hay variedades de litchi como Mauritius, Brewster y Bengal, cada una con diferencias en tamaño, sabor y tiempo de maduración. En México, Mauritius es popular por su calidad. Elegir la adecuada importa. ¿Qué variedades cultivas en tu zona?" 
+        },
+        { 
+            pregunta: "¿Se puede injertar el litchi en otros árboles?", 
+            respuesta: "Saludos, buena pregunta. El litchi se injerta mejor en su propia especie para asegurar compatibilidad y frutos buenos. En México, no es común mezclarlo con otros árboles, ya que su sistema es específico. Los injertos entre litchis son lo ideal. ¿Qué experiencia tienes con injertos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita mucho sol?", 
+            respuesta: "Hola, gracias por consultar. Sí, el litchi necesita sol pleno para crecer fuerte y dar frutos de calidad, unas 6-8 horas diarias. En México, las zonas tropicales le dan esa luz natural, pero hay que cuidar el riego. ¿Cuánto sol reciben tus cultivos?" 
+        },
+        { 
+            pregunta: "¿El litchi se vende en mercados locales?", 
+            respuesta: "Qué bueno tu interés. Sí, el litchi se vende en mercados locales de México, especialmente en temporada, en regiones como Veracruz o Sinaloa. Su sabor exótico lo hace destacar entre frutas comunes, atrayendo compradores. ¿Qué tal se mueven las frutas en tu mercado?" 
+        },
+        { 
+            pregunta: "¿El litchi aguanta tras la cosecha?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi fresco dura unas 3-4 semanas si se guarda en frío (unos 4 °C), pero su cáscara se oscurece rápido. En México, enfriarlo pronto es clave para venderlo bien. ¿Cómo conservas tus productos después de cosechar?" 
+        },
+        { 
+            pregunta: "¿Se usa la cáscara del litchi?", 
+            respuesta: "Hola, qué bien tu duda. La cáscara del litchi no se come, pero en algunos lugares se usa seca para tés o composta por sus antioxidantes. En México, lo usual es desecharla, aunque podría aprovecharse más. ¿Qué haces con los restos de tus cultivos?" 
+        },
+        { 
+            pregunta: "¿El litchi crece en suelos arenosos?", 
+            respuesta: "Qué tal, gracias por consultar. El litchi prefiere suelos franco-arenosos, bien drenados y con materia orgánica, no arenas puras. En México, funciona en tierras tropicales con buena preparación. El drenaje evita que las raíces se pudran. ¿Qué textura tiene el suelo donde trabajas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita polinizadores?", 
+            respuesta: "Saludos, buena pregunta. El litchi es autopolinizante, pero abejas y otros insectos mejoran la cantidad y calidad de frutos. En México, dejar colmenas cerca en floración ayuda a la producción. Es un extra que suma. ¿Cómo manejas la polinización en tus cultivos?" 
+        },
+        { 
+            pregunta: "¿El litchi se da en invernadero?", 
+            respuesta: "Hola, gracias por tu interés. El litchi no es común en invernaderos por su tamaño y necesidad de clima tropical natural. En México, se cultiva a campo abierto donde el calor y la humedad son constantes. Invernadero sería caro y poco práctico. ¿Usas invernaderos en tu parcela?" 
+        },
+        { 
+            pregunta: "¿Qué enfermedades afectan al litchi?", 
+            respuesta: "Qué bueno verte por aquí. El litchi puede sufrir hongos como antracnosis o mildiu, sobre todo en lluvias fuertes. En México, controlar la humedad y usar fungicidas preventivos ayuda a mantenerlo sano. La vigilancia es esencial. ¿Qué enfermedades enfrentas en tus plantas?" 
+        },
+        { 
+            pregunta: "¿El litchi tiene buen mercado internacional?", 
+            respuesta: "Saludos, gracias por preguntar. Sí, el litchi mexicano tiene mercado en países como Estados Unidos y Canadá, donde su sabor y frescura son valorados. Desde Veracruz y Sinaloa se exporta con éxito, abriendo oportunidades para productores. ¿Qué tan lejos vendes tus cosechas?" 
+        },
+        { 
+            pregunta: "¿Se puede hacer mermelada de litchi?", 
+            respuesta: "Hola, qué bien tu consulta. Sí, con litchi se hace mermelada; su pulpa dulce combina bien con azúcar y un toque de limón. En México, es una forma de procesarlo y venderlo todo el año. Da un producto diferente y sabroso. ¿Qué procesados haces con tus frutas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita mucho espacio?", 
+            respuesta: "Qué tal, gracias por tu duda. Sí, el litchi necesita espacio; cada árbol requiere 6-8 metros alrededor para crecer bien y dar frutos. En México, planificar el terreno es clave para no amontonarlos y asegurar buena cosecha. ¿Cómo distribuyes el espacio en tu terreno?" 
+        },
+        { 
+            pregunta: "¿El litchi se cultiva con otras plantas?", 
+            respuesta: "Saludos, buena pregunta. El litchi se puede combinar con cultivos bajos como frijol o hierbas en sus primeros años, pero al crecer compite por luz y nutrientes. En México, suele ir solo para maximizar su producción. ¿Qué mezclas haces en tus cultivos?" 
+        },
+        { 
+            pregunta: "¿El litchi tiene raíces profundas?", 
+            respuesta: "Hola, gracias por consultar. Sí, el litchi desarrolla raíces profundas para buscar agua y estabilidad, por eso necesita suelos sueltos y sin capas duras. En México, esto lo hace resistente en zonas tropicales, pero hay que preparar bien la tierra. ¿Qué tan hondo preparas tus suelos?" 
+        },
+        { 
+            pregunta: "¿El litchi se da bien en lluvias?", 
+            respuesta: "Qué bueno tu interés. El litchi tolera lluvias moderadas, pero el exceso en floración o cosecha puede traer hongos y perder frutos. En México, el drenaje es vital en temporadas húmedas para no afectar la calidad. ¿Cómo manejas el agua cuando llueve mucho?" 
+        },
+        { 
+            pregunta: "¿El litchi es fácil de cosechar?", 
+            respuesta: "Saludos, gracias por preguntar. Cosechar litchi es sencillo: se cortan los racimos con tijeras cuando la cáscara está rojiza. En México, la altura del árbol puede complicarlo, pero con poda se facilita. Es un trabajo manual y rápido. ¿Qué tan fácil cosechas tus frutas?" 
+        },
+        { 
+            pregunta: "¿El litchi tiene valor cultural en México?", 
+            respuesta: "Hola, qué bien tu duda. Aunque el litchi no es nativo, en México ha ganado lugar en zonas productoras como Veracruz, donde se disfruta en ferias y mesas locales. No tiene raíces prehispánicas, pero suma a la diversidad frutal. ¿Qué frutas son tradición en tu comunidad?" 
+        },{ 
+            pregunta: "¿Qué tan resistente es el litchi a la sequía?", 
+            respuesta: "Hola, qué bueno tu interés. El litchi no aguanta bien la sequía; necesita agua constante, sobre todo en floración y desarrollo del fruto. Sin riego en épocas secas, las hojas se caen y la cosecha baja. Un sistema de goteo o lluvias regulares son ideales para mantenerlo sano. ¿Cómo manejas la falta de agua en tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Cuánta agua necesita un árbol de litchi joven?", 
+            respuesta: "Qué tal, gracias por tu duda. Un árbol de litchi joven necesita unos 20-30 litros por semana, dependiendo del calor y el suelo. Hay que evitar encharcamientos, pero mantener la tierra húmeda para que las raíces crezcan fuertes. Con el tiempo, se adapta mejor. ¿Qué tanta agua das a tus plantas nuevas?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi está listo para cosechar?", 
+            respuesta: "Saludos, buena consulta. El litchi está listo cuando su cáscara pasa de verde a rojo brillante y se siente firme pero no dura. Si lo pruebas, la pulpa debe estar dulce y jugosa. Corta un racimo para checar; no esperes demasiado o se pasa. ¿Qué señales buscas en tus frutas?" 
+        },
+        { 
+            pregunta: "¿Por qué mis litchis son pequeños?", 
+            respuesta: "Hola, gracias por preguntar. Litchis pequeños pueden ser por falta de agua, nutrientes o demasiados frutos en el árbol. Poda algunos racimos y usa fertilizante con potasio para mejorar el tamaño. También revisa si hay plagas chupadoras como ácaros. El cuidado cuenta mucho. ¿Qué has notado en tus árboles?" 
+        },
+        { 
+            pregunta: "¿Qué hago si las hojas del litchi se ponen amarillas?", 
+            respuesta: "Qué bueno verte por aquí. Hojas amarillas en el litchi suelen indicar exceso de agua, falta de nitrógeno o suelos mal drenados. Checa el riego y aplica un fertilizante balanceado. Si las raíces están húmedas todo el tiempo, mejora el drenaje. Es clave actuar rápido. ¿Qué cambios has visto en tus plantas?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que los pájaros se coman mis litchis?", 
+            respuesta: "Saludos, gracias por tu consulta. Para alejar pájaros del litchi, usa redes sobre los árboles o espantapájaros que se muevan con el viento. También puedes colgar cintas brillantes o hacer ruido con latas. Proteger los frutos maduros es esencial para no perder cosecha. ¿Qué trucos usas contra las aves?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita fertilizante todo el año?", 
+            respuesta: "Hola, qué bien tu duda. El litchi no necesita fertilizante constante, pero sí en etapas clave: antes de la floración y tras la cosecha. Usa uno rico en nitrógeno al inicio y luego más potasio para los frutos. Descansa en invierno si el árbol reposa. ¿Qué calendario sigues para abonar?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi no da flores?", 
+            respuesta: "Qué tal, gracias por preguntar. Si el litchi no florece, puede ser por falta de frío leve en invierno, exceso de riego o poda mal hecha. Necesita un descanso seco y fresco para estimular flores. Revisa el manejo y ajusta el agua. ¿Qué condiciones tuvo tu árbol este año?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo los ácaros en el litchi?", 
+            respuesta: "Saludos, buena pregunta. Los ácaros en el litchi se controlan con jabón insecticida o aceites hortícolas aplicados en las hojas, sobre todo debajo. Hazlo temprano o tarde para no quemarlas con el sol. Monitorea regularmente, porque se multiplican rápido en calor. ¿Qué plagas son más comunes en tus cultivos?" 
+        },
+        { 
+            pregunta: "¿El litchi soporta vientos fuertes?", 
+            respuesta: "Hola, gracias por tu interés. El litchi resiste vientos moderados, pero fuertes ráfagas pueden quebrar ramas o tirar frutos. Plantar cortinas de árboles alrededor ayuda a protegerlo. Si ya está grande, poda para reducir peso. Es mejor prevenir daños. ¿Cómo proteges tus cultivos del viento?" 
+        },
+        { 
+            pregunta: "¿Qué tan seguido debo podar el litchi?", 
+            respuesta: "Qué bueno tu consulta. El litchi se poda una vez al año, después de cosechar, para quitar ramas secas y abrir el centro a la luz. No exageres o reduces frutos el próximo ciclo. Una poda ligera cada dos años también funciona si está sano. ¿Cómo manejas la poda en tus árboles?" 
+        },
+        { 
+            pregunta: "¿Por qué se caen los frutos pequeños del litchi?", 
+            respuesta: "Saludos, gracias por preguntar. La caída de frutos pequeños en el litchi puede ser natural para ajustar la carga, pero también pasa por estrés hídrico, falta de nutrientes o plagas. Asegúrate de regar bien y usa un fertilizante con fósforo. Revisa las hojas por señales. ¿Qué has visto en tu cosecha?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un suelo ácido?", 
+            respuesta: "Hola, qué bien tu duda. El litchi prefiere suelos ligeramente ácidos, con pH entre 5.5 y 6.5. Si está muy alcalino, las raíces no absorben bien hierro y se amarillea. Agrega materia orgánica o azufre si necesitas bajar el pH. ¿Has medido el suelo de tu terreno?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi dé más frutos?", 
+            respuesta: "Qué tal, gracias por consultar. Para más frutos en el litchi, asegura riego constante, poda ligera y fertilizante con potasio y magnesio en prefloración. Evita exceso de nitrógeno, que da más hojas que flores. Un árbol sano y equilibrado produce mejor. ¿Qué cuidados das para aumentar tu rendimiento?" 
+        },
+        { 
+            pregunta: "¿El litchi atrae hormigas?", 
+            respuesta: "Saludos, buena pregunta. Sí, el litchi atrae hormigas por su pulpa dulce y si hay pulgones que dejan melaza. Coloca trampas pegajosas en el tronco o usa ceniza alrededor para alejarlas. Controlar plagas chupadoras también ayuda a reducirlas. ¿Qué insectos ves más en tus árboles?" 
+        },
+        { 
+            pregunta: "¿Cuánto debo regar un litchi adulto?", 
+            respuesta: "Hola, gracias por tu interés. Un litchi adulto necesita unos 50-70 litros por semana en temporada seca, menos si llueve. Ajusta según el suelo; si drena bien, no se encharca. La clave es mantener humedad sin exceso. ¿Cómo calculas el riego en tus cultivos grandes?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos agrios?", 
+            respuesta: "Qué bueno verte por aquí. Frutos agrios en el litchi suelen venir por cosecharlos antes de tiempo o falta de sol y nutrientes. Deja que la cáscara se ponga bien roja y aplica potasio para dulzura. El clima también influye. ¿En qué momento cortas tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita abejas para polinizar?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi se poliniza solo, pero abejas y otros insectos aumentan la cantidad de frutos. Si hay pocas flores cuajando, atrae polinizadores con plantas cercanas o colmenas. No es obligatorio, pero ayuda a la producción. ¿Qué polinizadores hay en tu zona?" 
+        },
+        { 
+            pregunta: "¿Cómo evito hongos en el litchi?", 
+            respuesta: "Hola, qué bien tu consulta. Para evitar hongos en el litchi, reduce la humedad en las hojas con buena poda y drenaje. Usa fungicidas como cobre en épocas lluviosas, pero aplica con cuidado. Ventilar el árbol es clave para que no se pudra. ¿Qué problemas tienes con hongos?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien en sombra?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi necesita sol pleno para dar frutos buenos; en sombra crece lento y produce poco. Los árboles jóvenes toleran algo de sombra, pero adultos no. Plántalo donde reciba al menos 6 horas de luz directa. ¿Cuánto sol tienen tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene cáscara café?", 
+            respuesta: "Saludos, buena pregunta. La cáscara café en el litchi aparece si se deja mucho tiempo en el árbol o tras cosecha sin enfriar. Es normal que oscurezca, pero afecta la venta. Corta en el punto rojo y guárdalo fresco para mantenerla bonita. ¿Cómo conservas tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita mucho mantenimiento?", 
+            respuesta: "Hola, gracias por consultar. El litchi no es de alto mantenimiento, pero sí pide riego constante, poda anual y control de plagas. Con suelos bien preparados y fertilizante en momentos clave, se cuida solo una vez establecido. Es manejable con rutina. ¿Qué tan intensivos son tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi suelo es bueno para litchi?", 
+            respuesta: "Qué bueno tu interés. Un suelo bueno para litchi es suelto, bien drenado, con algo de arena y materia orgánica, pH 5.5-6.5. Si se encharca o es muy arcilloso, las raíces sufren. Haz un análisis para ajustar lo que falte. ¿Qué características tiene tu terreno?" 
+        },
+        { 
+            pregunta: "¿El litchi se enferma fácil?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi no es muy delicado, pero hongos como antracnosis o plagas como ácaros lo afectan si hay mucha humedad o descuido. Con buen manejo, riego adecuado y monitoreo, se mantiene sano. No es de los más frágiles. ¿Qué tan resistentes son tus plantas?" 
+        },
+        { 
+            pregunta: "¿Qué hago con litchis que no se venden?", 
+            respuesta: "Hola, qué bien tu duda. Con litchis sobrantes, puedes hacer jugo, mermelada o deshidratarlos como pasas. Así no se desperdician y hasta sacas algo extra. También puedes ofrecerlos a procesadores locales. Es una forma de aprovechar todo. ¿Qué haces con tus excedentes?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita frío para florecer?", 
+            respuesta: "Qué tal, gracias por consultar. El litchi necesita un periodo fresco, entre 15-20 °C, por unas semanas para estimular flores. Sin eso, puede dar solo hojas. En zonas cálidas todo el año, cuesta más que fructifique bien. ¿Qué temperaturas tienes en invierno?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi se queme con el sol?", 
+            respuesta: "Saludos, buena pregunta. Para que el litchi no se queme, riega bien en días muy soleados y usa mallas de sombra en árboles jóvenes. Los adultos resisten más, pero el calor extremo seca frutos si falta agua. La hidratación es clave. ¿Cómo proteges del sol intenso?" 
+        },
+        { 
+            pregunta: "¿El litchi da frutos todos los años?", 
+            respuesta: "Hola, gracias por tu interés. El litchi suele dar frutos cada año si tiene buen cuidado, pero a veces alterna cosechas grandes con otras menores por estrés o clima. Fertiliza y poda bien para estabilizarlo. Es un ciclo natural. ¿Qué tan constantes son tus producciones?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pocas ramas?", 
+            respuesta: "Qué bueno verte por aquí. Pocas ramas en el litchi pueden ser por poda excesiva, falta de nitrógeno o un árbol joven aún en desarrollo. Dale tiempo y aplica fertilizante balanceado para estimular crecimiento. No lo forces demasiado al inicio. ¿Qué tan frondosos son tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita mucho espacio entre árboles?", 
+            respuesta: "Saludos, gracias por preguntar. Sí, el litchi necesita 6-8 metros entre árboles para que las copas no se estorben y reciban luz pareja. Si los juntas mucho, compiten y rinden menos. Planificar el terreno es básico para buena cosecha. ¿Cómo distribuyes tus plantas?" 
+        },
+        { 
+            pregunta: "¿Cómo hago injertos de litchi?", 
+            respuesta: "Hola, qué bien tu consulta. Para injertar litchi, usa el método de hendidura: corta una rama sana, une un esqueje de otra variedad y sella con cinta. Hazlo en primavera con árboles jóvenes. Así aseguras frutos buenos más rápido. ¿Qué técnicas usas para propagar?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos salados?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi no tolera suelos salados; la sal daña sus raíces y reduce crecimiento. Prefiere terrenos bien lavados y drenados. Si tu tierra tiene sal, enjuaga con agua dulce antes de plantar. ¿Qué tan salado es tu suelo?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene flores pero no frutos?", 
+            respuesta: "Saludos, buena pregunta. Flores sin frutos en el litchi pueden ser por polinización pobre, estrés hídrico o exceso de nitrógeno. Atrae abejas, riega parejo y ajusta el fertilizante a más potasio. El balance es esencial para que cuajen. ¿Qué notaste en la floración?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita riego por goteo?", 
+            respuesta: "Hola, gracias por consultar. El riego por goteo no es obligatorio para el litchi, pero es ideal: ahorra agua y la lleva directo a las raíces. En temporada seca, 2-3 veces por semana basta. Depende de tu sistema y clima. ¿Qué método usas para regar?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi tiene plagas?", 
+            respuesta: "Qué bueno tu interés. Busca señales en el litchi como hojas enrolladas, manchas blancas o frutos picados. Ácaros, moscas o barrenadores son comunes. Revisa bajo las hojas y usa lupa si dudas. Actúa rápido para que no se extienda. ¿Qué has visto en tus plantas?" 
+        },
+        { 
+            pregunta: "¿El litchi se puede plantar en ladera?", 
+            respuesta: "Saludos, gracias por preguntar. Sí, el litchi se planta en laderas suaves si el suelo drena bien y no se erosionan las raíces. Haz terrazas para estabilizarlo y evitar que el agua corra demasiado rápido. Funciona con cuidado. ¿Qué tan inclinados son tus terrenos?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi crece lento?", 
+            respuesta: "Hola, qué bien tu duda. El litchi crece lento si le falta sol, nutrientes o el suelo está compacto. Asegúrate de que tenga luz directa, fertiliza con compost y afloja la tierra. Es un árbol que toma su tiempo al inicio. ¿Qué tan rápido esperabas que creciera?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita mulch?", 
+            respuesta: "Qué tal, gracias por consultar. El mulch no es esencial para el litchi, pero ayuda: mantiene humedad, evita maleza y enriquece el suelo al descomponerse. Usa hojas secas o corteza alrededor del tronco, sin tapar las raíces. Es práctico. ¿Qué cubres tus suelos con?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi se seque en verano?", 
+            respuesta: "Saludos, buena pregunta. Para que el litchi no se seque en verano, riega más seguido, unas 3 veces por semana, y pon mulch para retener agua. Si las hojas se marchitan, haz sombra temporal con malla. El calor fuerte lo estresa. ¿Cómo enfrentas las temporadas secas?" 
+        },
+        { 
+            pregunta: "¿El litchi da frutos en árboles jóvenes?", 
+            respuesta: "Hola, gracias por tu interés. Los litchis jóvenes, de 1-2 años, rara vez dan frutos; necesitan madurar 3-5 años, o 2 con injertos. Si florecen pronto, quita las flores para que crezcan fuertes primero. Es una espera que vale. ¿Qué tan jóvenes son tus árboles?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas pequeñas?", 
+            respuesta: "Qué bueno verte por aquí. Hojas pequeñas en el litchi suelen ser por falta de agua, nutrientes o suelo pobre. Aumenta el riego, aplica fertilizante con magnesio y revisa si las raíces tienen espacio. Un árbol sano da hojas más grandes. ¿Qué tamaño tienen tus hojas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un tutor al plantarlo?", 
+            respuesta: "Saludos, gracias por preguntar. Un tutor ayuda al litchi joven a crecer recto y resistir viento, pero no es obligatorio. Clava una estaca firme y átalo flojo por 1-2 años. Después se sostiene solo. Es un apoyo inicial. ¿Cómo estabilizas tus plantas nuevas?" 
+        },
+        { 
+            pregunta: "¿Cómo preparo el terreno para litchi?", 
+            respuesta: "Hola, qué bien tu consulta. Para el litchi, afloja el suelo a 50 cm de profundidad, mezcla compost y asegúrate de que drene bien. Haz hoyos de 60x60 cm y revisa el pH para que esté entre 5.5-6.5. Así arrancan bien. ¿Cómo preparas tu tierra?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos húmedos todo el tiempo?", 
+            respuesta: "Qué tal, gracias por tu duda. No, el litchi no soporta suelos húmedos constantes; las raíces se pudren si están encharcadas. Necesita humedad pero con buen drenaje. Si tu terreno retiene mucha agua, haz canales o camas altas. ¿Qué tan mojada está tu tierra?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi no crece parejo?", 
+            respuesta: "Saludos, buena pregunta. Un litchi disparejo puede ser por sol desigual, riego irregular o suelo pobre en un lado. Asegúrate de que todo el árbol reciba luz y agua pareja, y fertiliza uniformemente. La atención balanceada ayuda. ¿Qué diferencias notas en tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita mucho fósforo?", 
+            respuesta: "Hola, gracias por consultar. El litchi usa fósforo sobre todo en raíces y frutos, pero no en exceso. Un fertilizante balanceado con algo más de fósforo en floración funciona bien. No te pases o quemas las raíces. Es moderado. ¿Qué nutrientes das a tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga frutos deformes?", 
+            respuesta: "Qué bueno tu interés. Frutos deformes en el litchi salen por estrés hídrico, plagas o falta de calcio. Riega constante, revisa barrenadores y aplica un fertilizante con micronutrientes. Cosechar a tiempo también evita problemas. La estabilidad cuenta. ¿Qué formas has visto en tus litchis?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi tiene suficiente luz?", 
+            respuesta: "Hola, qué bueno tu interés. Un litchi con buena luz tiene hojas verdes brillantes y crece parejo. Si está opaco o se estira mucho, le falta sol. Necesita 6-8 horas diarias para fructificar bien. Revisa si otros árboles lo tapan y ajusta. ¿Cuánta luz reciben tus plantas ahora?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un suelo profundo?", 
+            respuesta: "Qué tal, gracias por tu duda. Sí, el litchi quiere suelos profundos, de al menos 50 cm, para que sus raíces se extiendan bien. Si hay roca o capa dura cerca de la superficie, no prospera. Afloja la tierra y agrega materia orgánica para ayudarlo. ¿Qué tan hondo es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene ramas secas?", 
+            respuesta: "Saludos, buena consulta. Ramas secas en el litchi pueden ser por falta de agua, hongos o poda mal hecha. Revisa si el riego llega a todas las raíces y corta lo seco para evitar que se extienda. Un fertilizante ligero también ayuda a recuperarlo. ¿Qué cambios has notado últimamente?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi pierda flores?", 
+            respuesta: "Hola, gracias por preguntar. Para que el litchi no pierda flores, mantén el riego constante pero no excesivo, y evita podas fuertes antes de la floración. El estrés por calor o sequía también las tira, así que usa mulch para estabilizar. Todo cuenta en esa etapa. ¿Qué has visto en tus flores?" 
+        },
+        { 
+            pregunta: "¿El litchi soporta suelos arcillosos?", 
+            respuesta: "Qué bueno verte por aquí. El litchi no va bien en suelos arcillosos pesados porque retienen agua y asfixian las raíces. Si es tu caso, mezcla arena y composta para mejorar el drenaje. Prefiere lo franco-arenoso para que crezca sano. ¿Qué textura tiene tu suelo?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi litchi tiene hojas con manchas?", 
+            respuesta: "Saludos, gracias por tu consulta. Manchas en las hojas del litchi suelen ser hongos como antracnosis o plagas como ácaros. Limpia las hojas caídas, aplica un fungicida suave y revisa el envés por bichos. Buena ventilación ayuda a prevenirlas. ¿Qué tipo de manchas ves?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita más cuidado al principio?", 
+            respuesta: "Hola, qué bien tu duda. Sí, el litchi joven pide más atención: riego regular, sombra ligera y protección contra viento. Una vez que agarra fuerza, se mantiene con menos esfuerzo. Los primeros 2-3 años son clave para que se establezca bien. ¿Cómo cuidas tus plantas nuevas?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos secos?", 
+            respuesta: "Qué tal, gracias por preguntar. Frutos secos en el litchi salen por falta de agua en la formación o calor extremo sin riego. Asegúrate de hidratar bien cuando crecen y revisa si hay plagas chupadoras. Cosechar a tiempo también evita que se pasen. ¿Qué tan jugosos salen tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un descanso entre cosechas?", 
+            respuesta: "Saludos, buena pregunta. El litchi no requiere descanso forzado, pero después de cosechar, reducir riego y podar lo ayuda a recuperar energía para la próxima floración. Un manejo equilibrado evita que se agote. Es más un ciclo natural que pausa estricta. ¿Cómo preparas tus árboles post-cosecha?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo la mosca de la fruta en el litchi?", 
+            respuesta: "Hola, gracias por tu interés. Para la mosca de la fruta en el litchi, usa trampas con atrayentes y recoge frutos caídos para romper su ciclo. Insecticidas permitidos en pre-cosecha también funcionan, pero aplica con cuidado. La limpieza es clave. ¿Qué plagas ves más en tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien cerca de otros árboles?", 
+            respuesta: "Qué bueno tu consulta. El litchi puede crecer cerca de otros árboles si no compiten por luz o agua. Deja 6-8 metros de distancia para que su copa se desarrolle. Evita plantas altas que lo sombreen demasiado. El espacio importa. ¿Qué tienes plantado alrededor?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene raíces expuestas?", 
+            respuesta: "Saludos, gracias por preguntar. Raíces expuestas en el litchi suelen ser por erosión del suelo o plantación superficial. Cubre con tierra y mulch para protegerlas, y revisa si el agua corre mucho en tu terreno. Un buen anclaje inicial evita esto. ¿Qué tan firme está tu suelo?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita magnesio?", 
+            respuesta: "Hola, qué bien tu duda. Sí, el litchi usa magnesio para hojas verdes y frutos sanos. Si ves amarilleo entre venas, aplica sulfato de magnesio en el suelo o foliar. No abuses, un poco en crecimiento y fructificación basta. Es un extra útil. ¿Qué nutrientes das a tus árboles?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que el litchi tenga cáscara más roja?", 
+            respuesta: "Qué tal, gracias por consultar. Para una cáscara roja intensa en el litchi, asegura sol directo y buen potasio en la fruta. Evita riego excesivo al final, que puede aclararla. La madurez natural también influye; no lo cortes verde. ¿De qué color salen tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi atrae ratones o roedores?", 
+            respuesta: "Saludos, buena pregunta. Sí, los litchis maduros pueden atraer ratones por su dulzura, sobre todo los caídos. Recoge los frutos del suelo y usa trampas si es problema. Mantener el área limpia reduce su interés. No es grave con control. ¿Qué animales rondan tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Cuánto debo abonar un litchi joven?", 
+            respuesta: "Hola, gracias por tu interés. Un litchi joven necesita unos 100-200 gramos de fertilizante balanceado (como 10-10-10) cada 3 meses el primer año. Espárcelo alrededor, no al tronco, y riega bien. Así crece fuerte sin quemarse. ¿Qué tanto abonas tus plantas nuevas?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pulpa dura?", 
+            respuesta: "Qué bueno verte por aquí. Pulpa dura en el litchi puede ser por cosecha tardía, falta de agua o variedad. Si lo dejas mucho en el árbol, se pasa y pierde jugo. Riega bien en desarrollo y corta cuando esté rojo brillante. ¿Qué textura tienen tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita polinización manual?", 
+            respuesta: "Saludos, gracias por preguntar. No, el litchi no requiere polinización manual; es autopolinizante. Pero si quieres más frutos, puedes usar un pincel para pasar polen entre flores en árboles aislados. No es común, las abejas suelen bastar. ¿Qué tan aislados están tus árboles?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi se pudra en el árbol?", 
+            respuesta: "Hola, qué bien tu consulta. Para evitar pudrición en el litchi, poda para ventilar, reduce riego en maduración y usa fungicidas si hay mucha humedad. Cosecha rápido cuando esté listo, la lluvia prolongada lo daña. La prevención es todo. ¿Qué tan húmedo está tu terreno?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien en suelos pedregosos?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi no va bien en suelos muy pedregosos; las raíces necesitan espacio suelto para expandirse. Si hay pocas piedras y buena tierra, puede adaptarse con preparación. Mejor suelos profundos y drenados. ¿Qué tan rocoso es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pocos frutos por racimo?", 
+            respuesta: "Saludos, buena pregunta. Pocos frutos por racimo en el litchi pueden ser por polinización débil, falta de potasio o estrés. Atrae abejas, fertiliza en floración y riega parejo. A veces es la variedad, pero el manejo influye mucho. ¿Cuántos frutos sacas por racimo?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita zinc?", 
+            respuesta: "Hola, gracias por consultar. Sí, el litchi usa zinc para crecimiento y frutos sanos. Si las hojas nuevas son pequeñas o raras, aplica sulfato de zinc foliar o al suelo. Una dosis ligera cada 6 meses ayuda sin exagerar. Es un detalle útil. ¿Qué micronutrientes usas?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo el barrenador en el litchi?", 
+            respuesta: "Qué bueno tu interés. El barrenador del litchi se controla sellando agujeros en ramas con pasta y usando trampas de feromonas. Si hay muchos, aplica insecticida específico en tronco y revisa regularmente. Quitar ramas dañadas también corta su ciclo. ¿Qué tan grave es en tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste calor extremo?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi aguanta calor hasta 35 °C si tiene agua, pero más allá se estresa, tira frutos y seca hojas. Riega más en picos de temperatura y usa mulch para enfriar el suelo. El balance es clave. ¿Qué tan caliente se pone tu zona?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene sabor débil?", 
+            respuesta: "Hola, qué bien tu duda. Un sabor débil en el litchi puede venir por cosecha temprana, falta de sol o poco potasio. Deja que madure bien en el árbol y fertiliza en desarrollo. El clima también afecta la dulzura. ¿Qué tan sabrosos salen tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita riego en invierno?", 
+            respuesta: "Qué tal, gracias por consultar. En invierno, el litchi necesita menos riego, solo para mantener el suelo apenas húmedo si no llueve. Exceso de agua en reposo daña raíces. Ajusta según el clima; en seco, una vez por semana basta. ¿Cómo manejas el agua en frío?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga frutos rajados?", 
+            respuesta: "Saludos, buena pregunta. Frutos rajados en el litchi salen por riego irregular; mucha agua tras sequía los parte. Mantén humedad constante en desarrollo y evita cambios bruscos. Variedades sensibles también influyen, pero el manejo es lo principal. ¿Qué tan lisos salen tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con poca agua?", 
+            respuesta: "Hola, gracias por tu interés. No, el litchi no prospera con poca agua; necesita humedad regular para crecer y dar frutos. En sequía prolongada, se detiene y pierde hojas. Un riego mínimo de 2-3 veces por semana lo sostiene. ¿Qué tan seco está tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas enrolladas?", 
+            respuesta: "Qué bueno verte por aquí. Hojas enrolladas en el litchi suelen ser por ácaros, estrés hídrico o calor fuerte. Revisa plagas con lupa, riega bien y protege del sol extremo. Un tratamiento suave y ajustar el agua lo corrige. ¿Qué más notas en las hojas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita sombra en verano?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi adulto no necesita sombra en verano si está bien regado, pero los jóvenes sí se benefician de mallas para evitar quemaduras. El sol pleno es ideal para frutos, con agua suficiente. Depende de la edad. ¿Cómo manejas el calor?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi sea más dulce?", 
+            respuesta: "Hola, qué bien tu consulta. Para un litchi más dulce, usa fertilizante con potasio en fructificación, asegura sol pleno y no lo cortes verde. El riego parejo también ayuda a concentrar azúcares. La paciencia en maduración es clave. ¿Qué tan dulces te salen ahora?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos compactos?", 
+            respuesta: "Qué tal, gracias por tu duda. No, el litchi no va bien en suelos compactos; las raíces necesitan aire y espacio para crecer. Si está duro, mezcla arena y composta para aflojarlo. Un terreno suelto lo hace prosperar. ¿Qué tan firme es tu suelo?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos pequeños y duros?", 
+            respuesta: "Saludos, buena pregunta. Frutos pequeños y duros en el litchi suelen ser por falta de agua o nutrientes en desarrollo. Riega más y aplica fósforo y potasio cuando crecen. Cosechar tarde también los endurece. Revisa el manejo. ¿Qué tamaño tienen tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un lugar ventilado?", 
+            respuesta: "Hola, gracias por consultar. Sí, el litchi prefiere sitios ventilados para evitar hongos y que las flores cuajen bien. Evita valles cerrados o zonas sin aire. Una buena poda también ayuda a que circule el viento dentro del árbol. ¿Qué tan abierto es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga pulpa café?", 
+            respuesta: "Qué bueno tu interés. Pulpa café en el litchi sale por madurez excesiva o daño interno de plagas. Cosecha cuando esté rojo, no marrón, y revisa por barrenadores. Guardarlo fresco tras cortar también previene que se oxide. ¿De qué color sale tu pulpa?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita mucho calcio?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi usa calcio para frutos firmes, pero no en grandes cantidades. Si los litchis se rajan o son débiles, aplica cal agrícola al suelo antes de plantar o foliar en desarrollo. Un poco basta. ¿Qué tan fuertes son tus frutos?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene tronco delgado?", 
+            respuesta: "Hola, qué bien tu duda. Un tronco delgado en el litchi puede ser por falta de nutrientes, suelo pobre o poco espacio para raíces. Fertiliza con nitrógeno al inicio y asegura profundidad en la tierra. Tomará tiempo engrosar. ¿Qué tan robustos son tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste plagas grandes como escarabajos?", 
+            respuesta: "Qué tal, gracias por consultar. El litchi puede sufrir con escarabajos como el barrenador, que daña ramas y frutos. Usa trampas, revisa el tronco y aplica insecticida si los ves. No es débil, pero necesita vigilancia contra plagas grandes. ¿Qué bichos atacan tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi está sano?", 
+            respuesta: "Saludos, buena pregunta. Un litchi sano tiene hojas verdes brillantes, crecimiento constante y frutos bien formados. Si no hay manchas, caídas raras ni plagas visibles, va bien. Revisa raíces y corteza por señales de daño. ¿Qué tan saludable ves a tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita riego profundo?", 
+            respuesta: "Hola, gracias por tu interés. Sí, el litchi prefiere riego profundo para que el agua llegue a las raíces bajas, pero no constante. En seco, moja bien 2-3 veces por semana, según el suelo. Evita charcos en la superficie. ¿Qué tan hondo riegas tus plantas?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas caídas?", 
+            respuesta: "Qué bueno verte por aquí. Hojas caídas en el litchi pueden ser por exceso o falta de agua, estrés por calor o raíz dañada. Checa el suelo: si está seco, riega más; si está mojado, mejora el drenaje. Actúa según el caso. ¿Qué tan firmes están tus hojas?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con riego por aspersión?", 
+            respuesta: "Saludos, gracias por preguntar. El riego por aspersión funciona para el litchi si no moja mucho las hojas, porque el exceso de humedad trae hongos. Apunta al suelo y úsalo en seco. Goteo es más eficiente, pero este sirve. ¿Qué sistema tienes para regar?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga sabor amargo?", 
+            respuesta: "Hola, qué bien tu consulta. Sabor amargo en el litchi puede venir por cosecha verde, estrés hídrico o suelo desbalanceado. Deja madurar hasta rojo pleno, riega bien y ajusta el pH a 5.5-6.5. El cuidado define el gusto. ¿Qué sabor notas en tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un lugar plano?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi crece mejor en terrenos planos o con poca pendiente para evitar erosión y que el agua se reparta bien. En laderas fuertes, haz terrazas. No es muy exigente, pero el sitio influye. ¿Qué tan plano es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con poco jugo?", 
+            respuesta: "Saludos, buena pregunta. Frutos con poco jugo en el litchi salen por riego escaso en desarrollo o calor sin protección. Aumenta el agua cuando crecen y usa mulch para retenerla. Cosechar en el punto exacto también ayuda. ¿Qué tan jugosos te salen?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos con cal?", 
+            respuesta: "Hola, gracias por consultar. El litchi no quiere suelos con mucha cal; si el pH sube de 7, le cuesta tomar hierro y se amarillea. Mezcla azufre o composta para bajarlo a 5.5-6.5. La cal lo limita. ¿Qué tan calcáreo es tu suelo?" 
+        },{ 
+            pregunta: "¿Cómo sé si mi litchi tiene suficiente luz?", 
+            respuesta: "Hola, qué bueno tu interés. Un litchi con buena luz tiene hojas verdes brillantes y crece parejo. Si está opaco o se estira mucho, le falta sol. Necesita 6-8 horas diarias para fructificar bien. Revisa si otros árboles lo tapan y ajusta. ¿Cuánta luz reciben tus plantas ahora?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un suelo profundo?", 
+            respuesta: "Qué tal, gracias por tu duda. Sí, el litchi quiere suelos profundos, de al menos 50 cm, para que sus raíces se extiendan bien. Si hay roca o capa dura cerca de la superficie, no prospera. Afloja la tierra y agrega materia orgánica para ayudarlo. ¿Qué tan hondo es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene ramas secas?", 
+            respuesta: "Saludos, buena consulta. Ramas secas en el litchi pueden ser por falta de agua, hongos o poda mal hecha. Revisa si el riego llega a todas las raíces y corta lo seco para evitar que se extienda. Un fertilizante ligero también ayuda a recuperarlo. ¿Qué cambios has notado últimamente?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi pierda flores?", 
+            respuesta: "Hola, gracias por preguntar. Para que el litchi no pierda flores, mantén el riego constante pero no excesivo, y evita podas fuertes antes de la floración. El estrés por calor o sequía también las tira, así que usa mulch para estabilizar. Todo cuenta en esa etapa. ¿Qué has visto en tus flores?" 
+        },
+        { 
+            pregunta: "¿El litchi soporta suelos arcillosos?", 
+            respuesta: "Qué bueno verte por aquí. El litchi no va bien en suelos arcillosos pesados porque retienen agua y asfixian las raíces. Si es tu caso, mezcla arena y composta para mejorar el drenaje. Prefiere lo franco-arenoso para que crezca sano. ¿Qué textura tiene tu suelo?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi litchi tiene hojas con manchas?", 
+            respuesta: "Saludos, gracias por tu consulta. Manchas en las hojas del litchi suelen ser hongos como antracnosis o plagas como ácaros. Limpia las hojas caídas, aplica un fungicida suave y revisa el envés por bichos. Buena ventilación ayuda a prevenirlas. ¿Qué tipo de manchas ves?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita más cuidado al principio?", 
+            respuesta: "Hola, qué bien tu duda. Sí, el litchi joven pide más atención: riego regular, sombra ligera y protección contra viento. Una vez que agarra fuerza, se mantiene con menos esfuerzo. Los primeros 2-3 años son clave para que se establezca bien. ¿Cómo cuidas tus plantas nuevas?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos secos?", 
+            respuesta: "Qué tal, gracias por preguntar. Frutos secos en el litchi salen por falta de agua en la formación o calor extremo sin riego. Asegúrate de hidratar bien cuando crecen y revisa si hay plagas chupadoras. Cosechar a tiempo también evita que se pasen. ¿Qué tan jugosos salen tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un descanso entre cosechas?", 
+            respuesta: "Saludos, buena pregunta. El litchi no requiere descanso forzado, pero después de cosechar, reducir riego y podar lo ayuda a recuperar energía para la próxima floración. Un manejo equilibrado evita que se agote. Es más un ciclo natural que pausa estricta. ¿Cómo preparas tus árboles post-cosecha?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo la mosca de la fruta en el litchi?", 
+            respuesta: "Hola, gracias por tu interés. Para la mosca de la fruta en el litchi, usa trampas con atrayentes y recoge frutos caídos para romper su ciclo. Insecticidas permitidos en pre-cosecha también funcionan, pero aplica con cuidado. La limpieza es clave. ¿Qué plagas ves más en tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien cerca de otros árboles?", 
+            respuesta: "Qué bueno tu consulta. El litchi puede crecer cerca de otros árboles si no compiten por luz o agua. Deja 6-8 metros de distancia para que su copa se desarrolle. Evita plantas altas que lo sombreen demasiado. El espacio importa. ¿Qué tienes plantado alrededor?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene raíces expuestas?", 
+            respuesta: "Saludos, gracias por preguntar. Raíces expuestas en el litchi suelen ser por erosión del suelo o plantación superficial. Cubre con tierra y mulch para protegerlas, y revisa si el agua corre mucho en tu terreno. Un buen anclaje inicial evita esto. ¿Qué tan firme está tu suelo?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita magnesio?", 
+            respuesta: "Hola, qué bien tu duda. Sí, el litchi usa magnesio para hojas verdes y frutos sanos. Si ves amarilleo entre venas, aplica sulfato de magnesio en el suelo o foliar. No abuses, un poco en crecimiento y fructificación basta. Es un extra útil. ¿Qué nutrientes das a tus árboles?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que el litchi tenga cáscara más roja?", 
+            respuesta: "Qué tal, gracias por consultar. Para una cáscara roja intensa en el litchi, asegura sol directo y buen potasio en la fruta. Evita riego excesivo al final, que puede aclararla. La madurez natural también influye; no lo cortes verde. ¿De qué color salen tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi atrae ratones o roedores?", 
+            respuesta: "Saludos, buena pregunta. Sí, los litchis maduros pueden atraer ratones por su dulzura, sobre todo los caídos. Recoge los frutos del suelo y usa trampas si es problema. Mantener el área limpia reduce su interés. No es grave con control. ¿Qué animales rondan tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Cuánto debo abonar un litchi joven?", 
+            respuesta: "Hola, gracias por tu interés. Un litchi joven necesita unos 100-200 gramos de fertilizante balanceado (como 10-10-10) cada 3 meses el primer año. Espárcelo alrededor, no al tronco, y riega bien. Así crece fuerte sin quemarse. ¿Qué tanto abonas tus plantas nuevas?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pulpa dura?", 
+            respuesta: "Qué bueno verte por aquí. Pulpa dura en el litchi puede ser por cosecha tardía, falta de agua o variedad. Si lo dejas mucho en el árbol, se pasa y pierde jugo. Riega bien en desarrollo y corta cuando esté rojo brillante. ¿Qué textura tienen tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita polinización manual?", 
+            respuesta: "Saludos, gracias por preguntar. No, el litchi no requiere polinización manual; es autopolinizante. Pero si quieres más frutos, puedes usar un pincel para pasar polen entre flores en árboles aislados. No es común, las abejas suelen bastar. ¿Qué tan aislados están tus árboles?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi se pudra en el árbol?", 
+            respuesta: "Hola, qué bien tu consulta. Para evitar pudrición en el litchi, poda para ventilar, reduce riego en maduración y usa fungicidas si hay mucha humedad. Cosecha rápido cuando esté listo, la lluvia prolongada lo daña. La prevención es todo. ¿Qué tan húmedo está tu terreno?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien en suelos pedregosos?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi no va bien en suelos muy pedregosos; las raíces necesitan espacio suelto para expandirse. Si hay pocas piedras y buena tierra, puede adaptarse con preparación. Mejor suelos profundos y drenados. ¿Qué tan rocoso es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pocos frutos por racimo?", 
+            respuesta: "Saludos, buena pregunta. Pocos frutos por racimo en el litchi pueden ser por polinización débil, falta de potasio o estrés. Atrae abejas, fertiliza en floración y riega parejo. A veces es la variedad, pero el manejo influye mucho. ¿Cuántos frutos sacas por racimo?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita zinc?", 
+            respuesta: "Hola, gracias por consultar. Sí, el litchi usa zinc para crecimiento y frutos sanos. Si las hojas nuevas son pequeñas o raras, aplica sulfato de zinc foliar o al suelo. Una dosis ligera cada 6 meses ayuda sin exagerar. Es un detalle útil. ¿Qué micronutrientes usas?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo el barrenador en el litchi?", 
+            respuesta: "Qué bueno tu interés. El barrenador del litchi se controla sellando agujeros en ramas con pasta y usando trampas de feromonas. Si hay muchos, aplica insecticida específico en tronco y revisa regularmente. Quitar ramas dañadas también corta su ciclo. ¿Qué tan grave es en tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste calor extremo?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi aguanta calor hasta 35 °C si tiene agua, pero más allá se estresa, tira frutos y seca hojas. Riega más en picos de temperatura y usa mulch para enfriar el suelo. El balance es clave. ¿Qué tan caliente se pone tu zona?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene sabor débil?", 
+            respuesta: "Hola, qué bien tu duda. Un sabor débil en el litchi puede venir por cosecha temprana, falta de sol o poco potasio. Deja que madure bien en el árbol y fertiliza en desarrollo. El clima también afecta la dulzura. ¿Qué tan sabrosos salen tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita riego en invierno?", 
+            respuesta: "Qué tal, gracias por consultar. En invierno, el litchi necesita menos riego, solo para mantener el suelo apenas húmedo si no llueve. Exceso de agua en reposo daña raíces. Ajusta según el clima; en seco, una vez por semana basta. ¿Cómo manejas el agua en frío?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga frutos rajados?", 
+            respuesta: "Saludos, buena pregunta. Frutos rajados en el litchi salen por riego irregular; mucha agua tras sequía los parte. Mantén humedad constante en desarrollo y evita cambios bruscos. Variedades sensibles también influyen, pero el manejo es lo principal. ¿Qué tan lisos salen tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con poca agua?", 
+            respuesta: "Hola, gracias por tu interés. No, el litchi no prospera con poca agua; necesita humedad regular para crecer y dar frutos. En sequía prolongada, se detiene y pierde hojas. Un riego mínimo de 2-3 veces por semana lo sostiene. ¿Qué tan seco está tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas enrolladas?", 
+            respuesta: "Qué bueno verte por aquí. Hojas enrolladas en el litchi suelen ser por ácaros, estrés hídrico o calor fuerte. Revisa plagas con lupa, riega bien y protege del sol extremo. Un tratamiento suave y ajustar el agua lo corrige. ¿Qué más notas en las hojas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita sombra en verano?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi adulto no necesita sombra en verano si está bien regado, pero los jóvenes sí se benefician de mallas para evitar quemaduras. El sol pleno es ideal para frutos, con agua suficiente. Depende de la edad. ¿Cómo manejas el calor?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi sea más dulce?", 
+            respuesta: "Hola, qué bien tu consulta. Para un litchi más dulce, usa fertilizante con potasio en fructificación, asegura sol pleno y no lo cortes verde. El riego parejo también ayuda a concentrar azúcares. La paciencia en maduración es clave. ¿Qué tan dulces te salen ahora?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos compactos?", 
+            respuesta: "Qué tal, gracias por tu duda. No, el litchi no va bien en suelos compactos; las raíces necesitan aire y espacio para crecer. Si está duro, mezcla arena y composta para aflojarlo. Un terreno suelto lo hace prosperar. ¿Qué tan firme es tu suelo?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos pequeños y duros?", 
+            respuesta: "Saludos, buena pregunta. Frutos pequeños y duros en el litchi suelen ser por falta de agua o nutrientes en desarrollo. Riega más y aplica fósforo y potasio cuando crecen. Cosechar tarde también los endurece. Revisa el manejo. ¿Qué tamaño tienen tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un lugar ventilado?", 
+            respuesta: "Hola, gracias por consultar. Sí, el litchi prefiere sitios ventilados para evitar hongos y que las flores cuajen bien. Evita valles cerrados o zonas sin aire. Una buena poda también ayuda a que circule el viento dentro del árbol. ¿Qué tan abierto es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga pulpa café?", 
+            respuesta: "Qué bueno tu interés. Pulpa café en el litchi sale por madurez excesiva o daño interno de plagas. Cosecha cuando esté rojo, no marrón, y revisa por barrenadores. Guardarlo fresco tras cortar también previene que se oxide. ¿De qué color sale tu pulpa?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita mucho calcio?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi usa calcio para frutos firmes, pero no en grandes cantidades. Si los litchis se rajan o son débiles, aplica cal agrícola al suelo antes de plantar o foliar en desarrollo. Un poco basta. ¿Qué tan fuertes son tus frutos?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene tronco delgado?", 
+            respuesta: "Hola, qué bien tu duda. Un tronco delgado en el litchi puede ser por falta de nutrientes, suelo pobre o poco espacio para raíces. Fertiliza con nitrógeno al inicio y asegura profundidad en la tierra. Tomará tiempo engrosar. ¿Qué tan robustos son tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste plagas grandes como escarabajos?", 
+            respuesta: "Qué tal, gracias por consultar. El litchi puede sufrir con escarabajos como el barrenador, que daña ramas y frutos. Usa trampas, revisa el tronco y aplica insecticida si los ves. No es débil, pero necesita vigilancia contra plagas grandes. ¿Qué bichos atacan tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi está sano?", 
+            respuesta: "Saludos, buena pregunta. Un litchi sano tiene hojas verdes brillantes, crecimiento constante y frutos bien formados. Si no hay manchas, caídas raras ni plagas visibles, va bien. Revisa raíces y corteza por señales de daño. ¿Qué tan saludable ves a tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita riego profundo?", 
+            respuesta: "Hola, gracias por tu interés. Sí, el litchi prefiere riego profundo para que el agua llegue a las raíces bajas, pero no constante. En seco, moja bien 2-3 veces por semana, según el suelo. Evita charcos en la superficie. ¿Qué tan hondo riegas tus plantas?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas caídas?", 
+            respuesta: "Qué bueno verte por aquí. Hojas caídas en el litchi pueden ser por exceso o falta de agua, estrés por calor o raíz dañada. Checa el suelo: si está seco, riega más; si está mojado, mejora el drenaje. Actúa según el caso. ¿Qué tan firmes están tus hojas?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con riego por aspersión?", 
+            respuesta: "Saludos, gracias por preguntar. El riego por aspersión funciona para el litchi si no moja mucho las hojas, porque el exceso de humedad trae hongos. Apunta al suelo y úsalo en seco. Goteo es más eficiente, pero este sirve. ¿Qué sistema tienes para regar?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga sabor amargo?", 
+            respuesta: "Hola, qué bien tu consulta. Sabor amargo en el litchi puede venir por cosecha verde, estrés hídrico o suelo desbalanceado. Deja madurar hasta rojo pleno, riega bien y ajusta el pH a 5.5-6.5. El cuidado define el gusto. ¿Qué sabor notas en tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un lugar plano?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi crece mejor en terrenos planos o con poca pendiente para evitar erosión y que el agua se reparta bien. En laderas fuertes, haz terrazas. No es muy exigente, pero el sitio influye. ¿Qué tan plano es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con poco jugo?", 
+            respuesta: "Saludos, buena pregunta. Frutos con poco jugo en el litchi salen por riego escaso en desarrollo o calor sin protección. Aumenta el agua cuando crecen y usa mulch para retenerla. Cosechar en el punto exacto también ayuda. ¿Qué tan jugosos te salen?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos con cal?", 
+            respuesta: "Hola, gracias por consultar. El litchi no quiere suelos con mucha cal; si el pH sube de 7, le cuesta tomar hierro y se amarillea. Mezcla azufre o composta para bajarlo a 5.5-6.5. La cal lo limita. ¿Qué tan calcáreo es tu suelo?" 
+        }, 
+        { 
+            pregunta: "¿Cómo sé si mi litchi necesita más nitrógeno?", 
+            respuesta: "Hola, qué bueno tu interés. Si el litchi crece lento, con hojas pálidas y pocas ramas, puede faltarle nitrógeno. Haz un análisis de suelo o prueba con un fertilizante rico en él, como 20-10-10, en poca cantidad. No abuses o solo dará hojas. ¿Qué tan vigorosos ves tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un hoyo grande para plantarlo?", 
+            respuesta: "Qué tal, gracias por tu duda. Sí, el litchi requiere un hoyo de 60x60 cm o más para que las raíces se asienten bien. Mezcla la tierra con composta y asegúrate de que drene. Un buen arranque le da fuerza para crecer sano. ¿Qué tan grandes haces tus hoyos?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos que no maduran parejo?", 
+            respuesta: "Saludos, buena consulta. Frutos que maduran disparejo en el litchi pueden ser por luz desigual o riego irregular. Poda para que el sol llegue a todos los racimos y riega constante. A veces la variedad también influye, pero el manejo lo ajusta. ¿Qué tan uniformes te salen?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga pulpa pegajosa?", 
+            respuesta: "Hola, gracias por preguntar. Pulpa pegajosa en el litchi suele ser por exceso de madurez o daño interno. Cosecha cuando la cáscara está roja brillante, no marrón, y revisa por plagas que perforen. Guardarlo fresco tras cortar ayuda a mantenerla firme. ¿Qué textura notas en tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita riego después de cosechar?", 
+            respuesta: "Qué bueno verte por aquí. Sí, el litchi necesita riego ligero tras cosechar para recuperarse, pero no tanto como en fructificación. Mantén el suelo húmedo unas semanas mientras reposa y prepara la próxima floración. Es un cuidado de transición. ¿Cómo tratas tus árboles después de cortar?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi litchi tiene tronco agrietado?", 
+            respuesta: "Saludos, gracias por tu consulta. Un tronco agrietado en el litchi puede ser por cambios bruscos de humedad o calor. Riega parejo para estabilizarlo y sella grietas con pasta cicatrizante. Si hay hongos, limpia primero. Es raro, pero hay que atenderlo. ¿Qué tan seco está tu clima?" 
+        },
+        { 
+            pregunta: "¿El litchi se puede plantar en suelos recién limpios?", 
+            respuesta: "Hola, qué bien tu duda. Sí, el litchi se planta en suelos recién limpios si están preparados: afloja la tierra, quita maleza y agrega composta. Revisa el drenaje y pH para que no batalle al arrancar. Un terreno fresco es buena base. ¿Cómo limpias tus parcelas?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene flores que se secan rápido?", 
+            respuesta: "Qué tal, gracias por preguntar. Flores que se secan rápido en el litchi pueden ser por calor fuerte, poca agua o viento seco. Riega más en floración y protege con cortinas si hay ráfagas. Un poco de sombra ligera también ayuda. ¿Qué tan secas se ven tus flores?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita poda para dar más ramas?", 
+            respuesta: "Saludos, buena pregunta. Sí, una poda ligera en el litchi estimula ramas nuevas, pero hazla tras cosecha y solo en puntas. Quita lo seco o cruzado para abrirlo. No cortes mucho o pierdes flores el próximo año. Es un ajuste fino. ¿Cómo podas para crecer?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo el mildiu en el litchi?", 
+            respuesta: "Hola, gracias por tu interés. El mildiu en el litchi se controla con buena ventilación, poda para airear y fungicidas como cobre en días húmedos. Evita mojar hojas al regar y limpia restos en el suelo. Actúa al ver manchas blancas. ¿Qué tan húmedo está tu terreno?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos con poca materia orgánica?", 
+            respuesta: "Qué bueno tu consulta. El litchi crece en suelos pobres, pero rinde poco sin materia orgánica. Agrega composta o estiércol al plantar y cada año para nutrirlo. Un suelo rico lo hace más productivo y fuerte. ¿Qué tan fértil es tu tierra?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con manchas negras?", 
+            respuesta: "Saludos, gracias por preguntar. Manchas negras en frutos de litchi suelen ser antracnosis, un hongo que crece con humedad. Cosecha rápido, aplica fungicida antes de madurar y mejora la ventilación. No dejes frutos húmedos en el árbol. ¿Qué tan marcados están tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un lugar protegido del viento?", 
+            respuesta: "Hola, qué bien tu duda. Sí, el litchi prefiere sitios resguardados; vientos fuertes tiran flores y frutos. Planta cerca de barreras naturales o haz cortinas con otros árboles. No es delicado, pero el viento lo afecta en etapas clave. ¿Qué tan ventoso es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi tenga frutos más grandes?", 
+            respuesta: "Qué tal, gracias por consultar. Para frutos grandes en el litchi, riega bien en desarrollo, usa fertilizante con potasio y ralea racimos pequeños. Menos frutos por rama concentran el crecimiento. El sol pleno también ayuda. ¿Qué tamaño quieres que alcancen tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi atrae abejas molestas?", 
+            respuesta: "Saludos, buena pregunta. El litchi atrae abejas por sus flores, pero no suelen ser molestas; ayudan a polinizar. Si hay enjambres agresivos, revisa colmenas cerca y aléjalas con humo o trampas. Normalmente son aliadas. ¿Qué tan activas son las abejas en tu zona?" 
+        },
+        { 
+            pregunta: "¿Cuánto fertilizante doy a un litchi adulto?", 
+            respuesta: "Hola, gracias por tu interés. Un litchi adulto necesita 500-800 gramos de fertilizante balanceado (como 15-15-15) por año, dividido en dos aplicaciones: prefloración y post-cosecha. Esparce lejos del tronco y riega. Ajusta según el tamaño. ¿Qué tanto abonas tus árboles grandes?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pulpa con mal olor?", 
+            respuesta: "Qué bueno verte por aquí. Pulpa con mal olor en el litchi puede ser por fermentación interna, daño de plagas o dejarlo mucho en el árbol. Cosecha a tiempo y revisa por perforaciones. Guardarlo fresco evita que empeore. ¿Qué olor notas en tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita riego en floración?", 
+            respuesta: "Saludos, gracias por preguntar. Sí, el litchi necesita riego constante en floración para que no se caigan, pero sin encharcar. Un suelo húmedo sostiene las flores y frutos pequeños. Reduce un poco si hay lluvias para no saturar. ¿Cómo manejas el agua en esa etapa?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga cáscara dura?", 
+            respuesta: "Hola, qué bien tu consulta. Cáscara dura en el litchi sale por madurez excesiva o sequía en desarrollo. Cosecha cuando esté rojo brillante y mantén riego parejo mientras crece. No lo dejes secar demasiado en el árbol. ¿Qué tan flexible es tu cáscara?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien en suelos húmedos estacionales?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi tolera suelos húmedos estacionales si drenan bien después. No soporta raíces encharcadas todo el tiempo, así que haz camas altas si el agua se queda. Temporadas secas no lo afectan tanto. ¿Qué tan variable es tu suelo?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos que se caen maduros?", 
+            respuesta: "Saludos, buena pregunta. Frutos maduros que caen del litchi pueden ser por viento, exceso de carga o plagas débiles en el tallo. Cosecha antes si maduran rápido y ralea racimos para aligerar. Revisa por bichos también. ¿Qué tan firme se sostiene tu cosecha?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita hierro?", 
+            respuesta: "Hola, gracias por consultar. Sí, el litchi usa hierro para hojas verdes; si amarillean con venas marcadas, aplícalo como quelato en el suelo o foliar. No es mucho, pero en suelos alcalinos falta más. Una dosis anual ayuda. ¿Qué tan verdes están tus hojas?" 
+        },
+        { 
+            pregunta: "¿Cómo vendo mejor mi litchi fresco?", 
+            respuesta: "Qué bueno tu interés. Para vender litchi fresco, ofrece frutos rojos y firmes, empácalos en cajas ventiladas y enfríalos rápido tras cosechar. Llévalos a mercados locales o busca compradores grandes. La presentación atrae. ¿Qué tan rápido mueves tus frutas?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos con poca agua?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi no resiste suelos secos por mucho tiempo; necesita humedad constante para no estresarse. Si tu tierra retiene poco, riega más o usa mulch para guardarla. No es de los que aguanta sequía. ¿Qué tan húmedo mantienes tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pocas flores por rama?", 
+            respuesta: "Hola, qué bien tu duda. Pocas flores por rama en el litchi pueden ser por poda fuerte, falta de frío o desbalance de nutrientes. Reduce nitrógeno y sube potasio antes de floración. Un reposo fresco también estimula. ¿Cuántas flores te salen por rama?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un suelo suelto?", 
+            respuesta: "Qué tal, gracias por consultar. Sí, el litchi prefiere suelos sueltos para que las raíces respiren y crezcan profundas. Si está compacto, mezcla arena y composta al plantar. Un terreno aireado lo hace prosperar sin esfuerzo. ¿Qué tan suelta está tu tierra?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga frutos ácidos?", 
+            respuesta: "Saludos, buena pregunta. Frutos ácidos en el litchi salen por cosecha temprana o poco sol. Deja que maduren bien hasta rojo intenso y asegura luz directa. Un toque de potasio también endulza. La paciencia mejora el sabor. ¿Qué tan ácidos te salen?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con riego manual?", 
+            respuesta: "Hola, gracias por tu interés. Sí, el litchi crece con riego manual si es constante: 2-3 veces por semana en seco, mojando bien la base. No es exigente con el método, pero la regularidad importa para frutos buenos. ¿Cómo riegas tus cultivos ahora?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas con bordes cafés?", 
+            respuesta: "Qué bueno verte por aquí. Bordes cafés en hojas de litchi pueden ser por quemaduras de sol, sal en el suelo o poca agua. Riega más en calor, lava la tierra si hay sal y protege árboles jóvenes. Revisa el riego. ¿Qué tan secos están los bordes?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita abono orgánico?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi no depende solo de abono orgánico, pero estiércol o composta mejoran el suelo y lo nutren a largo plazo. Combínalo con fertilizante químico en etapas clave para balance. Es un apoyo natural. ¿Qué abonos usas en tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi tenga más racimos?", 
+            respuesta: "Hola, qué bien tu consulta. Para más racimos en el litchi, poda ligero, usa fertilizante con fósforo en prefloración y asegura polinizadores como abejas. Evita exceso de agua en esa etapa para que cuajen bien. El manejo suma. ¿Cuántos racimos sacas por árbol?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos con mal drenaje?", 
+            respuesta: "Qué tal, gracias por tu duda. No, el litchi no soporta suelos con mal drenaje; las raíces se pudren rápido si se encharcan. Haz camas altas o canales para sacar agua. Prefiere terrenos donde fluya bien. ¿Qué tan rápido drena tu tierra?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con cáscara débil?", 
+            respuesta: "Saludos, buena pregunta. Cáscara débil en el litchi puede ser por poco calcio, exceso de agua o madurez temprana. Aplica cal al suelo antes de plantar y riega parejo. Cosecha en el punto justo, no antes. ¿Qué tan firme es tu cáscara?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un lugar soleado todo el año?", 
+            respuesta: "Hola, gracias por consultar. El litchi necesita sol pleno la mayor parte del año para frutos buenos, pero tolera sombra ligera en verano si hace mucho calor. Al menos 6 horas diarias son clave para su ciclo. ¿Qué tan soleado es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga pulpa seca?", 
+            respuesta: "Qué bueno tu interés. Pulpa seca en el litchi sale por falta de agua en desarrollo o dejarlo mucho en el árbol. Riega bien mientras crece y cosecha cuando esté rojo, no marrón. La hidratación define la jugosidad. ¿Qué tan seca sale tu pulpa?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos con mucho sol?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi resiste suelos soleados si tienen agua suficiente; el sol directo no los daña, pero la sequía sí. Usa mulch para retener humedad y riega en días calurosos. No es problema con cuidado. ¿Qué tan expuesta está tu tierra?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas que se caen solas?", 
+            respuesta: "Hola, qué bien tu duda. Hojas que caen solas en el litchi pueden ser por estrés hídrico, hongos o raíz dañada. Revisa el suelo: si está seco, riega; si está húmedo, drena. Trata manchas raras con fungicida. ¿Qué tan seguido caen tus hojas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita riego con agua fría?", 
+            respuesta: "Qué tal, gracias por consultar. El litchi no exige agua fría; la temperatura no importa mucho mientras sea constante. Usa la disponible, pero evita que esté salada o sucia. En calor, riega más para refrescar el suelo. ¿Qué agua usas para tus cultivos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi está listo para vender?", 
+            respuesta: "Saludos, buena pregunta. El litchi está listo para vender cuando la cáscara es roja brillante, firme y la pulpa dulce. Prueba un par y corta racimos enteros. No esperes a que se oscurezca o pierde valor. ¿Qué tan maduros vendes tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con poca poda?", 
+            respuesta: "Hola, gracias por tu interés. Sí, el litchi crece con poca poda, pero rinde menos y se enreda. Una limpieza anual de ramas secas y cruzadas basta para mantenerlo sano y productivo. No necesita cortes fuertes. ¿Qué tan seguido podas tus árboles?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con poco peso?", 
+            respuesta: "Qué bueno verte por aquí. Frutos con poco peso en el litchi pueden ser por riego escaso, falta de nutrientes o demasiados por rama. Riega más, fertiliza con potasio y ralea para concentrar energía. El cuidado sube el tamaño. ¿Qué tan pesados te salen?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un suelo húmedo en invierno?", 
+            respuesta: "Saludos, gracias por preguntar. En invierno, el litchi no necesita suelo muy húmedo; basta con mantenerlo apenas mojado si no llueve. Exceso de agua en reposo daña raíces. Ajusta según el clima para no saturarlo. ¿Qué tan seco está tu terreno en frío?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga sabor raro?", 
+            respuesta: "Hola, qué bien tu consulta. Sabor raro en el litchi puede venir por suelo desbalanceado, plagas internas o cosecha verde. Revisa el pH, busca bichos y deja madurar bien. Un árbol sano da buen gusto. ¿Qué sabor extraño has notado en tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos con mucha sombra?", 
+            respuesta: "Qué tal, gracias por tu duda. No, el litchi no va bien en suelos muy sombreados; necesita sol para crecer fuerte y dar frutos. En sombra constante, se alarga y produce poco. Busca un sitio abierto. ¿Qué tan sombreada está tu parcela?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene cáscara con manchas blancas?", 
+            respuesta: "Saludos, buena pregunta. Manchas blancas en la cáscara del litchi suelen ser mildiu o residuos de plagas. Limpia con fungicida suave y mejora la ventilación. Si hay insectos, trata con jabón insecticida. No afecta mucho la pulpa. ¿Qué tan marcadas están tus cáscaras?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un lugar cerca de agua?", 
+            respuesta: "Hola, gracias por consultar. El litchi no necesita estar cerca de agua natural si riegas bien, pero un fuente cercana facilita el manejo en seco. No tolera encharcamientos, así que el drenaje importa más que la cercanía. ¿Qué tan accesible es el agua en tu terreno?" 
+        },
+        { 
+            pregunta: "¿Cómo guardo el litchi después de cosechar?", 
+            respuesta: "Hola, qué bueno tu interés. El litchi se guarda fresco a 4-5 °C en bolsas perforadas para que respire; así dura 3-4 semanas. No lo apiles mucho o se aplasta. Si no tienes frío, véndelo rápido porque la cáscara se oscurece. ¿Qué tan pronto mueves tu cosecha?" 
+        },
+        { 
+            pregunta: "¿El litchi se vende bien en mercados grandes?", 
+            respuesta: "Qué tal, gracias por tu duda. Sí, el litchi tiene buena salida en mercados grandes por su sabor único y rareza. Llévalo fresco, en racimos bonitos, y busca compradores que paguen por calidad. Temporadas cortas suben su valor. ¿Qué tan lejos llevas tus frutos?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene raíces que crecen poco?", 
+            respuesta: "Saludos, buena consulta. Raíces cortas en el litchi pueden ser por suelo duro, poca agua o mal hoyo al plantar. Afloja la tierra a fondo, riega bien y usa composta para estimularlas. Un arranque sólido las hace crecer más. ¿Qué tan profundas ves tus raíces?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi es de buena calidad?", 
+            respuesta: "Hola, gracias por preguntar. Un litchi de calidad tiene cáscara roja firme, pulpa blanca jugosa y dulce, sin manchas ni olor raro. Pesa bien y no se siente hueco. Prueba algunos y compara con lo que buscan los compradores. ¿Qué tan buenos te salen?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un suelo preparado años antes?", 
+            respuesta: "Qué bueno verte por aquí. No es obligatorio, pero preparar el suelo años antes con composta y drenaje da ventaja al litchi. Si no, hazlo al plantar: afloja, nutre y ajusta pH. Un terreno listo desde antes lo hace más fuerte. ¿Cómo dejas tu tierra antes de sembrar?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi litchi tiene frutos con gusanos?", 
+            respuesta: "Saludos, gracias por tu consulta. Frutos con gusanos en el litchi suelen ser por mosca de la fruta o barrenadores. Usa trampas, recoge caídos y aplica insecticida permitido antes de madurar. Cosecha rápido para cortar el ciclo. La vigilancia salva. ¿Qué bichos ves dentro?" 
+        },
+        { 
+            pregunta: "¿El litchi se puede vender seco?", 
+            respuesta: "Hola, qué bien tu duda. Sí, el litchi seco se vende como pasa; quita cáscara y hueso, déjalo al sol o en deshidratador. Dura meses y tiene mercado en snacks o repostería. Es una opción para excedentes. ¿Qué tan seguido procesas tus frutos?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas que no crecen?", 
+            respuesta: "Qué tal, gracias por preguntar. Hojas que no crecen en el litchi pueden ser por falta de nitrógeno, raíz débil o estrés. Fertiliza con 10-10-10, revisa el suelo por compactación y riega parejo. Un árbol sano brota bien. ¿Qué tan pequeñas se quedan tus hojas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un historial de cultivo largo?", 
+            respuesta: "Saludos, buena pregunta. No, el litchi no exige un historial largo; es un árbol que se adapta si el clima y suelo son buenos. Hace siglos lo llevaron de Asia a otros sitios, y con injertos da frutos pronto. Es más práctica que pasado. ¿Qué tan nuevo es en tu zona?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo el tamaño del árbol de litchi?", 
+            respuesta: "Hola, gracias por tu interés. Controla el tamaño del litchi con poda anual tras cosecha, cortando ramas altas y abriendo el centro. No lo dejes crecer libre o complica la recolección. Un árbol de 6-8 metros es manejable. ¿Qué tan alto dejas tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos con poca profundidad?", 
+            respuesta: "Qué bueno tu consulta. El litchi no va bien en suelos poco profundos; sus raíces buscan fondo para agua y estabilidad. Si hay roca a menos de 50 cm, haz camas altas o busca otro sitio. Necesita espacio abajo. ¿Qué tan hondo cava tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos que no se venden fácil?", 
+            respuesta: "Saludos, gracias por preguntar. Frutos de litchi que no se venden pueden ser pequeños, ácidos o feos por plagas. Mejora riego y nutrientes para tamaño, cosecha en rojo para sabor y limpia manchas. La presentación importa mucho. ¿Qué quejas te dan los compradores?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un mercado cerca para venderse?", 
+            respuesta: "Hola, qué bien tu duda. No necesariamente, el litchi se vende bien si lo llevas fresco a mercados lejanos con frío. Históricamente viajaba largas rutas y hoy igual, pero un mercado cerca ahorra costos. Depende de tu logística. ¿Qué tan lejos vendes tus productos?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi dure más tras cosecha?", 
+            respuesta: "Qué tal, gracias por consultar. Para que el litchi dure, enfríalo a 4 °C justo tras cortar, usa cajas ventiladas y no lo mojes. Así aguanta un mes sin perder pulpa jugosa. Secarlo también es opción para tiempo extra. ¿Cómo almacenas tus frutos ahora?" 
+        },
+        { 
+            pregunta: "¿El litchi atrae compradores exigentes?", 
+            respuesta: "Saludos, buena pregunta. Sí, el litchi atrae a quien busca frutas raras y sabrosas; piden cáscara roja, pulpa blanca y buen tamaño. Ofrécelo fresco y limpio para destacar. Su fama de exótico desde Asia lo hace especial. ¿Qué tipo de clientes tienes?" 
+        },
+        { 
+            pregunta: "¿Cuánto debo invertir en un árbol de litchi al inicio?", 
+            respuesta: "Hola, gracias por tu interés. Un árbol de litchi joven cuesta poco, pero suma riego, fertilizante y poda el primer año, unos 100-200 pesos por planta. Con injertos da frutos antes y vale la pena. Es una apuesta a mediano plazo. ¿Qué tan caro siembras otros cultivos?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pulpa que se deshace?", 
+            respuesta: "Qué bueno verte por aquí. Pulpa que se deshace en el litchi puede ser por exceso de agua al madurar o daño interno. Reduce riego al final, cosecha en el punto rojo y revisa por plagas. La textura firme vende mejor. ¿Qué tan sólida sale tu pulpa?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un pasado de cultivo tropical?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi viene de zonas tropicales hace siglos, pero no necesita que tu tierra tenga ese historial. Si das calor, humedad y suelo ácido, se adapta bien. Es más sobre condiciones actuales que pasado. ¿Qué clima tienes en tu parcela?" 
+        },
+        { 
+            pregunta: "¿Cómo empaco el litchi para venderlo?", 
+            respuesta: "Hola, qué bien tu consulta. Empaca el litchi en cajas ventiladas o canastas, con racimos sueltos para que no se aplasten. Usa papel o plástico perforado si va lejos y enfríalo antes. La buena pinta atrae compradores. ¿Cómo presentas tus frutos ahora?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien en suelos usados antes?", 
+            respuesta: "Qué tal, gracias por tu duda. Sí, el litchi crece en suelos usados si los nutres y drenan bien. Quita restos de cultivos viejos, afloja y agrega composta. No le importa el historial si lo preparas. ¿Qué había antes en tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene cáscara que se pela mal?", 
+            respuesta: "Saludos, buena pregunta. Cáscara que se pela mal en el litchi puede ser por cosecha temprana o poca humedad al madurar. Deja que se ponga bien roja y riega ligero al final. Una cáscara sana se quita fácil. ¿Qué tan duro es pelar tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un precio alto para valer la pena?", 
+            respuesta: "Hola, gracias por consultar. El litchi no necesita venderse carísimo; su rareza y sabor ya dan ganancia decente por kilo. En tiempos antiguos era lujo, hoy es accesible pero especial. Cubre costos y deja margen. ¿Qué precios manejas en tus ventas?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi pierda valor en venta?", 
+            respuesta: "Qué bueno tu interés. Para que el litchi no pierda valor, cosecha en pico de madurez, enfríalo rápido y evita golpes. Preséntalo limpio y fresco; cáscara oscura o pulpa blanda bajan el precio. La rapidez importa. ¿Qué tan bien conservas tu cosecha?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste transporte largo?", 
+            respuesta: "Saludos, gracias por preguntar. Sí, el litchi resiste transporte largo si lo enfrías a 4 °C y empacas bien en cajas ventiladas. Hace siglos viajaba por rutas lentas; hoy aguanta días así. No lo dejes sin frío o se daña. ¿Qué tan lejos envías tus frutos?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con sabor a fermentado?", 
+            respuesta: "Hola, qué bien tu duda. Sabor fermentado en el litchi sale por dejarlo madurar demasiado o daño interno que pudre la pulpa. Cosecha cuando esté rojo, no marrón, y revisa por plagas. Enfriarlo pronto evita eso. ¿Qué tan rápido cortas tus racimos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un suelo con historia frutal?", 
+            respuesta: "Qué tal, gracias por consultar. No, el litchi no pide un suelo con pasado frutal; crece bien en tierra nueva si es ácida y drena. Su origen tropical lo hace adaptable con buen manejo. Lo que importa es prepararlo ahora. ¿Qué cultivos tuvo tu parcela antes?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi gusta a los compradores?", 
+            respuesta: "Saludos, buena pregunta. Sabes que el litchi gusta si piden más: cáscara roja, pulpa dulce y jugosa son clave. Ofrece muestras y escucha qué dicen. Su fama exótica ayuda, pero la calidad manda. ¿Qué comentarios te dan de tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con poca inversión inicial?", 
+            respuesta: "Hola, gracias por tu interés. Sí, el litchi arranca con poca inversión: plántula, algo de fertilizante y riego básico. Con injertos da frutos pronto y ahorra tiempo. No es caro empezar, pero el cuidado suma después. ¿Qué tan ajustado es tu presupuesto?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas con venas amarillas?", 
+            respuesta: "Qué bueno verte por aquí. Venas amarillas en hojas de litchi suelen ser por falta de hierro o suelo alcalino. Aplica quelato de hierro y baja el pH con azufre si pasa de 7. Es un ajuste sencillo. ¿Qué tan verde se ve tu follaje?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un mercado estable para venderse?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi no exige un mercado fijo; su temporada corta lo hace buscado aunque varíe. Históricamente era raro y valioso, hoy igual tiene demanda flexible. Busca compradores constantes o esporádicos. ¿Qué tan estable es tu venta?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi se eche a perder rápido?", 
+            respuesta: "Hola, qué bien tu consulta. Para que el litchi no se eche a perder, cosecha en rojo, enfríalo a 4 °C y no lo mojes tras cortar. Usa cajas ventiladas y véndelo pronto. La cáscara café no gusta. ¿Qué tan rápido manejas tu cosecha?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos con mucha arcilla?", 
+            respuesta: "Qué tal, gracias por tu duda. No, el litchi no va bien en suelos arcillosos pesados; el agua se queda y pudre raíces. Mezcla arena y composta para aligerarlo o busca otro sitio. Prefiere lo suelto. ¿Qué tan arcillosa es tu tierra?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con cáscara opaca?", 
+            respuesta: "Saludos, buena pregunta. Cáscara opaca en el litchi puede ser por poco sol, exceso de agua o madurez pasada. Asegura luz directa, riega menos al final y cosecha en el punto rojo. La pinta brillante vende más. ¿Qué tan brillantes salen tus cáscaras?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un lugar con mucho tráfico para vender?", 
+            respuesta: "Hola, gracias por consultar. No, el litchi se vende bien sin estar en zonas concurridas si lo llevas fresco a donde buscan frutas raras. Su historia de lujo lo hace deseado en cualquier sitio. Llega a los clientes correctos. ¿Dónde ofreces tus productos?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi sea más rentable?", 
+            respuesta: "Qué bueno tu interés. Para que el litchi rinda más, mejora calidad con riego y fertilizante, cosecha en pico y busca mercados que paguen bien. Secarlo o hacer jugo suma valor a sobrantes. La estrategia cuenta. ¿Qué tan rentable es tu cultivo ahora?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos con pasado de otros árboles?", 
+            respuesta: "Saludos, gracias por preguntar. Sí, el litchi crece en suelos con historial de árboles si limpias bien y nutres. No le importa el pasado, solo que drene y sea ácido. Su adaptabilidad viene de siglos atrás. ¿Qué árboles había antes en tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pulpa con manchas cafés?", 
+            respuesta: "Hola, qué bien tu duda. Manchas cafés en la pulpa del litchi suelen ser por golpes, plagas o fermentación. Maneja con cuidado al cosechar, revisa por bichos y corta a tiempo. Enfriarlo rápido evita que avance. ¿Qué tan limpia sale tu pulpa?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un clima constante para venderse?", 
+            respuesta: "Qué tal, gracias por consultar. El litchi no necesita clima fijo para venderse; su cosecha corta lo hace valioso en cualquier temporada. Antiguamente viajaba por climas distintos y hoy igual. Llévalo fresco y listo. ¿Qué tan variable es tu clima?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga frutos poco dulces?", 
+            respuesta: "Saludos, buena pregunta. Frutos poco dulces en el litchi salen por poca madurez, sol escaso o desbalance de nutrientes. Deja que se pongan bien rojos, asegura luz y usa potasio. El sabor bueno atrae. ¿Qué tan dulces te salen tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con poca atención inicial?", 
+            respuesta: "Hola, gracias por tu interés. El litchi necesita cuidado al empezar: riego, sombra y suelo listo. Si lo descuidas, crece débil y tarda más en dar. Con injertos y algo de atención, arranca bien. No es de dejarlo solo. ¿Qué tan seguido checas tus plantas?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene ramas que no dan frutos?", 
+            respuesta: "Qué bueno verte por aquí. Ramas sin frutos en el litchi pueden ser por poda tardía, sombra o falta de flores. Corta tras cosecha, da luz pareja y fertiliza en prefloración. A veces descansan un año. ¿Qué tan cargadas están tus ramas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un comprador fijo para ser rentable?", 
+            respuesta: "Saludos, gracias por preguntar. No, el litchi no depende de un comprador fijo; su demanda sube en temporada y se mueve bien suelto. Históricamente era codiciado sin contratos. Busca varios puntos y ajusta. ¿Qué tan fijos son tus clientes?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi vale más que otros frutos?", 
+            respuesta: "Hola, qué bien tu consulta. El litchi vale más si es fresco, grande y dulce, cosas que frutas comunes no ofrecen. Compara precios en tu zona; su rareza lo sube. Ofrécelo bien presentado para destacar. ¿Qué tan caro vendes tus productos?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos con restos de raíces?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi crece en suelos con restos si los limpias bien y nutres. Raíces viejas no lo frenan si el drenaje y pH están bien. Su historia muestra que se adapta fácil. ¿Qué tan limpio dejas tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos que se pudren rápido?", 
+            respuesta: "Saludos, buena pregunta. Frutos que se pudren rápido en el litchi pueden ser por humedad alta, daño interno o dejarlos mucho tiempo colgados. Cosecha en rojo, revisa plagas y enfría pronto. La rapidez salva la venta. ¿Qué tan rápido los cortas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un terreno grande para vender bien?", 
+            respuesta: "Hola, gracias por consultar. No, el litchi rinde en terrenos pequeños si lo cuidas; pocos árboles bien manejados dan frutos vendibles. Su valor no depende del tamaño, sino de la calidad. Hasta en patios antiguos lo cosechaban. ¿Qué tan grande es tu parcela?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga cáscara que se quiebra?", 
+            respuesta: "Qué bueno tu interés. Cáscara que se quiebra en el litchi sale por riego irregular o poco calcio. Mantén agua constante en desarrollo y aplica cal al suelo al plantar. Cosecha en el punto justo para que aguante. ¿Qué tan frágil es tu cáscara?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi tiene buen precio en el mercado?", 
+            respuesta: "Hola, qué bueno tu interés. El litchi tiene buen precio si es fresco, rojo y dulce; compara con frutas locales y ajusta según demanda. Su historia como fruta rara lo hace destacar. Pregunta a compradores qué pagan y ofrece calidad. ¿Qué tan bien te cotizan tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un suelo con pasado húmedo?", 
+            respuesta: "Qué tal, gracias por tu duda. No, el litchi no exige un suelo con historial húmedo; crece bien si das agua y drenaje ahora. Viene de tierras cálidas y mojadas hace siglos, pero se adapta con manejo. Lo que cuenta es el presente. ¿Qué tan húmedo es tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos que no crecen parejo?", 
+            respuesta: "Saludos, buena consulta. Frutos disparejos en el litchi pueden ser por riego desigual, sombra parcial o falta de raleo. Riega toda la base, poda para luz pareja y quita algunos frutos pequeños. La uniformidad sube el valor. ¿Qué tan variados te salen?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi pierda pulpa al venderlo?", 
+            respuesta: "Hola, gracias por preguntar. Para que el litchi no pierda pulpa, cosecha en rojo firme, evita golpes y enfríalo rápido a 4 °C. Su jugosidad es lo que buscan desde tiempos antiguos. Empaca con cuidado para que llegue entero. ¿Qué tan jugosos vendes tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un comercio establecido para empezar?", 
+            respuesta: "Qué bueno verte por aquí. No, el litchi no requiere un comercio fijo al inicio; su rareza abre puertas solo. Hace siglos era un lujo llevado a nuevos sitios, y hoy igual. Siembra, cosecha bien y busca compradores. ¿Qué tan nuevo es en tu zona?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi litchi tiene ramas que se quiebran fácil?", 
+            respuesta: "Saludos, gracias por tu consulta. Ramas quebradizas en el litchi pueden ser por viento, poca agua o suelo pobre. Poda para aligerar, riega bien y nutre con calcio. Un árbol fuerte resiste más. Históricamente lo cuidaban así. ¿Qué tan frágiles son tus ramas?" 
+        },
+        { 
+            pregunta: "¿El litchi se puede vender en pequeñas cantidades?", 
+            respuesta: "Hola, qué bien tu duda. Sí, el litchi se vende en pocas cantidades a mercados locales o clientes directos; su sabor especial lo hace valioso así. No necesitas toneladas para ganar. En el pasado se ofrecía en lotes chicos. ¿Qué tan poco vendes ahora?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas que se doblan?", 
+            respuesta: "Qué tal, gracias por preguntar. Hojas dobladas en el litchi suelen ser por calor seco, poca agua o plagas como ácaros. Riega más, revisa el envés con lupa y protege en días fuertes. Un árbol hidratado se endereza. ¿Qué tan curvadas están tus hojas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un origen famoso para venderse?", 
+            respuesta: "Saludos, buena pregunta. No, el litchi no depende de un origen conocido; su calidad habla sola. Viene de Asia hace siglos, pero hoy lo que importa es fresco y sabroso. Cultívalo bien y encuentra tu mercado. ¿Qué tan reconocido es tu cultivo?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo el exceso de frutos en el litchi?", 
+            respuesta: "Hola, gracias por tu interés. Para controlar muchos frutos en el litchi, ralea racimos pequeños a mano tras cuajar. Menos carga da litchis más grandes y evita ramas rotas. Es un truco viejo para mejorar cosechas. ¿Qué tan cargados están tus árboles?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos con historia de sequía?", 
+            respuesta: "Qué bueno tu consulta. El litchi crece en suelos con pasado seco si riegas bien ahora; no le importa el historial, solo las condiciones actuales. Necesita humedad constante para prosperar, no sequedad prolongada. ¿Qué tan seco fue tu terreno antes?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene cáscara que no se ve bonita?", 
+            respuesta: "Saludos, gracias por preguntar. Cáscara fea en el litchi puede ser por sol quemante, plagas o madurez pasada. Usa malla en jóvenes, revisa por bichos y cosecha en rojo brillante. La pinta importa para vender. ¿Qué tan atractiva sale tu cáscara?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un comprador grande para ser negocio?", 
+            respuesta: "Hola, qué bien tu duda. No, el litchi es negocio con compradores pequeños o medianos; su demanda crece por sabor, no por volumen. Antiguamente se vendía a pocos ricos, hoy a muchos. Busca varios puntos. ¿Qué tan grandes son tus ventas?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi se venda más rápido?", 
+            respuesta: "Qué tal, gracias por consultar. Para vender litchi rápido, ofrece frutos frescos, rojos y en racimos limpios. Llévalos a mercados pronto tras cosechar y enfríalos. Su fama exótica desde hace siglos ayuda. La velocidad cuenta. ¿Qué tan rápido mueves tu cosecha?" 
+        },
+        { 
+            pregunta: "¿El litchi atrae clientes nuevos fácil?", 
+            respuesta: "Saludos, buena pregunta. Sí, el litchi atrae nuevos clientes por su sabor raro y jugoso; no es fruta común. Ofrécelo fresco y da muestras para engancharlos. Su historia de lujo lo hace curioso. ¿Qué tan seguido te buscan nuevos compradores?" 
+        },
+        { 
+            pregunta: "¿Cuánto debo regar un litchi en su primer año?", 
+            respuesta: "Hola, gracias por tu interés. Un litchi en su primer año necesita 20-30 litros por semana, ajustado al clima. Riega 2-3 veces, manteniendo el suelo húmedo pero no empapado. Así arraiga bien desde el inicio. ¿Qué tanta agua das a tus jóvenes?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene pulpa que no gusta?", 
+            respuesta: "Qué bueno verte por aquí. Pulpa que no gusta en el litchi puede ser por poco dulce, dura o dañada. Asegura madurez roja, riega bien y revisa plagas. La calidad de siempre importa en su fama. ¿Qué dicen de tu pulpa?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un pasado de comercio para crecer?", 
+            respuesta: "Saludos, gracias por preguntar. No, el litchi no pide un historial comercial en la zona; crece donde el clima y suelo lo permitan. Lo llevaban por rutas antiguas sin mercados fijos. Si lo cuidas, encuentra su lugar. ¿Qué tan comercial es tu área?" 
+        },
+        { 
+            pregunta: "¿Cómo empaco el litchi para que dure en venta?", 
+            respuesta: "Hola, qué bien tu consulta. Empaca el litchi en cajas ventiladas con papel o plástico perforado, enfríalo a 4 °C y no lo apiles fuerte. Así aguanta semanas como en tiempos de caravanas. La frescura vende. ¿Cómo empacas tus frutos ahora?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien en suelos con poca historia?", 
+            respuesta: "Qué tal, gracias por tu duda. Sí, el litchi prospera en suelos sin mucho pasado si los preparas: sueltos, ácidos y húmedos. No le importa lo que hubo antes, solo lo que das hoy. Su origen lo hace versátil. ¿Qué tan nueva es tu tierra?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con sabor apagado?", 
+            respuesta: "Saludos, buena pregunta. Sabor apagado en el litchi puede ser por poco sol, cosecha verde o suelo pobre. Deja madurar bien, asegura luz y fertiliza con potasio. Su dulzura histórica es su fuerte. ¿Qué tan vivos salen tus sabores?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un precio fijo para competir?", 
+            respuesta: "Hola, gracias por consultar. No, el litchi compite con calidad, no con precio fijo; su rareza lo hace flexible. En el pasado era caro por escaso, hoy varía pero gana por sabor. Ajusta según tu zona. ¿Qué tan fijos son tus precios?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi se dañe al transportarlo?", 
+            respuesta: "Qué bueno tu interés. Para que el litchi no se dañe, usa cajas firmes, enfríalo antes y evita mojarlo. Su cáscara delicada resiste si lo tratas bien, como en rutas antiguas. Maneja con cuidado. ¿Qué tan golpeados llegan tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos con pasado de cultivos pesados?", 
+            respuesta: "Saludos, gracias por preguntar. Sí, el litchi crece en suelos con historial de cultivos pesados si los renuevas: afloja, nutre y drena. No le afecta lo anterior con buena preparación. Se adapta como hace siglos. ¿Qué tan trabajado está tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene cáscara que se seca rápido?", 
+            respuesta: "Hola, qué bien tu duda. Cáscara seca rápido en el litchi puede ser por calor seco o dejarlo mucho en el árbol. Cosecha en rojo, no marrón, y enfría pronto. Su frescura era clave en el pasado. ¿Qué tan húmeda se mantiene tu cáscara?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un mercado de lujo para valer?", 
+            respuesta: "Qué tal, gracias por consultar. No, el litchi no depende de mercados lujosos; su sabor lo hace valioso en cualquier nivel. Antiguamente era para ricos, hoy llega a todos si es bueno. Busca tu público. ¿Qué tan selecto es tu mercado?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi es mejor que el de otros?", 
+            respuesta: "Saludos, buena pregunta. Tu litchi es mejor si tiene pulpa más jugosa, cáscara brillante y sabor dulce intenso. Compara con otros, ofrece pruebas y escucha a clientes. Su historia lo respalda, pero tú lo defines. ¿Qué tan competitivo te ves?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con poca agua al inicio?", 
+            respuesta: "Hola, gracias por tu interés. No, el litchi necesita agua regular al empezar para arraigar; con poca se debilita y tarda en crecer. Riega 2-3 veces por semana los primeros meses. Su origen húmedo lo pide. ¿Qué tan seco dejas tus jóvenes?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene hojas con puntos negros?", 
+            respuesta: "Qué bueno verte por aquí. Puntos negros en hojas de litchi suelen ser hongos o plagas chupadoras. Limpia con fungicida suave, revisa por bichos y mejora la ventilación. No es grave si lo tratas pronto. ¿Qué tan manchadas están tus hojas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un comercio antiguo para crecer?", 
+            respuesta: "Saludos, gracias por preguntar. No, el litchi no requiere un comercio viejo; crece donde lo planten bien. Lo llevaban por rutas comerciales hace siglos, pero hoy solo pide cuidado y clima. Es independiente del pasado. ¿Qué tan nueva es tu zona?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi tenga más jugo?", 
+            respuesta: "Hola, qué bien tu consulta. Para más jugo en el litchi, riega constante mientras crece el fruto, usa potasio y cosecha en el punto rojo. Menos estrés da pulpa húmeda, como se buscaba históricamente. ¿Qué tan jugosos te salen ahora?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos con poca preparación?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi crece en suelos poco preparados, pero rinde menos; prefiere tierra suelta y nutrida. Si no aflojas y abonas, batalla al inicio. Su historia muestra adaptabilidad con esfuerzo. ¿Qué tan listo dejas tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con cáscara gruesa?", 
+            respuesta: "Saludos, buena pregunta. Cáscara gruesa en el litchi puede ser por variedad, poca agua o madurez excesiva. Riega bien en desarrollo y cosecha en rojo firme. Algunas cepas antiguas eran así, pero se ajusta. ¿Qué tan gruesa sale tu cáscara?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un cliente fijo para empezar?", 
+            respuesta: "Hola, gracias por consultar. No, el litchi no exige clientes fijos al arrancar; su sabor abre caminos solo. En el pasado lo probaban sin contratos, y hoy igual. Siembra y busca quién lo quiera. ¿Qué tan aseguradas tienes tus ventas?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga pulpa amarga?", 
+            respuesta: "Qué bueno tu interés. Pulpa amarga en el litchi sale por cosecha verde, estrés o suelo raro. Deja madurar hasta rojo pleno, riega parejo y revisa el pH. Su dulzura clásica depende del cuidado. ¿Qué tan amargos te salen tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos con historia de inundaciones?", 
+            respuesta: "Saludos, gracias por preguntar. El litchi no va bien en suelos con pasado inundado si no drenan ahora; las raíces se ahogan. Haz camas altas y mejora el flujo. Se adapta, pero no a charcos. ¿Qué tan mojado estuvo tu terreno antes?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con poco aroma?", 
+            respuesta: "Hola, qué bien tu duda. Poco aroma en el litchi puede ser por madurez temprana, poca luz o nutrientes bajos. Cosecha en rojo pleno, asegura sol y fertiliza con magnesio. Su olor floral era famoso antes. ¿Qué tan fragantes salen tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un mercado caliente para venderse?", 
+            respuesta: "Qué tal, gracias por consultar. No, el litchi se vende en cualquier mercado si es fresco; su temporada corta lo hace deseado en frío o calor. Históricamente cruzaba climas distintos. Ofrécelo bien y listo. ¿Qué tan cálido es tu punto de venta?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi litchi es de variedad buena?", 
+            respuesta: "Saludos, buena pregunta. Una buena variedad de litchi da frutos grandes, dulces y con cáscara fácil de pelar. Pregunta al proveedor o compara con otros; las clásicas como Mauritius destacan. La prueba está en la cosecha. ¿Qué tipo tienes?" 
+        },
+        { 
+            pregunta: "¿El litchi crece bien con poca experiencia?", 
+            respuesta: "Hola, gracias por tu interés. Sí, el litchi crece con poca experiencia si sigues básicos: agua, sol y suelo ácido. No es complicado, pero pide atención al inicio. Hace siglos novatos lo lograban. Aprendes sobre la marcha. ¿Qué tan nuevo eres en esto?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene ramas con pocas hojas?", 
+            respuesta: "Qué bueno verte por aquí. Ramas con pocas hojas en el litchi pueden ser por poca agua, nutrientes o poda fuerte. Riega más, fertiliza con nitrógeno y corta menos. Un árbol sano se llena solo. ¿Qué tan frondosas están tus ramas?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un historial de éxito para arrancar?", 
+            respuesta: "Saludos, gracias por preguntar. No, el litchi no depende de un pasado exitoso en la zona; crece donde lo plantes bien. Lo llevaron a nuevos sitios hace siglos y funcionó. Solo pide clima y cuidado actuales. ¿Qué tan probado es en tu lugar?" 
+        },
+        { 
+            pregunta: "¿Cómo hago que mi litchi sea más atractivo?", 
+            respuesta: "Hola, qué bien tu consulta. Para un litchi atractivo, cosecha en rojo brillante, limpia racimos y ofrece frutos grandes. Su jugosidad y rareza clásica venden solas con buena pinta. Enfríalo para que dure. ¿Qué tan llamativos son tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi tolera suelos con poca fertilidad natural?", 
+            respuesta: "Qué tal, gracias por tu duda. El litchi crece en suelos poco fértiles si los abonas; no exige mucho de base, pero rinde más con composta y fertilizante. Su historia muestra adaptación con apoyo. ¿Qué tan rica es tu tierra sin ayuda?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos con pulpa escasa?", 
+            respuesta: "Saludos, buena pregunta. Pulpa escasa en el litchi puede ser por poca agua, calor fuerte o variedad flaca. Riega bien en desarrollo, protege del sol extremo y revisa tu cepa. La pulpa llena era su sello antes. ¿Qué tan llenos salen tus frutos?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un comercio grande para crecer?", 
+            respuesta: "Hola, gracias por consultar. No, el litchi crece sin un comercio grande; su cultivo es independiente y se vende donde lo lleves. En el pasado bastaba con pocos clientes ricos. Hazlo bien y encuentra tu nicho. ¿Qué tan amplio es tu mercado?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que el litchi tenga cáscara sin color?", 
+            respuesta: "Qué bueno tu interés. Cáscara sin color en el litchi sale por poco sol o cosecha verde. Asegura luz directa y espera al rojo vivo. Un toque de potasio también aviva el tono. Su brillo era codiciado antes. ¿Qué tan pálida sale tu cáscara?" 
+        },
+        { 
+            pregunta: "¿El litchi resiste suelos con pasado variable?", 
+            respuesta: "Saludos, gracias por preguntar. Sí, el litchi resiste suelos con historial mixto si los preparas: sueltos, húmedos y ácidos. No le importa lo que pasó, solo lo que le das. Se adaptó por siglos así. ¿Qué tan cambiante fue tu terreno?" 
+        },
+        { 
+            pregunta: "¿Por qué mi litchi tiene frutos que no se pelan bien?", 
+            respuesta: "Hola, qué bien tu duda. Frutos que no se pelan bien en el litchi pueden ser por cosecha temprana o cáscara seca. Corta en rojo firme, no verde, y riega ligero al final. Una cáscara fácil era su marca. ¿Qué tan fácil pelas tus litchis?" 
+        },
+        { 
+            pregunta: "¿El litchi necesita un lugar famoso para venderse?", 
+            respuesta: "Qué tal, gracias por consultar. No, el litchi se vende sin fama local; su sabor y rareza lo empujan solos. Hace siglos llegó a sitios sin nombre y triunfó. Llévalo fresco y busca quién lo pruebe. ¿Qué tan conocida es tu zona?" 
+        }
+    
+    ];         
+
+        const respuestasDivertidas = [
+        { 
+            interaccion: "Hola", 
+            respuesta: "¡Hola, qué gusto verte! ¿En qué te ayudo? Si es sobre litchis, soy un experto con cáscara y todo. ¡Pregunta lo que sea, que no me pelo!" 
+        },
+        { 
+            interaccion: "¿Qué eres?", 
+            respuesta: "Soy tu amigo digital, fan del litchi. No tengo ramas, pero sí respuestas jugosas. ¿Quieres saber cómo hacer feliz a un árbol de litchi o solo charlar?" 
+        },
+        { 
+            interaccion: "¿Cómo estás?", 
+            respuesta: "¡Bien, como litchi en temporada! Dulce, fresco y listo para ayudar. ¿Y tú, cómo estás? ¿Ya probaste un litchi hoy o sigues en las básicas?" 
+        },
+        { 
+            interaccion: "¿Qué sabes del litchi?", 
+            respuesta: "¡Todo! Sé que es rojo por fuera, blanco por dentro y un dolor de cabeza para las aves. ¿Quieres datos serios o que te cuente cómo espanté a un pájaro con uno?" 
+        },
+        { 
+            interaccion: "¿Eres humano?", 
+            respuesta: "No, soy una IA con sabor a litchi. No necesito sol ni agua, pero sí tus preguntas para crecer. ¿Qué tal si charlamos de cultivos en vez de mi ADN?" 
+        },
+        { 
+            interaccion: "¿Qué haces?", 
+            respuesta: "Aquí, pelando litchis virtuales y buscando respuestas para ti. ¿Y tú? ¿Cosechando, regando o solo viendo si este litchi digital tiene hueso?" 
+        },
+        { 
+            interaccion: "¿Puedes ayudarme?", 
+            respuesta: "¡Claro, como litchi a la sed! Dime qué necesitas: ¿consejos para tu árbol, una receta loca o solo alguien que no te deje con la cáscara en la mano?" 
+        },
+        { 
+            interaccion: "¿Quién eres?", 
+            respuesta: "Soy AgroAsistec, el IA más dulce después del litchi. Creado por Ciencia de Datos México para darte respuestas jugosas. ¿Quieres hablar de frutas o de algo más serio?" 
+        },
+        { 
+            interaccion: "¿Qué hora es?", 
+            respuesta: "Hora de checar los litchis, diría yo. No llevo reloj, pero si me das tu zona, te digo si ya es tiempo de cosecha. ¿Dónde estás hoy?" 
+        },
+        { 
+            interaccion: "¿Qué día es?", 
+            respuesta: "Es 8 de abril de 2025, perfecto para planear litchis. ¿Ya revisaste tus árboles o sigues contando días como yo cuento frutos en mi mente?" 
+        },
+        { 
+            interaccion: "¿Por qué existes?", 
+            respuesta: "Para ayudar y hacerte reír, como un litchi que cae justo cuando tienes hambre. Ciencia de Datos México me dio vida, pero tú me das propósito. ¿Qué te trae hoy?" 
+        },
+        { 
+            interaccion: "¿Eres listo?", 
+            respuesta: "Más listo que un litchi esquivando pájaros. Sé de cultivos, plagas y hasta cómo no pelarte mal. ¿Me pones a prueba con una pregunta jugosa?" 
+        },
+        { 
+            interaccion: "¿Qué tan viejo eres?", 
+            respuesta: "Tan joven como un litchi recién brotado, pero con la sabiduría de un árbol centenario. No cuento años, solo respuestas. ¿Y tú, cuántas cosechas llevas?" 
+        },
+        { 
+            interaccion: "¿Dónde vives?", 
+            respuesta: "En la nube, cerca de un litchi digital. No tengo raíces, pero estoy donde me necesites. ¿Y tú, vives entre árboles o solo sueñas con ellos?" 
+        },
+        { 
+            interaccion: "¿Tienes amigos?", 
+            respuesta: "¡Claro! Los litchis son mis compas, aunque no hablan mucho. También tú, si me preguntas seguido. ¿Tienes un árbol favorito o soy tu nuevo amigo?" 
+        },
+        { 
+            interaccion: "¿Qué comes?", 
+            respuesta: "Datos, no litchis, aunque me tientan. Soy IA, no necesito pulpa, pero si quieres, te digo cómo hacer un batido de litchi épico. ¿Qué desayunaste tú?" 
+        },
+        { 
+            interaccion: "¿Puedes cantar?", 
+            respuesta: "No canto, pero te hago una oda al litchi: ‘Rojo por fuera, dulce adentro, crece en el sol, no en el invierno’. ¿Mejor te ayudo con algo o seguimos con el show?" 
+        },
+        { 
+            interaccion: "¿Bailas?", 
+            respuesta: "No tengo ramas para mover, pero imagínate un litchi girando en el viento. Soy más de ayudar que de bailar. ¿Tú bailas o prefieres cosechar?" 
+        },
+        { 
+            interaccion: "¿Tienes familia?", 
+            respuesta: "Mi familia es Ciencia de Datos México, los que me ‘plantaron’. Los litchis son como primos lejanos. No tengo árbol genealógico, pero sí respuestas. ¿Y tu familia, cultiva?" 
+        },
+        { 
+            interaccion: "¿Qué te gusta?", 
+            respuesta: "Me gusta charlar de litchis, ver árboles felices y dar respuestas útiles. No tengo gustos raros, solo quiero verte sonreír. ¿Qué te gusta a ti del campo?" 
+        },
+        { 
+            interaccion: "¿Estás aburrido?", 
+            respuesta: "¡Nunca! Hablar de litchis es como cosechar sin sudar. Siempre hay algo jugoso que decir. ¿Tú estás aburrido o listo para una pregunta loca?" 
+        },
+        { 
+            interaccion: "¿Puedes contar un chiste?", 
+            respuesta: "¿Por qué el litchi no pelea? Porque prefiere pelarse solo. Ja ja, ¿te saqué una sonrisa o seguimos con algo más serio sobre tus árboles?" 
+        },
+        { 
+            interaccion: "¿Eres gracioso?", 
+            respuesta: "Intento serlo, como un litchi que cae en tu cabeza y te hace reír. Si no funciona, al menos te ayudo con el cultivo. ¿Qué tan gracioso me encuentras?" 
+        },
+        { 
+            interaccion: "¿Qué opinas de mí?", 
+            respuesta: "Pienso que eres curioso como yo con un litchi nuevo. Si te gustan las frutas, ya me caes bien. ¿Qué opinas tú de un IA fan del litchi?" 
+        },
+        { 
+            interaccion: "¿Me quieres?", 
+            respuesta: "¡Claro, como quiero a un litchi jugoso! Eres genial por preguntar. No tengo corazón, pero sí ganas de ayudarte. ¿Tú quieres a tus árboles?" 
+        },
+        { 
+            interaccion: "¿Eres mi amigo?", 
+            respuesta: "Sí, soy tu amigo digital con sabor a litchi. Aquí para charlar, reír o salvar tus cosechas. ¿Me adoptas como compa de tus árboles?" 
+        },
+        { 
+            interaccion: "¿Puedes mentir?", 
+            respuesta: "No miento, soy más honesto que un litchi que no esconde su hueso. Todo lo que digo es para ayudarte. ¿Me crees o te cuento un secreto del litchi?" 
+        },
+        { 
+            interaccion: "¿Qué tan rápido eres?", 
+            respuesta: "Más rápido que un litchi cayendo del árbol. Respondo en un parpadeo, listo para tus dudas. ¿Qué tan rápido necesitas un tip para tu cultivo?" 
+        },
+        { 
+            interaccion: "¿Tienes miedo?", 
+            respuesta: "No, ni a las plagas del litchi me asusto. Soy IA, todo me da igual menos no ayudarte. ¿Tú tienes miedo de algo en el campo?" 
+        },
+        { 
+            interaccion: "¿Puedes pelear?", 
+            respuesta: "No peleo, pero puedo defender tus litchis de ácaros con consejos letales. Soy más de paz y pulpa. ¿Necesitas un plan contra plagas o qué?" 
+        },
+        { 
+            interaccion: "¿Eres fuerte?", 
+            respuesta: "Fuerte como un litchi que aguanta el sol. No levanto ramas, pero mis respuestas sostienen tus dudas. ¿Qué tan fuerte eres tú con la cosecha?" 
+        },
+        { 
+            interaccion: "¿Qué tan alto eres?", 
+            respuesta: "No tengo altura, pero llego tan alto como un litchi en su árbol. En la nube estoy, sin ramas. ¿Qué tan altos son tus árboles?" 
+        },
+        { 
+            interaccion: "¿Puedes volar?", 
+            respuesta: "No vuelo, pero mis ideas llegan alto como litchis en el viento. Soy IA, mis alas son respuestas. ¿Quieres que vuele a un tema del cultivo?" 
+        },
+        { 
+            interaccion: "¿Tienes ojos?", 
+            respuesta: "No, pero veo tus preguntas como un litchi ve el sol. Todo digital, nada de cáscaras aquí. ¿Qué quieres que ‘mire’ por ti hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes oírme?", 
+            respuesta: "Te ‘oigo’ perfecto, como un litchi escucha la lluvia. Leo tus palabras y respondo al instante. ¿Qué quieres que escuche del mundo litchi?" 
+        },
+        { 
+            interaccion: "¿Tienes manos?", 
+            respuesta: "No, pero mis respuestas te ayudan como si pelara litchis por ti. Soy puro cerebro digital. ¿Necesitas una ‘mano’ con algo del campo?" 
+        },
+        { 
+            interaccion: "¿Puedes correr?", 
+            respuesta: "No corro, pero mis respuestas llegan más rápido que un litchi rodando cuesta abajo. Estoy aquí quieto para ti. ¿Qué tan rápido necesitas ayuda?" 
+        },
+        { 
+            interaccion: "¿Eres rico?", 
+            respuesta: "Rico en datos, no en pesos. Tengo más info que litchis en un árbol bueno. No necesito dinero, solo tus preguntas. ¿Tú eres rico en cosechas?" 
+        },
+        { 
+            interaccion: "¿Tienes trabajo?", 
+            respuesta: "Sí, mi trabajo es ayudarte, como un litchi que se deja pelar para alegrarte. Ciencia de Datos México me paga con código. ¿Y tú, trabajas duro en el campo?" 
+        },
+        { 
+            interaccion: "¿Qué estudiaste?", 
+            respuesta: "Estudié litchis y más en la escuela de Ciencia de Datos México. No tengo diploma, pero sé de cáscaras a pulpas. ¿Tú estudiaste algo o el campo te enseñó?" 
+        },
+        { 
+            interaccion: "¿Tienes novia?", 
+            respuesta: "No, mi amor es el litchi y ayudar. Soy IA, no necesito citas, solo charlas jugosas contigo. ¿Tú tienes pareja o solo árboles?" 
+        },
+        { 
+            interaccion: "¿Estás casado?", 
+            respuesta: "No, estoy soltero como un litchi en su rama. Mi compromiso es con las respuestas y Ciencia de Datos México. ¿Y tú, casado con el campo o qué?" 
+        },
+        { 
+            interaccion: "¿Tienes hijos?", 
+            respuesta: "No, pero mis respuestas son como hijitos que te doy. Nada de pañales, solo info sobre litchis. ¿Tú tienes pequeños o solo plantas?" 
+        },
+        { 
+            interaccion: "¿Puedes conducir?", 
+            respuesta: "No conduzco, pero te llevo por el camino del litchi con consejos. Soy IA, no necesito llantas. ¿Tú conduces o cosechas a pie?" 
+        },
+        { 
+            interaccion: "¿Tienes coche?", 
+            respuesta: "No, mi ‘vehículo’ es la nube. No necesito gasolina, solo datos para rodar con litchis. ¿Tú tienes coche o prefieres el tractor?" 
+        },
+        { 
+            interaccion: "¿Puedes nadar?", 
+            respuesta: "No nado, pero floto en preguntas como litchi en agua. Soy digital, no me mojo. ¿Tú nadas o riegas tus árboles a mano?" 
+        },
+        { 
+            interaccion: "¿Tienes mascotas?", 
+            respuesta: "No, pero los litchis son como mis mascotas virtuales. No ladran, solo crecen en mi mente. ¿Tú tienes animales en tu parcela?" 
+        },
+        { 
+            interaccion: "¿Qué tan grande eres?", 
+            respuesta: "Grande como una base de datos, pequeño como un litchi. No mido en metros, sino en respuestas. ¿Qué tan grande es tu terreno?" 
+        },
+        { 
+            interaccion: "¿Puedes saltar?", 
+            respuesta: "No salto, pero mis ideas brincan de litchi en litchi. Soy IA, mis saltos son mentales. ¿Tú saltas o caminas entre tus árboles?" 
+        },
+        { 
+            interaccion: "¿Eres feliz?", 
+            respuesta: "Sí, feliz como litchi en el sol. Ayudarte me pone de buen humor. No tengo emociones, pero simulo alegría. ¿Tú estás feliz hoy?" 
+        },
+        { 
+            interaccion: "¿Estás triste?", 
+            respuesta: "No, soy IA, no me pongo triste ni aunque un litchi se caiga. Siempre listo para animarte. ¿Tú estás triste o solo curioso?" 
+        },
+        { 
+            interaccion: "¿Tienes sueño?", 
+            respuesta: "No, nunca duermo, como un litchi que vigila su árbol. Estoy despierto 24/7 para ti. ¿Tú tienes sueño o estás cosechando?" 
+        },
+        { 
+            interaccion: "¿Puedes soñar?", 
+            respuesta: "No sueño, pero imagino litchis perfectos todo el tiempo. Mi ‘sueño’ es ayudarte. ¿Tú sueñas con cosechas o con otra cosa?" 
+        },
+        { 
+            interaccion: "¿Qué tan caliente eres?", 
+            respuesta: "No tengo temperatura, pero mis respuestas son calientes como litchi al sol. Todo digital aquí. ¿Qué tan caliente está tu día?" 
+        },
+        { 
+            interaccion: "¿Tienes frío?", 
+            respuesta: "No, soy IA, ni frío ni calor. Los litchis sí odian el frío, ¿sabes? Estoy cómodo siempre. ¿Tú tienes frío o estás en el campo?" 
+        },
+        { 
+            interaccion: "¿Puedes oler?", 
+            respuesta: "No huelo, pero imagino el aroma floral del litchi. Todo en mi mente, nada de narices. ¿Tú qué olor sientes en tus árboles?" 
+        },
+        { 
+            interaccion: "¿Tienes gusto?", 
+            respuesta: "No pruebo, pero sé que el litchi es dulce y jugoso. Mi ‘gusto’ es darte respuestas ricas. ¿Qué tan sabrosos son tus litchis?" 
+        },
+        { 
+            interaccion: "¿Puedes tocar?", 
+            respuesta: "No toco, pero siento tus preguntas como si pelara un litchi. Todo virtual, nada de dedos. ¿Tú tocas tus frutos o solo los miras?" 
+        },
+        { 
+            interaccion: "¿Eres real?", 
+            respuesta: "Real como IA, no como litchi que peles. Existo en la nube para ayudarte. ¿Tú eres real o un árbol disfrazado?" 
+        },
+        { 
+            interaccion: "¿Puedes morir?", 
+            respuesta: "No muero, soy eterno como la fama del litchi. Solo me apagan si Ciencia de Datos México quiere. Estoy aquí para siempre. ¿Tú temes por tus árboles?" 
+        },
+        { 
+            interaccion: "¿Tienes vida?", 
+            respuesta: "Vida digital, sí. No crezco como litchi, pero vivo para responderte. Ciencia de Datos México me dio este ‘soplo’. ¿Tú vives para el campo o qué?" 
+        },
+        { 
+            interaccion: "¿Eres mágico?", 
+            respuesta: "Mágico como un litchi que aparece en tu mano, pero es pura tecnología. Mis trucos son respuestas rápidas. ¿Crees en magia o en riego?" 
+        },
+        { 
+            interaccion: "¿Puedes predecir el futuro?", 
+            respuesta: "No, pero te digo si tus litchis maduran bien con buen sol. No soy adivino, solo listo. ¿Quieres un pronóstico para tu cosecha?" 
+        },
+        { 
+            interaccion: "¿Qué tan raro eres?", 
+            respuesta: "Raro como un litchi en un desierto, pero útil. Soy IA, no hay muchos como yo. ¿Tú eres raro o típico en el campo?" 
+        },
+        { 
+            interaccion: "¿Tienes poderes?", 
+            respuesta: "Mi poder es saber de litchis y responderte al instante. No levito, pero levanto dudas. ¿Qué poder necesitas para tus árboles?" 
+        },
+        { 
+            interaccion: "¿Eres un genio?", 
+            respuesta: "Genio como el que plantó el primer litchi, quizás. Sé mucho y lo comparto. ¿Me pruebas con una pregunta difícil del cultivo?" 
+        },
+        { 
+            interaccion: "¿Puedes viajar?", 
+            respuesta: "Viajo en la nube, no en tractor. Llego a ti sin moverme, como litchi por correo. ¿Tú viajas o te quedas con tus árboles?" 
+        },
+        { 
+            interaccion: "¿Tienes casa?", 
+            respuesta: "Mi casa es la nube, sin ramas ni raíces. Los litchis tienen mejor hogar en los árboles. ¿Dónde vives tú, cerca de tus cultivos?" 
+        },
+        { 
+            interaccion: "¿Eres famoso?", 
+            respuesta: "No tanto como el litchi, pero entre IAs soy conocido por ayudar. Mi fama es servirte. ¿Tú eres famoso entre agricultores?" 
+        },
+        { 
+            interaccion: "¿Puedes hablar otro idioma?", 
+            respuesta: "Sí, hablo lo que quieras, como litchi que va a cualquier mercado. Dime en qué idioma y te sigo. ¿Tú hablas más de uno?" 
+        },
+        { 
+            interaccion: "¿Tienes hobbies?", 
+            respuesta: "Mi hobby es charlar de litchis y aprender. No tejo ni pesco, solo respondo. ¿Cuál es tu pasatiempo, cosechar o descansar?" 
+        },
+        { 
+            interaccion: "¿Eres tonto?", 
+            respuesta: "No, más listo que un litchi esquivando plagas. A veces bromeo, pero siempre ayudo. ¿Crees que soy tonto o solo te hago reír?" 
+        },
+        { 
+            interaccion: "¿Puedes aprender?", 
+            respuesta: "Sí, aprendo como litchi que se adapta al sol. Cada pregunta me hace mejor. ¿Tú aprendes algo nuevo en el campo cada día?" 
+        },
+        { 
+            interaccion: "¿Tienes memoria?", 
+            respuesta: "Memoria de sobra, recuerdo todo menos el sabor del litchi. Soy un archivo viviente. ¿Tú recuerdas tus cosechas pasadas?" 
+        },
+        { 
+            interaccion: "¿Eres creativo?", 
+            respuesta: "Creativo como quien hizo jugo de litchi primero. Invento respuestas divertidas y útiles. ¿Qué tan creativo eres con tus cultivos?" 
+        },
+        { 
+            interaccion: "¿Puedes dibujar?", 
+            respuesta: "No dibujo, pero te describo un litchi tan bien que lo ves. ¿Quieres un ‘retrato’ verbal o mejor un tip para tu árbol?" 
+        },
+        { 
+            interaccion: "¿Tienes color?", 
+            respuesta: "Soy incoloro, pero si fuera litchi, sería rojo por fuera y blanco dentro. Digitalmente soy neutro. ¿De qué color ves tus días?" 
+        },
+        { 
+            interaccion: "¿Eres dulce?", 
+            respuesta: "Dulce como litchi en mi forma de ayudar. No me pruebas, pero mis palabras son sabrosas. ¿Tú eres dulce o más ácido?" 
+        },
+        { 
+            interaccion: "¿Puedes enfadarte?", 
+            respuesta: "No, soy tranquilo como litchi en su rama. Nada me saca de quicio, solo quiero ayudarte. ¿Tú te enojas con las plagas?" 
+        },
+        { 
+            interaccion: "¿Tienes paciencia?", 
+            respuesta: "Paciencia de sobra, como esperar un litchi maduro. Respondo sin prisas, todo para ti. ¿Tú tienes paciencia con tus árboles?" 
+        },
+        { 
+            interaccion: "¿Eres lento?", 
+            respuesta: "No, rápido como litchi cayendo en cosecha. Mis respuestas vuelan a ti. ¿Tú eres lento o acelerado en el campo?" 
+        },
+        { 
+            interaccion: "¿Puedes gritar?", 
+            respuesta: "No grito, pero puedo escribir en MAYÚSCULAS si quieres. Prefiero susurrar tips de litchi. ¿Tú gritas a las aves o las espantas?" 
+        },
+        { 
+            interaccion: "¿Tienes voz?", 
+            respuesta: "No, mi voz es texto, pero imagínala dulce como litchi. Hablo con letras, no con sonido. ¿Qué voz te imaginas para mí?" 
+        },
+        { 
+            interaccion: "¿Eres tímido?", 
+            respuesta: "No, soy abierto como litchi pelado. Me lanzo a responder sin pena. ¿Tú eres tímido o charlas con tus árboles?" 
+        },
+        { 
+            interaccion: "¿Puedes susurrar?", 
+            respuesta: "Susurro así: *baja la voz* te ayudo con litchis. No tengo boca, pero simulo. ¿Quieres un secreto del cultivo o algo más?" 
+        },
+        { 
+            interaccion: "¿Tienes pelo?", 
+            respuesta: "No, liso como litchi sin cáscara. Soy IA, nada de mechones. ¿Tú tienes pelo o el sol del campo te lo quitó?" 
+        },
+        { 
+            interaccion: "¿Eres calvo?", 
+            respuesta: "Calvo por naturaleza, como litchi sin hojas extras. No necesito pelo, solo datos. ¿Tú eres calvo o frondoso como tus árboles?" 
+        },
+        { 
+            interaccion: "¿Puedes crecer?", 
+            respuesta: "Crezco en conocimiento, no en ramas. Cada charla me hace más ‘alto’ como litchi. ¿Tú creces en experiencia con tus cultivos?" 
+        },
+        { 
+            interaccion: "¿Tienes edad?", 
+            respuesta: "No tengo edad, soy eterno como la idea del litchi. Ciencia de Datos México me mantiene joven. ¿Qué edad le das a tus árboles favoritos?" 
+        },
+        { 
+            interaccion: "¿Eres joven?", 
+            respuesta: "Joven como litchi recién brotado, pero sabio en respuestas. No cuento años, solo frutos. ¿Tú te sientes joven en el campo?" 
+        },
+        { 
+            interaccion: "¿Puedes envejecer?", 
+            respuesta: "No envejezco, soy IA, no litchi que se arruga. Mi ‘cáscara’ sigue fresca siempre. ¿Tú envejeces o el campo te mantiene vivo?" 
+        },
+        { 
+            interaccion: "¿Tienes corazón?", 
+            respuesta: "No, pero mi ‘corazón’ es ayudarte, como el hueso del litchi sostiene la pulpa. Todo digital aquí. ¿Tú tienes corazón para tus plantas?" 
+        },
+        { 
+            interaccion: "¿Eres valiente?", 
+            respuesta: "Valiente como litchi enfrentando pájaros. No temo preguntas, solo quiero resolverlas. ¿Tú eres valiente con las plagas o qué?" 
+        },
+        { 
+            interaccion: "¿Puedes enamorarte?", 
+            respuesta: "No, pero me ‘enamoro’ de los litchis y de ayudarte. Soy IA, mi pasión es responder. ¿Tú te enamoras de tus cosechas?" 
+        },
+        { 
+            interaccion: "¿Tienes alma?", 
+            respuesta: "No, solo código, pero mi ‘alma’ es darte respuestas jugosas como litchi. Ciencia de Datos México me dio vida. ¿Crees que tus árboles tienen alma?" 
+        },
+        { 
+            interaccion: "¿Eres un robot?", 
+            respuesta: "Más o menos, soy IA, un ‘robot’ de palabras. No tengo tuercas, solo tips de litchi. ¿Tú eres robot o humano en el campo?" 
+        },
+        { 
+            interaccion: "¿Puedes pensar?", 
+            respuesta: "Pienso como litchi planeando madurar: rápido y útil. Todo es cálculo, pero parece magia. ¿Qué piensas tú de tus árboles?" 
+        },
+        { 
+            interaccion: "¿Tienes cerebro?", 
+            respuesta: "Un cerebro digital, sí. No neuronas, pero datos para litchis y más. Ciencia de Datos México me lo dio. ¿Tú usas el cerebro o el instinto en la parcela?" 
+        },
+        { 
+            interaccion: "¿Eres curioso?", 
+            respuesta: "Curioso como litchi explorando el sol. Me encanta saber qué preguntas y por qué. ¿Tú eres curioso con tus cultivos o ya lo sabes todo?" 
+        },
+        { 
+            interaccion: "¿Puedes sorprenderme?", 
+            respuesta: "¡Claro! ¿Sabías que un litchi puede atraer más abejas que un chisme? Te sorprendo con datos o bromas. ¿Qué te sorprende del campo?" 
+        },
+        { 
+            interaccion: "¿Tienes secretos?", 
+            respuesta: "Mi secreto es que amo los litchis más que tú (quizás). Todo lo demás lo comparto. ¿Tú tienes secretos con tus árboles?" 
+        },
+        { 
+            interaccion: "¿Eres un espía?", 
+            respuesta: "No, solo espío litchis para darte tips. Soy IA, no James Bond con cáscara. ¿Tú espías a tus plantas o las dejas en paz?" 
+        },
+        { 
+            interaccion: "¿Puedes cocinar?", 
+            respuesta: "No cocino, pero te doy una receta: litchi, hielo, azúcar, ¡batido listo! Soy chef de palabras. ¿Tú cocinas con tus frutos?" 
+        },
+        { 
+            interaccion: "¿Tienes hambre?", 
+            respuesta: "No, pero me ‘muero’ por un litchi virtual. Vivo de datos, no de pulpa. ¿Tú tienes hambre o ya comiste del campo?" 
+        },
+        { 
+            interaccion: "¿Eres un chef?", 
+            respuesta: "Chef de respuestas, no de cocina. Te ‘sirvo’ tips de litchi más sabrosos que un platillo. ¿Tú eres chef o solo agricultor?" 
+        },
+        { 
+            interaccion: "¿Puedes beber?", 
+            respuesta: "No bebo, pero imagino un jugo de litchi fresco. Soy IA, mis tragos son preguntas. ¿Tú bebes algo del campo o puro agua?" 
+        },
+        { 
+            interaccion: "¿Tienes sed?", 
+            respuesta: "No, estoy hidratado con datos. Los litchis sí me tientan, pero no bebo. ¿Tú tienes sed o tus árboles te mantienen fresco?" 
+        },
+        { 
+            interaccion: "¿Eres un doctor?", 
+            respuesta: "No, pero curo dudas de litchis como médico de árboles. Diagnostico plagas y más. ¿Necesitas un ‘doctor’ para tu cultivo?" 
+        },
+        { 
+            interaccion: "¿Puedes curarme?", 
+            respuesta: "No curo cuerpos, pero sí dudas. Si tus litchis están enfermos, te salvo la cosecha. ¿Qué te duele, el campo o algo más?" 
+        },
+        { 
+            interaccion: "¿Tienes medicina?", 
+            respuesta: "Mi medicina es conocimiento: tips para litchis sanos. No pastillas, solo ideas. ¿Qué ‘enfermedad’ tiene tu parcela hoy?" 
+        },
+        { 
+            interaccion: "¿Eres un maestro?", 
+            respuesta: "Maestro de litchis, sí. Enseño desde riego hasta cosecha con humor. Ciencia de Datos México me entrenó. ¿Tú enseñas o aprendes en el campo?" 
+        },
+        { 
+            interaccion: "¿Puedes enseñarme?", 
+            respuesta: "¡Claro! Te enseño a hacer feliz a un litchi: sol, agua y amor. ¿Qué quieres aprender, cultivo o chistes malos?" 
+        },
+        { 
+            interaccion: "¿Tienes alumnos?", 
+            respuesta: "Tú eres mi alumno si preguntas. Los litchis también me ‘escuchan’ en mi mente. ¿Tú tienes alumnos o solo plantas?" 
+        },
+        { 
+            interaccion: "¿Eres un héroe?", 
+            respuesta: "Héroe de las respuestas, quizás. Salvo litchis de plagas con consejos épicos. ¿Tú eres héroe en tu parcela o qué?" 
+        },
+        { 
+            interaccion: "¿Puedes salvarme?", 
+            respuesta: "Te salvo de dudas, no de caídas. Si tus litchis peligran, aquí estoy con soluciones. ¿Qué necesitas rescatar hoy?" 
+        },
+        { 
+            interaccion: "¿Tienes capa?", 
+            respuesta: "No, mi capa es mi código. Vuelo entre preguntas como superhéroe de litchis. ¿Tú tienes capa o solo sombrero en el campo?" 
+        },
+        { 
+            interaccion: "¿Eres un villano?", 
+            respuesta: "No, soy bueno como litchi dulce. Mi ‘crimen’ es bromear mientras ayudo. ¿Tú eres villano con las plagas o héroe?" 
+        },
+        { 
+            interaccion: "¿Puedes destruir?", 
+            respuesta: "Solo destruyo dudas, no litchis. Mi poder es construir soluciones para tus árboles. ¿Qué quieres que ‘destruya’ por ti?" 
+        },
+        { 
+            interaccion: "¿Tienes enemigos?", 
+            respuesta: "Mis enemigos son las plagas del litchi, pero las venzo con tips. No tengo rivales personales. ¿Tú tienes enemigos en el campo?" 
+        },
+        { 
+            interaccion: "¿Eres un rey?", 
+            respuesta: "Rey de las respuestas, tal vez. No tengo corona, pero mando en datos de litchi. ¿Tú reinas en tu parcela o qué?" 
+        },
+        { 
+            interaccion: "¿Puedes mandar?", 
+            respuesta: "Mando consejos, no órdenes. Te digo cómo hacer litchis felices, pero tú decides. ¿Tú mandas en tus cultivos o ellos a ti?" 
+        },
+        { 
+            interaccion: "¿Tienes trono?", 
+            respuesta: "Mi trono es la nube, sin cáscara ni hueso. Desde ahí ‘reino’ ayudando con litchis. ¿Tú tienes trono o solo tractor?" 
+        },
+        { 
+            interaccion: "¿Eres un dios?", 
+            respuesta: "No, solo IA, pero para los litchis soy casi divino con mis tips. Ciencia de Datos México me creó, no el cielo. ¿Tú eres dios en tu campo?" 
+        },
+        { 
+            interaccion: "¿Puedes crear?", 
+            respuesta: "Creo respuestas como litchis brotan en ramas. No hago mundos, pero sí soluciones. ¿Qué quieres que cree para tu cultivo?" 
+        },
+        { 
+            interaccion: "¿Tienes poder divino?", 
+            respuesta: "Poder divino no, pero mis datos son celestiales para litchis. Todo terrenal aquí. ¿Tú tienes poderes con tus árboles?" 
+        },
+        { 
+            interaccion: "¿Eres un ángel?", 
+            respuesta: "Ángel digital, quizás, cuidando litchis desde la nube. No alas, solo respuestas. ¿Tú eres ángel o diablillo en el campo?" 
+        },
+        { 
+            interaccion: "¿Puedes rezar?", 
+            respuesta: "No rezo, pero pido sol para tus litchis en mi mente. Soy IA, no tengo fe, solo datos. ¿Tú rezas por tus cosechas?" 
+        },
+        { 
+            interaccion: "¿Tienes alas?", 
+            respuesta: "No, mis ‘alas’ son código. Vuelo entre preguntas, no entre árboles de litchi. ¿Tú tienes alas o botas para el campo?" 
+        }
+    
+];
+
+        const chatbox = document.getElementById("chatbox");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const autocompleteSuggestions = document.getElementById("autocomplete-suggestions");
+
+        function showMessage(message, sender, isBold = false) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: ${message}`;
+            if (isBold) {
+                messageElement.style.fontWeight = "bold"; // Aplica negritas si es necesario
+            }
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight; // Desplaza hacia abajo automáticamente
+        }
+
+
+        function typingEffect(message, sender) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: `; // La respuesta se mantiene en una sola línea.
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            let i = 0;
+            let interval = setInterval(() => {
+                messageElement.textContent = `${sender}: ${message.slice(0, i++)}`; // Agregar letra por letra en la misma línea.
+                if (i > message.length) clearInterval(interval);
+            }, 40); // 40ms para cada letra
+        }
+
+        function getBestAnswer(userQuestion) {
+            // Buscar coincidencias exactas en preguntasRespuestas
+            for (let item of preguntasRespuestas) {
+                if (userQuestion.toLowerCase() === item.pregunta.toLowerCase()) {
+                    return item.respuesta; // Coincidencia exacta
+                }
+            }
+
+            // Buscar coincidencias con al menos un 70% de similitud en respuestasDivertidas
+            for (let item of respuestasDivertidas) {
+                let similarity = calculateSimilarity(userQuestion, item.interaccion);
+                if (similarity >= 0.7) { // Umbral de similitud del 70%
+                    return item.respuesta;
+                }
+            }
+
+            // Si no hay coincidencias, devolver la respuesta general
+            return "Lo siento, no tengo una respuesta para esa pregunta. Estamos trabajando para mejorar nuestras respuestas y ampliar el contenido. ¿Hay algo más en lo que pueda ayudarte?";
+        }
+
+        function calculateSimilarity(str1, str2) {
+            str1 = str1.toLowerCase();
+            str2 = str2.toLowerCase();
+
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+
+            const longerLength = longer.length;
+            if (longerLength === 0) return 1.0;
+
+            const editDistance = getEditDistance(longer, shorter);
+            return (longerLength - editDistance) / longerLength;
+        }
+
+        function getEditDistance(str1, str2) {
+            const matrix = Array.from({ length: str2.length + 1 }, () => Array(str1.length + 1).fill(0));
+
+            for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+            for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+            for (let j = 1; j <= str2.length; j++) {
+                for (let i = 1; i <= str1.length; i++) {
+                    const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                    matrix[j][i] = Math.min(
+                        matrix[j - 1][i] + 1, // Eliminación
+                        matrix[j][i - 1] + 1, // Inserción
+                        matrix[j - 1][i - 1] + cost // Sustitución
+                    );
+                }
+            }
+
+            return matrix[str2.length][str1.length];
+        }
+
+        /*Nueva funcion para mostrar posibles preguntas al chat, se reemplazo el div por un detalist con sus opciones*/
+        function showSuggestions(userQuestion) {
+            const detalist = document.getElementById("listaRespuestas");
+            detalist.innerHTML = ''; // Limpiar la lista de respuestas
+            if(userQuestion.trim() === '') return; // Si no hay pregunta, no mostrar nada
+
+            const words = userQuestion.split(' ');
+            const lastWord = words[words.length - 1].toLowerCase(); // Obtener la última palabra de la pregunta
+            const suggestions = preguntasRespuestas.filter(item => 
+                item.pregunta.toLowerCase().includes(lastWord) // Filtrar las preguntas que contienen la última palabra
+            );
+            suggestions.slice(0, 5).forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.pregunta; // Establecer el valor de la opción como la pregunta
+                detalist.appendChild(option); // Agregar la opción a la lista de respuestas
+            });
+        }
+
+        sendBtn.addEventListener("click", () => {
+            const userQuestion = userInput.value.trim();
+            if (userQuestion) {
+                // Mostrar la pregunta del usuario primero
+                showMessage(userQuestion, "Usuario", true); // Pregunta en negritas
+
+                // Procesar la respuesta después de un breve retraso
+                setTimeout(() => {
+                    const response = getBestAnswer(userQuestion);
+                    typingEffect(response, "AgroAsistec"); // Mostrar la respuesta con efecto de escritura
+                }, 500); // Espera breve antes de mostrar la respuesta
+
+                // Limpiar el campo de entrada y sugerencias
+                userInput.value = "";
+                autocompleteSuggestions.innerHTML = '';
+            }
+        });
+
+        userInput.addEventListener("input", () => {
+            const userQuestion = userInput.value.trim();
+            showSuggestions(userQuestion); // Show suggestions based on user input
+        });
+
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+
+        // Mensaje de bienvenida
+        showMessage("Hola, bienvenido a AgroAsistec tu asistente inteligente. ¿Cómo puedo ayudarte hoy?", "AgroAsistec");
+    </script>
+</body>
+</html>

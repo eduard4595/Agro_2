@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Acceso a Base de Datos - Maíz</title>
+    <title>Acceso a Base de Datos - Litchi</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -63,7 +63,7 @@
     </style>
 </head>
 <body>
-    <h1>Acceso a Base de Datos - Maíz</h1>
+    <h1>Acceso a Base de Datos - Litchi</h1>
 
     <table>
         <thead>
@@ -84,9 +84,9 @@
                 {% for fecha in fechas %}
                 <td>
                     {% set valor = (data | selectattr('fecha_captura', 'equalto', fecha) | map(attribute=rubro.key) | list | first) %}
-                    {% if rubro.key in ['total_ingresos', 'gastos_insumos', 'pago_jornales', 'gastos_servicios', 'valor_maquinaria', 'dinero_disponible', 'gastos_imprevistos', 'total_deudas'] %}
+                    {% if rubro.key in ['total_ingresos', 'gastos_insumos', 'pago_jornales', 'gastos_servicios', 'valor_maquinaria', 'dinero_disponible', 'gastos_imprevistos', 'total_deudas', 'utilidad_bruta', 'utilidad_neta', 'activos_totales', 'patrimonio_neto', 'costo_por_hectarea', 'margen_ganancia', 'razon_endeudamiento', 'productividad_por_hectarea', 'gastos_totales'] %}
                     {{ valor | float | round(2) | tojson | replace('"', '') | replace(',', '') | replace('.', ',') | replace(',', '.') if valor else 'N/A' }}
-                    {% elif rubro.key in ['hectareas', 'dias_preparacion_terreno', 'dias_aplicacion_fertilizantes', 'horas_cosecha_hectarea', 'trabajadores_cosecha', 'dias_secado_procesamiento', 'dias_venta_semanal', 'porcentaje_autoconsumo', 'horas_supervision_diaria'] %}
+                    {% elif rubro.key in ['toneladas_cosechadas', 'hectareas_sembradas', 'trabajadores_necesarios'] %}
                     {{ valor | float | round(2) | tojson | replace('"', '') | replace(',', '') | replace('.', ',') | replace(',', '.') if valor else 'N/A' }}
                     {% else %}
                     {{ valor if valor else 'N/A' }}
@@ -101,9 +101,9 @@
         </tbody>
     </table>
 
-    <!-- Botón para regresar al panel de maíz -->
-    <a href="{{ url_for('dashboard_maiz') }}" class="btn">
-        ← Volver al Panel de Maíz
+    <!-- Botón para regresar al panel de Litchi -->
+    <a href="{{ url_for('dashboard_litchi') }}" class="btn">
+        ← Volver al Panel de Litchi
     </a>
 
     <script>

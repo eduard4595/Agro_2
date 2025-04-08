@@ -1,0 +1,11 @@
+total_ingresos,toneladas_cosechadas,tipos_citricos,hectareas,gastos_insumos,pago_jornales,gastos_servicios,valor_maquinaria,dinero_disponible,gastos_imprevistos,total_deudas,trabajadores_necesarios,dias_supervision,lugares_comercializacion,fecha_captura,comentarios,utilidad_bruta,utilidad_neta,activos_totales,patrimonio_neto,costo_por_hectarea,margen_ganancia,razon_endeudamiento,productividad_por_hectarea,gastos_totales
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,31/03/2025,Marzo 2025,4000,2000,7000,5000,6000,40,0.285714286,1,6000
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,01/04/2025,Marzo 2026,4000,2000,7000,5000,6000,40,0.285714286,1,6000
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,02/04/2025,Marzo 2027,4000,2000,7000,5000,6000,40,0.285714286,1,6000
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,03/04/2025,Marzo 2028,4000,2000,7000,5000,6000,40,0.285714286,1,6000
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,04/04/2025,Marzo 2029,4000,2000,7000,5000,6000,40,0.285714286,1,6000
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,05/04/2025,Marzo 2030,4000,2000,7000,5000,6000,40,0.285714286,1,6000
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,06/04/2025,Marzo 2031,4000,2000,7000,5000,6000,40,0.285714286,1,6000
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,07/04/2025,Marzo 2032,4000,2000,7000,5000,6000,40,0.285714286,1,6000
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,08/04/2025,Marzo 2033,4000,2000,7000,5000,6000,40,0.285714286,1,6000
+10000,1,"naranja, mandarina, limon",1,2000,2000,1000,5000,2000,1000,2000,2,120,acopio,09/04/2025,Marzo 2034,4000,2000,7000,5000,6000,40,0.285714286,1,6000

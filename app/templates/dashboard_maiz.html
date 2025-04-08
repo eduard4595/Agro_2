@@ -41,8 +41,8 @@
         }
         .ticker span {
             display: inline-block;
-            padding-left: 2%;
-            animation: ticker 380s linear infinite;
+            padding-left: 30%;
+            animation: ticker 280s linear infinite;
         }
         @keyframes ticker {
             from { transform: translateX(10%); }
@@ -418,10 +418,13 @@
                 <div class="chat-input">
                     <div id="chatbox"></div>
                         <div class="welcome-message">Bienvenido a AgroAsistec Maíz</div>
-                        <input type="text" id="userInput" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <input type="text" id="userInput" list="listaRespuestas" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <!--Se agrego este datalist reemplazando el div de sugerencias-->
+                        <datalist id="listaRespuestas">
+
+                        </datalist>
                         <button id="sendBtn">Enviar</button>
                     </div>
-                    <div id="autocomplete-suggestions"></div>
                 </div>
             </div>
         </div>
@@ -2100,26 +2103,21 @@
             return matrix[str2.length][str1.length];
         }
 
+        /*Nueva funcion para mostrar posibles preguntas al chat, se reemplazo el div por un detalist con sus opciones*/
         function showSuggestions(userQuestion) {
-            autocompleteSuggestions.innerHTML = ''; // Clear previous suggestions
-            if (userQuestion.trim() === '') return;
+            const detalist = document.getElementById("listaRespuestas");
+            detalist.innerHTML = ''; // Limpiar la lista de respuestas
+            if(userQuestion.trim() === '') return; // Si no hay pregunta, no mostrar nada
 
             const words = userQuestion.split(' ');
-            const lastWord = words[words.length - 1].toLowerCase();
-
+            const lastWord = words[words.length - 1].toLowerCase(); // Obtener la última palabra de la pregunta
             const suggestions = preguntasRespuestas.filter(item => 
-                item.pregunta.toLowerCase().includes(lastWord)
+                item.pregunta.toLowerCase().includes(lastWord) // Filtrar las preguntas que contienen la última palabra
             );
-
             suggestions.slice(0, 5).forEach(item => {
-                const suggestionItem = document.createElement('div');
-                suggestionItem.classList.add('suggestion');
-                suggestionItem.textContent = item.pregunta;
-                suggestionItem.onclick = () => {
-                    userInput.value = item.pregunta;
-                    autocompleteSuggestions.innerHTML = ''; // Clear suggestions
-                };
-                autocompleteSuggestions.appendChild(suggestionItem);
+                const option = document.createElement('option');
+                option.value = item.pregunta; // Establecer el valor de la opción como la pregunta
+                detalist.appendChild(option); // Agregar la opción a la lista de respuestas
             });
         }
 

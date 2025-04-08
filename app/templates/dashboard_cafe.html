@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Café</title>
+    <title>Chatbot de Cultivo de Maíz</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,7 +42,7 @@
         .ticker span {
             display: inline-block;
             padding-left: 30%;
-            animation: ticker 180s linear infinite;
+            animation: ticker 280s linear infinite;
         }
         @keyframes ticker {
             from { transform: translateX(10%); }
@@ -125,6 +125,8 @@
             overflow-y: auto;
             background-color: #f9f9f9;
             flex: 1;
+            white-space: normal; /* Para evitar que el texto se divida */
+            word-wrap: break-word;
         }
         .chat-input {
             margin-top: 10px;
@@ -252,6 +254,64 @@
                 max-width: none;
             }
         }
+        
+
+        #userInput {
+            width: 70%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        #sendBtn {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .suggestion {
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin-top: 5px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+        }
+        .suggestion:hover {
+            background-color: #ddd;
+        }
+        #autocomplete-suggestions {
+            width: 70%;
+            border: 1px solid #ccc;
+            position: absolute;
+            z-index: 1;
+            background-color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 5px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .thinking-message {
+            font-style: italic;
+            color: #777;
+        }
+        .dot {
+            font-size: 30px; /* Tamaño más grande de los puntos */
+            animation: dot-blink 1s steps(1, end) infinite; /* Animación de parpadeo de puntos */
+        }
+        @keyframes dot-blink {
+            0% { content: "."; }
+            33% { content: ".."; }
+            66% { content: "..."; }
+            100% { content: "."; }
+        }
     </style>
 </head>
 <body>
@@ -319,48 +379,2085 @@
             </div>
             
             <div class="chat-container">
-                <h2> AI Chat Cafetalero AgroAsistec</h2>
+                <h2> AI Chat Agropecuario AgroAsistec</h2>
                 <div class="chat-box" id="chat-box">
-                    <!-- Mensajes del chat aparecerán aquí -->
+                     Mensajes del chat aparecerán aquí 
                 </div>
                 <div class="chat-input">
-                    <input type="text" id="chat-input" placeholder="Escribe tu mensaje aquí...">
-                    <button onclick="sendMessage()">Enviar</button>
+                    <div id="chatbox"></div>
+                        <div class="welcome-message">Bienvenido a AgroAsistec Cafetalero</div>
+                        <input type="text" id="userInput" list="autocomplete-suggestions" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <!--Se agrego este datalist reemplazando el div de sugerencias-->
+                        <datalist id="autocomplete-suggestions">
+                            
+                        </datalist>
+                        <button id="sendBtn">Enviar</button>
+                    </div>
                 </div>
-            </div>
+            </div>    
+
         </div>
     </div>
     <footer>
         <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
     </footer>
 
+    
+    
     <script>
-        function sendMessage() {
-            const chatBox = document.getElementById('chat-box');
-            const chatInput = document.getElementById('chat-input');
-            const message = chatInput.value.trim();
-    
-            if (message) {
-                // Mostrar el mensaje del usuario
-                const userMessage = document.createElement('div');
-                userMessage.textContent = "Tú: " + message;
-                userMessage.style.color = "#2e4a2d"; // Color verde oscuro para el mensaje del usuario
-                chatBox.appendChild(userMessage);
-    
-                // Limpiar el campo de entrada
-                chatInput.value = '';
-    
-                // Mostrar el mensaje automático de respuesta
-                const botMessage = document.createElement('div');
-                botMessage.textContent = "Por el momento este servicio no está disponible. Disculpa las molestias, estamos trabajando para mejorar el servicio.";
-                botMessage.style.color = "#D9534F"; // Color rojo para el mensaje del bot
-                botMessage.style.marginTop = "10px";
-                chatBox.appendChild(botMessage);
-    
-                // Desplazar el chat hacia abajo
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
+        const preguntasRespuestas = [
+           { 
+            pregunta: "¿Por qué es importante conocer las variedades de café antes de sembrar?", 
+            respuesta: "¡Hola, qué bueno que preguntas! Es clave identificar las variedades porque cada una tiene características y manejos distintos, ya que el café es un cultivo a largo plazo que inicia cosecha a los 6 años y produce hasta 20. Conocerlas te ayuda a planificar inversión y cuidados. Esto asegura que elijas una variedad adecuada a tu clima y suelo, maximizando la producción y evitando sorpresas. ¿Qué más te interesa aprender sobre el café?", 
+        },
+        { 
+            pregunta: "¿Cuántas semillas de café hay por kilo en promedio?", 
+            respuesta: "¡Saludos, amante del café! En promedio, hay 3500 semillas por kilo, aunque esto varía según la variedad elegida para la siembra. Es un dato útil para calcular cuánta semilla necesitas por hectárea, considerando que se seleccionan plantas en cada etapa. Así, puedes prepararte mejor para el cultivo y garantizar un buen inicio. ¿Cómo puedo ayudarte con tu proyecto cafetero?", 
+        },
+        { 
+            pregunta: "¿Cuánta semilla necesito para sembrar una hectárea de café?", 
+            respuesta: "¡Hey, qué gran pregunta! Con 1.5 kilos de semilla basta para una hectárea, pero debes tener más plantas de las que siembras porque se hacen selecciones en semillero y vivero. Esto asegura que solo las mejores lleguen a la parcela, optimizando tu inversión y esfuerzo. ¿Qué otros detalles necesitas para planificar tu siembra?", 
+        },
+        { 
+            pregunta: "¿En qué mes se recomienda sembrar las semillas de café?", 
+            respuesta: "¡Hola, amigo cafetero! La siembra se recomienda en marzo para que las plantas estén listas para trasplantar en septiembre, cuando comienzan las lluvias abundantes sin vientos fuertes. Esto fortalece las raíces y mejora su resistencia a sequías, dándoles un arranque sólido. ¿Qué más quieres saber sobre el ciclo del café?", 
+        },
+        { 
+            pregunta: "¿Qué requisitos debe cumplir una semilla de café comprada?", 
+            respuesta: "¡Qué bueno verte por aquí! Debe ser certificada, de alta producción y resistente a la roya, cumpliendo las leyes agrícolas para evitar plagas y enfermedades en tu zona. Esto garantiza calidad y seguridad, protegiendo tu cultivo desde el inicio con una base confiable. ¿Te gustaría saber más sobre cómo elegir semillas?", 
+        },
+        { 
+            pregunta: "¿Cómo se debe almacenar la semilla de café?", 
+            respuesta: "¡Hola, qué alegría ayudarte! Guárdala en un lugar fresco, seco, ventilado y libre de patógenos; ya viene protegida contra plagas si es certificada. Un buen almacenamiento preserva su viabilidad, asegurando que germine fuerte y sana para tu futura cosecha. ¿Qué otro consejo necesitas para empezar bien?", 
+        },
+        { 
+            pregunta: "¿Dónde se debe establecer el semillero de café?", 
+            respuesta: "¡Saludos, cultivador! El semillero va en un lugar plano con 5% de pendiente para evitar inundaciones, cerca de agua para riegos fáciles. Esto facilita el manejo y protege las plántulas, dándoles un entorno ideal para crecer sin estrés. ¿Cómo puedo apoyarte con tu semillero?", 
+        },
+        { 
+            pregunta: "¿Qué dimensiones debe tener un semillero de café?", 
+            respuesta: "¡Hey, qué bueno que lo preguntas! Debe tener 1 metro de alto (20 cm de sustrato), 120 cm de ancho y 5 metros de largo, ajustable según la cantidad de plantas. Estas medidas optimizan el drenaje y el espacio, asegurando un desarrollo saludable desde el inicio. ¿Qué más te gustaría planificar?", 
+        },
+        { 
+            pregunta: "¿Qué materiales se pueden usar para construir un semillero?", 
+            respuesta: "¡Hola, entusiasta del café! Puedes usar madera local o bloques con cemento, rellenando con 60 cm de piedra grande, 20 cm de piedra pequeña y 20 cm de sustrato. Esto mejora el drenaje y evita hongos, creando un ambiente perfecto para las plántulas. ¿Qué dudas tienes sobre la construcción?", 
+        },
+        { 
+            pregunta: "¿Qué tipo de sustrato se usa en el semillero de café?", 
+            respuesta: "¡Qué alegría charlar contigo! El sustrato debe ser arenoso para buen drenaje, mezclado con ceniza o tratado con agua hirviendo para desinfectarlo el día de la siembra. Esto facilita la extracción de plántulas y reduce riesgos de enfermedades, asegurando un inicio sano. ¿Qué más te intriga del proceso?", 
+        },
+        { 
+            pregunta: "¿Cómo se prepara la semilla de café antes de sembrarla?", 
+            respuesta: "¡Saludos, qué buena consulta! Remójala en agua un día o unas horas antes, desecha las que floten y siembra solo las que se hunden, colocándolas en canales de 5 cm. Este paso asegura que uses semillas viables, mejorando la germinación y el éxito del cultivo. ¿Cómo puedo guiarte más en esto?", 
+        },
+        { 
+            pregunta: "¿Qué se hace con la semilla después de colocarla en el semillero?", 
+            respuesta: "¡Hola, qué gusto ayudarte! Tápala con sustrato, cúbrela con plástico 15 días para mantener temperatura, luego usa ramas y un techado de hojas o zacate para sombra. Esto protege los brotes y favorece un crecimiento uniforme, clave para plántulas fuertes. ¿Qué otro paso te interesa conocer?", 
+        },
+        { 
+            pregunta: "¿Cuánto tarda en germinar la semilla de café?", 
+            respuesta: "¡Hey, excelente pregunta! Germina entre 45 y 55 días, tiempo en el que debes vigilar plagas como insectos u hongos para proteger las plántulas. Revisar constantemente asegura que cualquier problema se detecte a tiempo, manteniendo tu cultivo en buen camino. ¿Qué más quieres explorar sobre la germinación?", 
+        },
+        { 
+            pregunta: "¿Qué es la etapa de soldadito o arbolito en las plántulas de café?", 
+            respuesta: "¡Saludos, cultivador curioso! Es la fase a la segunda semana o 30 días de germinación, cuando la planta está lista para trasplantar a bolsas tras un riego previo. Identificarla te ayuda a moverla sin dañarla, asegurando su desarrollo en la siguiente etapa. ¿Cómo puedo asistirte con el trasplante?", 
+        },
+        { 
+            pregunta: "¿Cómo se selecciona una plántula de café para trasplantar?", 
+            respuesta: "¡Hola, qué bueno verte! Elige las de tamaño similar, con una raíz principal sana; desecha las de dos raíces, deformadas o muy pequeñas, podando si es necesario. Esto garantiza plantas uniformes y fuertes, esenciales para un cultivo exitoso a largo plazo. ¿Qué más te gustaría ajustar en tu cultivo?", 
+        },
+        { 
+            pregunta: "¿Qué sustrato se usa para las bolsas del café?", 
+            respuesta: "¡Qué alegría charlar contigo! Usa un suelo suave, arenoso, cribado para quitar piedras, con cenizas o fungicida para prevenir hongos y proteger las plantas. Un sustrato limpio y bien preparado facilita el enraizamiento y evita pérdidas, dándote una base sólida. ¿Qué otro detalle necesitas para las bolsas?", 
+        },
+        { 
+            pregunta: "¿Qué medidas tienen las bolsas para las plántulas de café?", 
+            respuesta: "¡Saludos, amigo del café! Las bolsas negras deben medir 15 x 25 cm, llenadas y puestas en hileras de 10 x 100 para mil plantas, facilitando riego y manejo. Este tamaño es ideal para el desarrollo inicial, manteniendo todo ordenado y eficiente. ¿Cómo puedo ayudarte con la organización?", 
+        },
+        { 
+            pregunta: "¿Cómo se trasplantan las plántulas a las bolsas?", 
+            respuesta: "¡Hola, qué gran duda! Perfora el sustrato con una cuña, coloca la planta girándola para que la raíz no se doble, presiona y riega abundantemente después. Este método asegura que las raíces queden bien posicionadas, absorbiendo agua y nutrientes sin problemas. ¿Qué más te gustaría perfeccionar?", 
+        },
+        { 
+            pregunta: "¿Qué condiciones necesita el terreno para un vivero de café?", 
+            respuesta: "¡Hey, qué gusto ayudarte! Busca un terreno plano con 5% o más de inclinación, cerca de agua (máximo 70 m) y sin café con plagas cerca. Esto protege tu cultivo y facilita los cuidados, evitando riesgos desde el principio. ¿Qué más te interesa del vivero?", 
+        },
+        { 
+            pregunta: "¿Con qué frecuencia se riega el vivero de café?", 
+            respuesta: "¡Saludos, cultivador! Riega diario, revisando la humedad del sustrato para evitar encharcamientos; perfora las bolsas si se tapan para drenar el agua. Un riego adecuado reduce plagas y mantiene las plantas sanas, clave para su crecimiento. ¿Cómo puedo apoyarte con los riegos?", 
+        },
+        { 
+            pregunta: "¿Cómo identificar una planta de café sana en el vivero?", 
+            respuesta: "¡Hola, qué buena pregunta! Busca un color verde brilloso oscuro, sin inclinación, hojas amarillas, tallos negros ni insectos debajo de las hojas. Una planta sana es la base de una buena cosecha, y vigilarla evita problemas mayores después. ¿Qué otro signo te gustaría detectar?", 
+        },
+        { 
+            pregunta: "¿Qué hacer si hay plagas en el vivero de café?", 
+            respuesta: "¡Qué alegría verte por aquí! Aplica insecticidas y fungicidas mensualmente como prevención, cada 15 días si hay plaga, o retira plantas afectadas para tratarlas aparte. Esto controla la propagación y reduce costos, manteniendo tu vivero productivo. ¿Qué más quieres saber sobre plagas?", 
+        },
+        { 
+            pregunta: "¿Qué condiciones debe tener el terreno para sembrar café?", 
+            respuesta: "¡Saludos, entusiasta! Necesita buena humedad, drenaje, poca inclinación y sombra de árboles grandes (50% o más) para conservar humedad todo el año. Un terreno así favorece el desarrollo y la calidad del café, asegurando una parcela próspera. ¿Qué más te gustaría evaluar?", 
+        },
+        { 
+            pregunta: "¿Cuáles son las temperaturas ideales para el cultivo de café?", 
+            respuesta: "¡Hola, qué gusto charlar! Oscilan entre 17°C y 23°C; por debajo de 10°C hay clorosis y menos crecimiento en plantas jóvenes, afectando su desarrollo. Mantener este rango ayuda a que las plantas prosperen y den frutos de calidad. ¿Qué otro factor climático te interesa?", 
+        },
+        { 
+            pregunta: "¿Qué precipitación necesita el café para crecer bien?", 
+            respuesta: "¡Hey, qué buena duda! Requiere entre 1500 mm y 3000 mm de lluvia anual, ideal para mantener la humedad que el café necesita para florecer y fructificar. Un buen nivel de agua asegura un cultivo robusto y sano en todas sus etapas. ¿Cómo puedo ayudarte con el clima?", 
+        },
+        { 
+            pregunta: "¿A qué altura sobre el nivel del mar se cultiva el café?", 
+            respuesta: "¡Saludos, amigo cafetero! De 600 a 1500 metros, según la variedad; la altura afecta el tamaño del grano y su sabor, definiendo la calidad. Elegir bien la altitud es clave para un café excepcional y adaptado a tu región. ¿Qué más te gustaría ajustar en tu parcela?", 
+        },
+        { 
+            pregunta: "¿Qué tipo de suelo es ideal para el café?", 
+            respuesta: "¡Hola, qué alegría ayudarte! Debe ser bien drenado, profundo, con hojarasca, franco arcilloso arenoso y pH de 5.2 a 6.3, nutritivo para la planta. Un suelo así maximiza la absorción de nutrientes, fortaleciendo el cultivo desde la raíz. ¿Qué dudas tienes sobre el suelo?", 
+        },
+        { 
+            pregunta: "¿Cómo se limpia el terreno para sembrar café?", 
+            respuesta: "¡Qué bueno verte! Usa machete o guingaro, dejando plantas nativas a 10-15 cm de altura para conservar humedad y sombra, trazando las cepas primero. Esto protege el suelo de la erosión y prepara un espacio ideal sin dañarlo demasiado. ¿Qué más te interesa del terreno?", 
+        },
+        { 
+            pregunta: "¿Qué herramientas se necesitan para trazar el terreno?", 
+            respuesta: "¡Saludos, cultivador! Usa estacas de un metro, cinta métrica y rafia para marcar surcos y diseñar la parcela según el terreno y la variedad. Estas herramientas simples aseguran un trazo preciso, facilitando la siembra y el manejo posterior. ¿Cómo puedo guiarte en el trazado?", 
+        },
+        { 
+            pregunta: "¿Qué diseños se pueden usar para trazar una parcela de café?", 
+            respuesta: "¡Hola, qué gran consulta! En parcelas planas, líneas rectas formando cuadros (1 x 2 m o 1.5 x 2 m) o triangulares, según el porte de la variedad. Esto evita competencia entre plantas, optimizando luz, agua y nutrientes para una cosecha eficiente. ¿Qué diseño prefieres probar?", 
+        },
+        { 
+            pregunta: "¿Qué medidas tienen las cepas para sembrar café?", 
+            respuesta: "¡Hey, qué bueno que preguntas! Pueden ser 30 x 30 cm, 40 x 40 cm o 30 x 40 cm de ancho por profundidad, según el terreno y la planta. Estas dimensiones aseguran espacio para las raíces, promoviendo un crecimiento fuerte y estable. ¿Qué más necesitas para las cepas?", 
+        },
+        { 
+            pregunta: "¿Cómo se siembran las plantas de café en la parcela?", 
+            respuesta: "¡Saludos, amigo! Riega las plantas un día antes, aplica fertilizante o ceniza en la cepa, colócalas, rellena con tierra y aplana para quitar aire. Esto reduce el estrés de la planta, ayudándola a adaptarse y absorber nutrientes desde el inicio. ¿Qué otro paso te interesa?", 
+        },
+        { 
+            pregunta: "¿Cuántas plantas de café se necesitan por hectárea?", 
+            respuesta: "¡Hola, qué alegría ayudarte! Se estiman 5000 plantas por hectárea, según la distancia entre ellas, que depende de la variedad y el diseño elegido. A menor distancia, más plantas, lo que maximiza la producción si el terreno lo permite. ¿Cómo puedo asistirte con la densidad?", 
+        },
+        { 
+            pregunta: "¿Cuándo se hace la primera poda de las plantas de café?", 
+            respuesta: "¡Qué bueno verte por aquí! En la primera poda, solo quita hojas secas, amarillas o plagadas, luego haz poda de formación según la altura de la planta. Esto mantiene la salud y forma, preparando el café para una producción óptima más adelante. ¿Qué más te gustaría saber de la poda?", 
+        },
+        { 
+            pregunta: "¿Cómo se manejan las malezas en una parcela de café?", 
+            respuesta: "¡Saludos, cultivador! Corta las malezas cerca de la planta, dejando las más alejadas para conservar humedad y proteger contra vientos, combinándolo con la poda. Este equilibrio mantiene el suelo sano y reduce la competencia, beneficiando al café. ¿Qué otro manejo te interesa?", 
+        },
+        { 
+            pregunta: "¿Qué plagas afectan al café en la parcela?", 
+            respuesta: "¡Hola, qué buena duda! Incluyen la broca del café, minador de la hoja, pulgones, trips, orugas y cochinillas, todas dañan frutos u hojas si no se controlan. Identificarlas temprano permite actuar rápido, protegiendo tu cosecha y calidad del grano. ¿Cómo puedo ayudarte con las plagas?", 
+        },
+        { 
+            pregunta: "¿Qué enfermedades puede tener el café en la parcela?", 
+            respuesta: "¡Hey, qué gusto charlar! Pueden ser ojo de gallo, roya, antracnosis, cercospora y fusarium, afectando hojas, frutos o tallos según el caso. Una planta certificada resiste mejor, pero vigilarlas es clave para una parcela sana y productiva. ¿Qué más te preocupa de las enfermedades?", 
+        },
+        { 
+            pregunta: "¿En qué meses se cosecha el café en México?", 
+            respuesta: "¡Saludos, amigo cafetero! De septiembre a marzo, dependiendo del clima y la variedad, recolectando primero frutos maduros y luego los verdes para mejor calidad. Esto maximiza el rendimiento y asegura granos de gran sabor, aprovechando bien la temporada. ¿Qué más te interesa de la cosecha?", 
+        },
+        { 
+            pregunta: "¿Cómo se seleccionan los frutos de café en la cosecha?", 
+            respuesta: "¡Hola, qué alegría ayudarte! Cosecha primero los maduros, deja los verdes para que crezcan, y no dejes frutos en la planta ni en el suelo. Esto evita plagas y mejora la calidad, asegurando un café limpio y bien clasificado después. ¿Qué otro detalle necesitas?", 
+        },
+        { 
+            pregunta: "¿Qué es el método seco para extraer granos de café?", 
+            respuesta: "¡Qué bueno verte! Consiste en extender la pulpa en plásticos o concreto para secarla al sol, aunque hoy no es muy recomendado por higiene y calidad. Es un proceso tradicional que requiere buen clima y cuidado para evitar moho o contaminación. ¿Qué más quieres explorar de los métodos?", 
+        },
+        { 
+            pregunta: "¿Cómo funciona el método húmedo para el café?", 
+            respuesta: "¡Saludos, cultivador! Usa una despulpadora para quitar la pulpa, luego fermenta en tinas para remover mucílago, limpia las semillas y las seca en camas soleadas. Este método da granos uniformes y de mejor sabor, ideal para un café premium. ¿Qué te gustaría ajustar en este proceso?", 
+        },
+        { 
+            pregunta: "¿Qué se usa para secar los granos de café en el método húmedo?", 
+            respuesta: "¡Hola, qué gran consulta! Se colocan en camas con malla en medio, en lugares soleados, para una ventilación que acelere el secado y mejore la calidad. Esto da un grano uniforme, con gran aroma y presentación, listo para destacar. ¿Cómo puedo guiarte más en el secado?", 
+        },
+        { 
+            pregunta: "¿Por qué no se deben dejar frutos de café en la parcela?", 
+            respuesta: "¡Hey, qué buena pregunta! Evita hospederos de plagas como la broca, que se reproducen en frutos caídos, afectando la próxima cosecha si no se retiran todos. Mantener la parcela limpia protege tu inversión y asegura un cultivo sano a futuro. ¿Qué más te interesa de la limpieza?", 
+        },
+        { 
+            pregunta: "¿Qué beneficios tiene usar plantas de café certificadas?", 
+            respuesta: "¡Saludos, amigo! Son de alta producción y resistentes a enfermedades como la roya, reduciendo riesgos de plagas y asegurando un cultivo fuerte desde el inicio. Esto ahorra costos y mejora la calidad del grano, dándote una ventaja competitiva. ¿Qué otra ventaja te gustaría aprovechar?", 
+        },
+        { 
+            pregunta: "¿Qué hacer con las plantas afectadas por hongos en el semillero?", 
+            respuesta: "¡Hola, qué gusto ayudarte! Si son pocas, destrúyelas para evitar propagación; revisa constantemente para detectarlas a tiempo y mantener el semillero sano. Esto protege el resto de las plántulas, asegurando que lleguen fuertes al trasplante. ¿Qué más necesitas para controlar hongos?", 
+        },
+        { 
+            pregunta: "¿Cómo se aplica el enraizador a las plántulas de café?", 
+            respuesta: "¡Qué bueno verte por aquí! Tras extraerlas con riego previo, ponlas en un recipiente con enraizador por 15 minutos o más antes de pasarlas a bolsas. Esto estimula el crecimiento de raíces, ayudándolas a establecerse rápido y con fuerza en su nuevo lugar. ¿Qué otro cuidado te interesa?", 
+        },
+        { 
+            pregunta: "¿Por qué se usa sombra en el cultivo de café?", 
+            respuesta: "¡Saludos, cultivador! La sombra de árboles (50% o más) conserva la humedad todo el año, esencial para el desarrollo y calidad del café en el terreno. Sin ella, el sol puede secar el suelo, afectando floración y frutos; también se pueden sembrar árboles. ¿Cómo puedo ayudarte con la sombra?", 
+        },
+        { 
+            pregunta: "¿Qué pasa si la raíz de una plántula de café está demasiado larga?", 
+            respuesta: "¡Hola, qué buena duda! Si es muy larga, se dobla al trasplantarla a la bolsa, afectando su desarrollo; por eso se poda antes para que crezca bien. Una raíz sana y bien ajustada asegura que la planta absorba agua y nutrientes sin problemas. ¿Qué más te preocupa del trasplante?", 
+        },
+        { 
+            pregunta: "¿Cómo se evita el encharcamiento en el vivero de café?", 
+            respuesta: "¡Hey, qué alegría charlar! Riega diario pero revisa la humedad; si las bolsas se tapan, perfóralas para drenar el agua y evitar raíces podridas o plagas. Un drenaje adecuado mantiene las plantas sanas y vigorosas, listas para la parcela. ¿Qué otro tip necesitas para el riego?", 
+        },{ 
+            pregunta: "¿Qué se hace con las plantas pequeñas o deformadas al trasplantarlas?", 
+            respuesta: "¡Hola, qué gusto verte de nuevo! Deséchalas si son muy pequeñas o tienen raíces deformadas o dobles, seleccionando solo las de tamaño similar y raíz principal sana. Esto asegura un cultivo uniforme y fuerte, evitando plantas débiles que retrasen tu producción a largo plazo. ¿Qué más te gustaría optimizar en la selección?", 
+        },
+        { 
+            pregunta: "¿Por qué se usa un plástico al sembrar la semilla de café?", 
+            respuesta: "¡Saludos, amigo cultivador! Se coloca 15 días sobre el sustrato para mantener una temperatura constante y facilitar la germinación, retirándolo después para usar ramas. Esto crea un microclima ideal, acelerando el brote y protegiendo las semillas en sus primeros días. ¿Qué otro truco te interesa para la siembra?", 
+        },
+        { 
+            pregunta: "¿Qué materiales se usan para dar sombra al semillero?", 
+            respuesta: "¡Hey, qué buena consulta! Usa hojas de plátano o zacate para un techado que dé sombra tras retirar el plástico y las ramas al inicio de la germinación. Esto protege los brotes del sol directo, manteniendo la humedad y asegurando un crecimiento sano. ¿Cómo puedo ayudarte con el semillero?", 
+        },
+        { 
+            pregunta: "¿Qué se hace si aparecen hongos en los tallos de las plántulas?", 
+            respuesta: "¡Hola, qué alegría charlar! Si son pocas, destrúyelas para evitar que los hongos se propaguen; revisa constantemente para detectarlos temprano y mantener el semillero sano. Actuar rápido protege tu inversión inicial y asegura que las demás plántulas prosperen sin riesgos. ¿Qué más necesitas para prevenir problemas?", 
+        },
+        { 
+            pregunta: "¿Cómo se facilita la extracción de plántulas del semillero?", 
+            respuesta: "¡Saludos, entusiasta del café! Aplica un riego previo y usa una madera como pala para remover el sustrato, luego colócalas en enraizador antes del trasplante. Esto minimiza el daño a las raíces, asegurando que lleguen fuertes a las bolsas para su siguiente etapa. ¿Qué otro paso te interesa perfeccionar?", 
+        },
+        { 
+            pregunta: "¿Qué se agrega al sustrato de las bolsas para prevenir hongos?", 
+            respuesta: "¡Qué bueno verte por aquí! Añade cenizas o un fungicida disponible al suelo arenoso cribado, limpiándolo de piedras y raíces para un entorno sano. Esto reduce riesgos de enfermedades, protege las plántulas y asegura un desarrollo sin contratiempos en el vivero. ¿Qué más quieres saber del sustrato?", 
+        },
+        { 
+            pregunta: "¿Por qué se colocan las bolsas en hileras en el vivero?", 
+            respuesta: "¡Hola, qué gran duda! Se ordenan en hileras de 10 x 100 (mil bolsas) para facilitar riego, fertilización y deshierbe, usando estacas para evitar que se inclinen. Este diseño mejora el manejo y la eficiencia, manteniendo todo accesible y organizado para un cultivo exitoso. ¿Cómo puedo guiarte con el vivero?", 
+        },
+        { 
+            pregunta: "¿Qué se hace con la raíz al trasplantar a las bolsas?", 
+            respuesta: "¡Saludos, cultivador! Gira la planta al colocarla para que la raíz no quede doblada hacia arriba, presionando el sustrato para eliminar aire y facilitar absorción. Esto asegura un enraizamiento sólido, clave para que la planta crezca sana y fuerte en su nuevo hogar. ¿Qué más te gustaría ajustar?", 
+        },
+        { 
+            pregunta: "¿Qué distancia debe haber entre el vivero y una fuente de agua?", 
+            respuesta: "¡Hey, qué alegría ayudarte! No más de 70 metros, para facilitar riegos diarios y mantener las plantas bien hidratadas sin complicaciones logísticas. Una fuente cercana ahorra tiempo y esfuerzo, asegurando que las plántulas tengan el agua necesaria para prosperar. ¿Qué otro detalle necesitas planificar?", 
+        },
+        { 
+            pregunta: "¿Cómo se controla la presencia de insectos en el vivero?", 
+            respuesta: "¡Hola, qué buena pregunta! Buenos riegos diarios con agua limpia de pozos o arroyos ayudan a reducir insectos, además de aplicar insecticidas preventivos mensualmente. Esto mantiene las plantas sanas y libres de plagas, protegiendo tu esfuerzo desde el inicio del cultivo. ¿Qué más te preocupa de las plagas?", 
+        },
+        { 
+            pregunta: "¿Qué altura deben tener las camas de siembra en el semillero?", 
+            respuesta: "¡Saludos, amigo del café! Deben ser de 1 metro, incluyendo 20 cm de sustrato, para facilitar el drenaje y evitar inundaciones o hongos en los tallos. Esta altura optimiza el manejo y protege las plántulas, dándoles un entorno ideal para crecer fuertes. ¿Cómo puedo asistirte con las camas?", 
+        },
+        { 
+            pregunta: "¿Qué se hace con las plantas plagadas en la parcela?", 
+            respuesta: "¡Qué gusto charlar contigo! Si son pocas, retíralas para fumigarlas aparte o destrúyelas, aplicando insecticidas cada 15 días si la plaga crece. Esto evita la propagación, reduce costos y mantiene la parcela productiva para una cosecha de calidad. ¿Qué más te interesa del control de plagas?", 
+        },
+        { 
+            pregunta: "¿Por qué se recomienda sombra del 50% en el terreno?", 
+            respuesta: "¡Hola, cultivador curioso! Conserva la humedad todo el año con árboles grandes, esencial para el café, o si no hay, siembra árboles aunque tome tiempo. La sombra protege del sol intenso, mejora la floración y asegura granos de mejor calidad. ¿Qué otro factor te gustaría evaluar?", 
+        },
+        { 
+            pregunta: "¿Qué pasa si la temperatura baja de 10°C en el cultivo de café?", 
+            respuesta: "¡Saludos, qué buena consulta! Provoca clorosis y retrasa el crecimiento en plantas jóvenes, afectando su desarrollo y la futura producción de frutos. Mantener temperaturas entre 17°C y 23°C es ideal para un cultivo sano y vigoroso desde el inicio. ¿Cómo puedo ayudarte con el clima?", 
+        },
+        { 
+            pregunta: "¿Qué pH debe tener el suelo para cultivar café?", 
+            respuesta: "¡Hey, qué alegría verte! Entre 5.2 y 6.3, en un suelo franco arcilloso arenoso, bien drenado y nutritivo, que puedes ajustar tras un estudio previo. Este rango optimiza la absorción de nutrientes, fortaleciendo las raíces y asegurando una planta robusta. ¿Qué más necesitas del suelo?", 
+        },
+        { 
+            pregunta: "¿Por qué no se limpia todo el terreno para el café?", 
+            respuesta: "¡Hola, qué gusto ayudarte! Dejar plantas nativas a 10-15 cm conserva humedad y sombra, evitando que lluvias o vientos sequen el suelo y afecten la floración. Una limpieza parcial protege la parcela y la cosecha, manteniendo un equilibrio natural. ¿Qué más te interesa de la limpia?", 
+        },
+        { 
+            pregunta: "¿Qué distancias se usan entre plantas en el trazado?", 
+            respuesta: "¡Saludos, amigo! Pueden ser 1 x 2 m, 1.5 x 2 m o triangulares, según el porte bajo, medio o alto de la variedad, evitando competencia entre plantas. Esto facilita mantenimiento y cosecha, optimizando recursos como agua y luz solar. ¿Qué diseño te gustaría probar?", 
+        },
+        { 
+            pregunta: "¿Qué se aplica en las cepas antes de sembrar en parcela?", 
+            respuesta: "¡Qué bueno verte por aquí! Aplica fertilizante o ceniza en la cepa antes de colocar la planta, rellenando y apisonando para sacar aire y mejorar absorción. Esto nutre las raíces desde el inicio, reduciendo estrés y asegurando un establecimiento fuerte. ¿Qué más quieres saber de la siembra?", 
+        },
+        { 
+            pregunta: "¿Por qué se riega un día antes de sacar plantas del vivero?", 
+            respuesta: "¡Hola, qué gran duda! Facilita la extracción, reduce el estrés y evita daños a las raíces, especialmente si el clima es extremo durante el traslado a parcela. Una planta bien hidratada se adapta mejor al nuevo terreno, lista para crecer sana. ¿Qué otro cuidado te interesa?", 
+        },
+        { 
+            pregunta: "¿Cuándo se hace la poda de formación en el café?", 
+            respuesta: "¡Saludos, cultivador! Después de la primera poda de hojas secas, se hace según la altura, retirando ramas largas para dar forma a la planta. Esto mejora la estructura, facilita la cosecha y asegura una producción eficiente en los años siguientes. ¿Cómo puedo guiarte con la poda?", 
+        },
+        { 
+            pregunta: "¿Qué insecto perfora los frutos del café?", 
+            respuesta: "¡Hey, qué buena pregunta! La broca del café (Hypothenemus hampei) perfora los frutos, afectando la calidad si no se controla con fumigaciones o limpieza total. Identificarla y actuar rápido protege tu cosecha, manteniendo granos sanos y valiosos. ¿Qué otra plaga te preocupa?", 
+        },
+        { 
+            pregunta: "¿Qué enfermedad causa la roya en el café?", 
+            respuesta: "¡Hola, qué alegría charlar! La roya (Hemileia vastatrix) afecta las hojas, reduciendo la fotosíntesis y la producción si no usas plantas resistentes o fungicidas. Controlarla es clave para una parcela saludable, especialmente en climas húmedos donde prospera. ¿Qué más te interesa de las enfermedades?", 
+        },
+        { 
+            pregunta: "¿Qué se hace con los frutos verdes durante la cosecha?", 
+            respuesta: "¡Saludos, amigo del café! Déjalos en la planta para que maduren y crezcan, cosechándolos después para obtener granos de mejor tamaño y calidad. Esto maximiza el rendimiento y asegura un café superior, aprovechando al máximo cada temporada. ¿Qué otro paso de la cosecha te intriga?", 
+        },
+        { 
+            pregunta: "¿Por qué se separan los granos verdes, secos y maduros?", 
+            respuesta: "¡Qué gusto ayudarte! Para obtener un café de calidad, clasificando antes de la extracción y asegurando que solo los mejores granos pasen al proceso final. Esto mejora el sabor, la presentación y el valor, dándote un producto competitivo en el mercado. ¿Qué más necesitas para la selección?", 
+        },
+        { 
+            pregunta: "¿Qué ventajas tiene el método húmedo sobre el seco?", 
+            respuesta: "¡Hola, cultivador curioso! Da granos más uniformes y de mejor sabor al despulpar y lavar las semillas, siendo más higiénico que el secado al sol. Este proceso eleva la calidad del café, ideal para mercados exigentes que valoran aroma y presentación. ¿Qué método te gustaría probar?", 
+        },
+        { 
+            pregunta: "¿Qué textura debe tener el suelo para el café?", 
+            respuesta: "¡Saludos, qué buena consulta! Franco arcilloso arenoso, profundo y bien drenado, con hojarasca para nutrir y facilitar el crecimiento de las raíces de la planta. Esta textura equilibra agua y aire, clave para un cultivo sano y una cosecha abundante. ¿Qué más te interesa del suelo?", 
+        },
+        { 
+            pregunta: "¿Qué se usa para rellenar las camas del semillero?", 
+            respuesta: "¡Hey, qué alegría verte! Usa 60 cm de piedra grande, 20 cm de piedra pequeña y 20 cm de sustrato para drenaje y evitar hongos en los tallos. Esta estructura protege las plántulas y asegura un inicio sólido, libre de problemas de humedad. ¿Cómo puedo ayudarte con las camas?", 
+        },
+        { 
+            pregunta: "¿Por qué se revisa la humedad del sustrato en el vivero?", 
+            respuesta: "¡Hola, qué gusto charlar! Para ajustar los riegos y evitar encharcamientos o sequedad, regando diario o cada tres días según el clima y la temperatura. Esto mantiene las plantas hidratadas sin exceso, promoviendo un desarrollo saludable y resistente. ¿Qué más te preocupa del riego?", 
+        },
+        { 
+            pregunta: "¿Qué insecto se alimenta de las hojas del café?", 
+            respuesta: "¡Saludos, amigo! El minador de la hoja (Leocoptera coffeella) daña las hojas, afectando la fotosíntesis si no se controla con insecticidas o cuidados preventivos. Detectarlo temprano protege la salud de la planta, asegurando una producción estable y de calidad. ¿Qué otra plaga quieres conocer?", 
+        },
+        { 
+            pregunta: "¿Cómo se sabe si el agua para riego es adecuada?", 
+            respuesta: "¡Qué bueno verte por aquí! Debe estar limpia, de pozos o arroyos no contaminados, para evitar plagas y enfermedades que dañen las plantas del vivero. Agua pura es esencial para un crecimiento sano, libre de riesgos que afecten tu cultivo. ¿Qué más necesitas para los riegos?", 
+        },
+        { 
+            pregunta: "¿Qué altura influye en la calidad del grano de café?", 
+            respuesta: "¡Hola, qué gran duda! De 600 a 1500 metros sobre el nivel del mar, donde la altura mejora el tamaño, sabor y calidad del grano según la variedad. Esto define el carácter único de tu café, haciéndolo destacar en sabor y aroma. ¿Qué más te interesa de la altura?", 
+        },
+        { 
+            pregunta: "¿Qué se hace con las hojas secas en la primera poda?", 
+            respuesta: "¡Saludos, cultivador! Retíralas junto con las amarillas o plagadas para mantener la planta sana, haciendo esta poda inicial antes de la de formación. Esto elimina peso muerto y riesgos, preparando el café para un crecimiento vigoroso y productivo. ¿Cómo puedo guiarte con la poda?", 
+        },
+        { 
+            pregunta: "¿Por qué se usa una despulpadora en el método húmedo?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Quita la pulpa de la cereza manual o mecánicamente, facilitando la limpieza del mucílago y dejando semillas listas para secar. Este paso asegura granos más puros y uniformes, mejorando la calidad final del café procesado. ¿Qué más te intriga del método húmedo?", 
+        },
+        { 
+            pregunta: "¿Qué se hace después de despulpar el café en el método húmedo?", 
+            respuesta: "¡Hola, qué buena consulta! Coloca las semillas en una tina para retirar el mucílago, lávalas hasta que estén resbalosas y sin residuos, luego sécalas. Este proceso refina el grano, dándole un sabor limpio y una presentación ideal para el mercado. ¿Qué otro detalle necesitas?", 
+        },
+        { 
+            pregunta: "¿Cómo se mejora el drenaje en el semillero?", 
+            respuesta: "¡Saludos, amigo del café! Usa 60 cm de piedra grande y 20 cm de piedra pequeña bajo 20 cm de sustrato, con un 5% de pendiente en el terreno. Esto evita agua estancada y hongos, asegurando plántulas sanas desde el inicio del cultivo. ¿Qué más te gustaría ajustar?", 
+        },
+        { 
+            pregunta: "¿Qué variedad de café es más resistente a plagas?", 
+            respuesta: "¡Qué gusto charlar contigo! Las certificadas con alta producción y resistencia a la roya son ideales, según el manual, para minimizar riesgos de plagas y enfermedades. Elegirlas te da un cultivo más seguro y rentable, adaptado a tu zona. ¿Qué más quieres saber de las variedades?", 
+        },
+        { 
+            pregunta: "¿Por qué se poda después de la cosecha?", 
+            respuesta: "¡Hola, cultivador! Para no afectar la producción, retirando ramas largas o dañadas tras cosechar, dando forma y renovando la planta para la próxima temporada. Esto mantiene la salud y el rendimiento, evitando pérdidas en frutos futuros por cortes inoportunos. ¿Qué más te interesa de la poda?", 
+        },
+        { 
+            pregunta: "¿Qué enfermedad provoca manchas en las hojas del café?", 
+            respuesta: "¡Saludos, qué buena duda! La cercospora (Cercospora spp.) causa manchas, debilitando la planta si no se trata con fungicidas o prevención adecuada. Controlarla asegura hojas sanas, esenciales para la fotosíntesis y una cosecha robusta cada año. ¿Qué otra enfermedad te preocupa?", 
+        },
+        { 
+            pregunta: "¿Cómo se evita la competencia entre plantas de café?", 
+            respuesta: "¡Hey, qué alegría verte! Usa distancias como 1 x 2 m o triangulares según el porte, asegurando espacio para luz, agua y nutrientes sin superposición. Esto facilita el mantenimiento y maximiza la producción, evitando estrés entre las plantas adultas. ¿Qué diseño prefieres para tu parcela?", 
+        },
+        { 
+            pregunta: "¿Qué se usa para marcar los surcos en el trazado?", 
+            respuesta: "¡Hola, qué gusto ayudarte! Estacas de un metro, cinta métrica y rafia para trazar líneas rectas o triangulares, adaptadas al terreno y la variedad del café. Estas herramientas aseguran precisión, clave para un cultivo ordenado y eficiente desde el inicio. ¿Cómo puedo asistirte con el trazado?", 
+        },
+        { 
+            pregunta: "¿Por qué se aplana la tierra al sembrar en parcela?", 
+            respuesta: "¡Saludos, amigo! Para sacar el aire con los pies tras rellenar la cepa, ayudando a las raíces a absorber agua y nutrientes sin estrés ni huecos. Esto fortalece la planta en su nuevo lugar, asegurando un arraigo sólido y saludable. ¿Qué más te interesa de la siembra?", 
+        },
+        { 
+            pregunta: "¿Qué hacer si las bolsas del vivero se tapan?", 
+            respuesta: "¡Qué bueno verte por aquí! Perfóralas para drenar el agua y evitar encharcamientos, revisando la humedad para ajustar los riegos y mantener las plantas sanas. Un buen drenaje previene raíces podridas, asegurando un vivero fuerte y listo para trasplantar. ¿Qué otro tip necesitas?", 
+        },
+        { 
+            pregunta: "¿Qué beneficios tiene un grano uniforme en el café?", 
+            respuesta: "¡Hola, qué gran consulta! Mejora el sabor, olor y presentación, como en el método húmedo, aumentando el valor del café en mercados que buscan calidad premium. Un grano consistente destaca tu producto, atrayendo compradores y asegurando mejores ganancias. ¿Qué más te gustaría mejorar en el grano?", 
+        },
+        { 
+            pregunta: "¿Cómo afecta el clima extremo al traslado de plantas?", 
+            respuesta: "¡Saludos, cultivador! Temperaturas extremas queman las hojas y estresan las plantas del vivero a la parcela, por eso se riega antes y se elige un día adecuado. Planificar el traslado protege tu cultivo, asegurando que lleguen en buen estado. ¿Qué más te preocupa del traslado?", 
+        },
+        { 
+            pregunta: "¿Qué enfermedad provoca antracnosis en el café?", 
+            respuesta: "¡Hey, qué alegría charlar! La antracnosis (Colletotrichum gloeosporioides) afecta frutos y hojas, reduciendo la cosecha si no se previene con fungicidas o plantas sanas. Controlarla mantiene la calidad y cantidad de granos, esencial para un cultivo rentable. ¿Qué otra enfermedad quieres conocer?", 
+        },
+        { 
+            pregunta: "¿Por qué se usan camas con malla para secar el café?", 
+            respuesta: "¡Hola, qué buena duda! Permiten ventilación en el método húmedo, acelerando el secado y dando granos uniformes de mejor calidad, sabor y presentación al sol. Este diseño optimiza el proceso, evitando moho y asegurando un café listo para destacar. ¿Qué más te interesa del secado?", 
+        },
+        { 
+            pregunta: "¿Qué se hace con las ramas largas en la poda de formación?", 
+            respuesta: "¡Saludos, amigo del café! Retíralas según la altura para dar forma a la planta, mejorando la estructura y facilitando la cosecha en años futuros. Una poda bien hecha renueva el café, asegurando frutos accesibles y una producción eficiente. ¿Cómo puedo ayudarte con la formación?", 
+        },
+        { 
+            pregunta: "¿Qué insectos además de la broca afectan los frutos del café?", 
+            respuesta: "¡Qué gusto verte! Pulgones, trips, orugas y cochinillas también dañan frutos u hojas, requiriendo vigilancia y fumigaciones para proteger la calidad de la cosecha. Controlarlos asegura granos sanos y valiosos, manteniendo tu parcela libre de amenazas. ¿Qué más quieres saber de los insectos?", 
+        },{ 
+            pregunta: "¿Cómo puedo saber si mi suelo tiene suficientes nutrientes para el café?", 
+            respuesta: "¡Hola, qué gusto ayudarte! Realiza un análisis de suelo en un laboratorio agrícola para medir nitrógeno, fósforo y potasio, esenciales para el café. Si faltan, aplica fertilizantes orgánicos o químicos según los resultados. Esto asegura un crecimiento vigoroso, mejora la floración y aumenta la calidad del grano para una cosecha rentable. ¿Qué más te gustaría analizar en tu terreno?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café no florecen a tiempo?", 
+            respuesta: "¡Saludos, amigo cafetero! Revisa el riego, la sombra y los nutrientes; poca agua o exceso de sol pueden retrasar la floración. Aplica un fertilizante rico en fósforo y espera lluvias. Esto estimula las yemas florales, corrigiendo el ciclo natural y asegurando frutos en la próxima temporada. ¿Qué otro problema has notado en tus plantas?", 
+        },
+        { 
+            pregunta: "¿Cómo protejo mi cafetal de fuertes vientos?", 
+            respuesta: "¡Hey, qué buena duda! Planta cortinas rompevientos como árboles altos (eucalipto o pino) alrededor de la parcela para reducir la velocidad del viento. También usa estacas temporales en plantas jóvenes. Esto evita ramas rotas y estrés, manteniendo la estabilidad y salud de tu cultivo en días ventosos. ¿Cómo puedo apoyarte con el clima?", 
+        },
+        { 
+            pregunta: "¿Qué herramientas básicas necesito para mantener mi cafetal?", 
+            respuesta: "¡Hola, qué alegría charlar! Compra machete, tijeras de podar, azadón, rastrillo y una mochila aspersora para fertilizantes o pesticidas. Son esenciales para poda, limpia y fumigación diaria. Estas herramientas facilitan el manejo, ahorran tiempo y aseguran un cafetal bien cuidado para una producción constante. ¿Qué herramienta te falta por conseguir?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que los pájaros coman mis frutos de café?", 
+            respuesta: "¡Saludos, cultivador! Usa redes protectoras sobre las plantas o espantapájaros con cintas reflectantes que se muevan con el viento para ahuyentar aves sin dañarlas. Esto protege tu cosecha, especialmente en maduración, asegurando que más frutos lleguen a tu beneficio sin pérdidas. ¿Qué otros animales te preocupan en la parcela?", 
+        },
+        { 
+            pregunta: "¿Qué hago si llueve demasiado y mi terreno se inunda?", 
+            respuesta: "¡Qué bueno verte por aquí! Construye canales de drenaje alrededor de la parcela y eleva las cepas con tierra para evitar encharcamientos que pudran las raíces. Monitorea el clima y actúa rápido. Esto salva tus plantas de asfixia, manteniendo la productividad incluso en temporadas muy húmedas. ¿Qué más necesitas para el manejo del agua?", 
+        },
+        { 
+            pregunta: "¿Cómo calculo los costos de iniciar un cafetal?", 
+            respuesta: "¡Hola, qué gran consulta! Suma el precio de semillas, fertilizantes, herramientas, mano de obra y preparación del terreno; estima unos $2000-$3000 por hectárea según tu región. Considera 6 años sin cosecha. Esto te da un panorama claro para planificar tu inversión y buscar financiamiento si es necesario. ¿Qué costos te gustaría detallar más?", 
+        },
+        { 
+            pregunta: "¿Qué hago con el café que no se vende después de la cosecha?", 
+            respuesta: "¡Saludos, amigo! Almacénalo en sacos de yute en un lugar seco y ventilado, o tuéstalo para venderlo localmente como café artesanal a pequeños comercios. Esto evita pérdidas, diversifica ingresos y aprovecha el grano mientras buscas nuevos mercados para colocarlo. ¿Qué ideas tienes para comercializarlo?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café es de buena calidad para vender?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Evalúa el tamaño, color y uniformidad del grano; haz una cata para probar sabor y aroma, comparándolo con estándares de exportación. Un café dulce y equilibrado tiene más valor. Esto te ayuda a clasificarlo y negociar mejores precios en el mercado. ¿Qué te gustaría mejorar en tu grano?", 
+        },
+        { 
+            pregunta: "¿Qué fertilizante orgánico es mejor para el café?", 
+            respuesta: "¡Hola, cultivador curioso! El compost de estiércol de gallina o vaca, mezclado con cáscaras de café, aporta nitrógeno y materia orgánica ideal para el crecimiento. Aplícalo cada 3 meses. Esto enriquece el suelo naturalmente, mejora la estructura y reduce costos frente a químicos sintéticos. ¿Qué abonos has probado ya?", 
+        },
+        { 
+            pregunta: "¿Cómo controlo las hormigas en mi cafetal?", 
+            respuesta: "¡Saludos, qué buena duda! Usa trampas con cebo de azúcar y bórax cerca de los nidos, o aplica ceniza alrededor de las plantas para repelerlas sin pesticidas fuertes. Esto protege las hojas y frutos, manteniendo el equilibrio del ecosistema en tu parcela cafetera. ¿Qué otras plagas has visto por ahí?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen hojas pequeñas?", 
+            respuesta: "¡Qué gusto charlar contigo! Puede ser falta de nitrógeno o agua; aplica un fertilizante rico en nitrógeno y asegura riego constante sin encharcar el suelo. Esto estimula el crecimiento foliar, fortaleciendo la planta para una mejor fotosíntesis y producción futura. ¿Qué cambios has notado en tus plantas?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo financiamiento para mi cafetal?", 
+            respuesta: "¡Hola, qué gran idea! Busca créditos agrícolas en bancos locales, cooperativas o programas gubernamentales para pequeños productores; prepara un plan con costos y proyecciones. Esto te da capital inicial, cubriendo gastos hasta la primera cosecha en 6 años con apoyo financiero. ¿Qué opciones tienes cerca?", 
+        },
+        { 
+            pregunta: "¿Qué hago si el precio del café baja mucho?", 
+            respuesta: "¡Saludos, amigo cafetero! Diversifica vendiendo café tostado o en productos como jabones, o espera mejores precios almacenando el grano en condiciones óptimas. Esto reduce pérdidas, abre nuevos mercados y te da flexibilidad frente a fluctuaciones del mercado global. ¿Qué estrategias has considerado?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el sol queme las hojas de mis plantas jóvenes?", 
+            respuesta: "¡Hey, qué buena consulta! Usa mallas de sombra al 50% o plantas temporales como plátano para protegerlas hasta que crezcan árboles definitivos en la parcela. Esto evita quemaduras, mantiene la humedad y asegura un desarrollo sano en las primeras etapas. ¿Qué sombra estás usando ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si encuentro gusanos en las raíces de mi café?", 
+            respuesta: "¡Hola, qué alegría ayudarte! Aplica un nematicida orgánico como neem o retira las plantas afectadas, revisando el suelo para evitar que se propaguen a otras. Esto protege las raíces, esenciales para la absorción de nutrientes, y salva tu cultivo de daños mayores. ¿Qué más has visto en el suelo?", 
+        },
+        { 
+            pregunta: "¿Cómo mejoro el sabor de mi café?", 
+            respuesta: "¡Saludos, cultivador! Cuida la altura (1000-1500 m), usa suelos ricos y cosecha solo frutos maduros; el proceso húmedo también realza notas dulces y afrutadas. Esto eleva la calidad organoléptica, haciendo tu café más competitivo y atractivo para compradores exigentes. ¿Qué sabor buscas destacar?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis trabajadores no saben podar bien?", 
+            respuesta: "¡Qué bueno verte por aquí! Capacítalos con un experto local o videos, enseñando cortes limpios en ramas secas o largas sin dañar yemas productivas. Esto mejora la técnica, asegura podas efectivas y mantiene la salud de las plantas para una buena cosecha. ¿Qué más necesitan aprender?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se fermente mal en el método húmedo?", 
+            respuesta: "¡Hola, qué gran duda! Controla el tiempo de fermentación (12-24 horas según clima) y lava bien las semillas hasta que no estén viscosas, secándolas rápido. Esto evita sabores agrios, asegurando un grano limpio y de calidad superior para el mercado. ¿Qué problemas has tenido al procesar?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene muchas malezas difíciles de quitar?", 
+            respuesta: "¡Saludos, amigo! Usa un herbicida selectivo seguro para café o corta manualmente con machete, cubriendo el suelo con mulch para evitar que crezcan más. Esto reduce la competencia por nutrientes, manteniendo tus plantas fuertes y productivas sin tanto esfuerzo. ¿Qué malezas predominan en tu parcela?", 
+        },
+        { 
+            pregunta: "¿Cómo sé cuándo es el mejor momento para vender mi café?", 
+            respuesta: "¡Hey, qué alegría charlar! Monitorea precios internacionales y locales tras la cosecha (septiembre-marzo); vende cuando suban o busca compradores directos para mejor ganancia. Esto maximiza tu ingreso, aprovechando picos de demanda y evitando vender a precios bajos. ¿Qué mercado te interesa más?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un olor raro después de secarlo?", 
+            respuesta: "¡Hola, cultivador curioso! Revisa si se secó bien; humedad alta causa moho. Extiéndelo más tiempo al sol o usa un secador mecánico para corregirlo. Esto salva el lote, evitando pérdidas y asegurando un aroma agradable que atraiga compradores. ¿Qué notas has detectado?", 
+        },
+        { 
+            pregunta: "¿Cómo protejo mi cafetal de heladas inesperadas?", 
+            respuesta: "¡Saludos, qué buena consulta! Cubre plantas jóvenes con tela o plástico durante la noche y usa fogatas pequeñas para calentar el aire si la temperatura cae mucho. Esto evita daños por frío, protegiendo brotes y hojas en climas impredecibles de invierno. ¿Qué clima tienes ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si no tengo suficiente agua para regar en sequía?", 
+            respuesta: "¡Qué gusto ayudarte! Instala un sistema de captación de lluvia o usa mulch orgánico (hojas secas) para retener humedad en el suelo y reducir evaporación. Esto mantiene las plantas hidratadas, incluso con poca agua, asegurando su supervivencia hasta las lluvias. ¿Qué recursos tienes cerca?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que los roedores dañen mis plantas de café?", 
+            respuesta: "¡Hola, qué gran idea! Coloca trampas no tóxicas o usa plantas repelentes como menta alrededor de la parcela; mantén el terreno limpio de restos de frutos. Esto protege tallos y raíces, evitando pérdidas por roedores sin afectar el ecosistema del cafetal. ¿Qué animales has visto rondando?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café no tiene buen tamaño de grano?", 
+            respuesta: "¡Saludos, amigo cafetero! Aumenta nutrientes como potasio y magnesio en el suelo, y cosecha en el pico de madurez para granos más grandes y uniformes. Esto mejora la calidad visual y el peso, haciéndolo más atractivo para compradores exigentes. ¿Qué tamaño buscas lograr?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo clientes para vender mi café localmente?", 
+            respuesta: "¡Hey, qué alegría verte! Ofrece muestras a cafeterías, tiendas o mercados cercanos; crea una marca sencilla y usa redes sociales para promocionarlo entre vecinos. Esto construye una base de clientes fieles, aprovechando la demanda local por café fresco y artesanal. ¿Qué canales has probado?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café crecen muy despacio?", 
+            respuesta: "¡Hola, qué buena duda! Revisa pH (5.2-6.3), aplica fertilizante balanceado y asegura sombra adecuada; el estrés por sol o suelo pobre retrasa el crecimiento. Esto acelera su desarrollo, preparándolas para producir más rápido y con mejor vigor en el futuro. ¿Qué has notado en su progreso?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se contamine con químicos cercanos?", 
+            respuesta: "¡Saludos, cultivador! Crea barreras vegetales (arbustos) entre tu parcela y cultivos vecinos con pesticidas, y usa solo agua limpia para riego y procesamiento. Esto protege la pureza del grano, manteniendo su calidad natural y segura para el consumo. ¿Qué cultivos tienes alrededor?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene muchas ramas secas?", 
+            respuesta: "¡Qué gusto charlar contigo! Pódalas con tijeras limpias, revisa riego y nutrientes; la sequía o falta de potasio pueden causarlas, debilitando la planta. Esto renueva el cafeto, mejora la circulación de aire y prepara una estructura sana para la próxima floración. ¿Qué más has visto en las ramas?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café está listo para exportar?", 
+            respuesta: "¡Hola, qué gran consulta! Verifica que cumpla normas de tamaño (grano 16/18), humedad (10-12%) y cata (más de 80 puntos); contacta un certificador local. Esto asegura que compita en mercados internacionales, abriendo puertas a mejores precios y clientes. ¿Qué certificación te interesa?", 
+        },
+        { 
+            pregunta: "¿Qué hago si el terreno tiene muchas piedras grandes?", 
+            respuesta: "¡Saludos, amigo! Retíralas manualmente o con maquinaria ligera antes de trazar, nivelando el suelo para facilitar cepas y drenaje sin dañar las raíces. Esto crea un espacio uniforme, ideal para el crecimiento del café y un manejo más sencillo. ¿Qué obstáculos tienes en tu terreno?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que los niños o mascotas dañen mi cafetal?", 
+            respuesta: "¡Hey, qué buena idea! Instala cercas bajas de madera o malla alrededor de la parcela y educa a la familia sobre no pisar las plantas jóvenes. Esto protege tu inversión, manteniendo las plántulas seguras mientras crecen sin interrupciones accidentales. ¿Qué medidas has tomado ya?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor amargo fuerte?", 
+            respuesta: "¡Hola, cultivador curioso! Puede ser por cosecha tardía o secado lento; recoge frutos en su punto y usa secado uniforme para equilibrar acidez y dulzura. Esto mejora el perfil, haciéndolo más agradable y competitivo frente a otros cafés del mercado. ¿Qué sabores has probado?", 
+        },
+        { 
+            pregunta: "¿Cómo controlo el polvo en mi cafetal durante la sequía?", 
+            respuesta: "¡Saludos, qué alegría ayudarte! Cubre el suelo con mulch de hojas o cáscaras y riega ligeramente las áreas secas para asentar el polvo sin desperdiciar agua. Esto protege las plantas del estrés, mejora la humedad y mantiene un ambiente limpio en la parcela. ¿Qué condiciones tienes ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si no tengo suficiente mano de obra para la cosecha?", 
+            respuesta: "¡Qué bueno verte por aquí! Contrata trabajadores temporales de comunidades cercanas o usa máquinas recolectoras pequeñas si el presupuesto lo permite; prioriza frutos maduros. Esto asegura que no pierdas la cosecha, recolectando a tiempo y manteniendo la calidad del grano. ¿Qué recursos tienes disponibles?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se queme durante el tueste?", 
+            respuesta: "¡Hola, qué gran duda! Tuesta a temperatura media (180-200°C), removiendo constantemente en un tambor o sartén, y enfría rápido al alcanzar el color deseado. Esto da un tueste uniforme, preservando el sabor y aroma sin notas quemadas que bajen su calidad. ¿Qué equipo usas para tostar?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal está en una zona con mucho smog?", 
+            respuesta: "¡Saludos, amigo cafetero! Planta árboles purificadores como cedro alrededor y lava las hojas con agua limpia para quitar partículas; vigila la salud de las plantas. Esto reduce el impacto de la contaminación, protegiendo la fotosíntesis y la calidad del grano. ¿Qué tan cerca estás de la ciudad?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café es orgánico para certificarlo?", 
+            respuesta: "¡Hey, qué alegría charlar! Confirma que no usas químicos sintéticos, solo abonos y pesticidas naturales, y solicita una inspección a una certificadora orgánica local. Esto valida tu proceso, abriendo mercados premium que pagan más por café sostenible y natural. ¿Qué prácticas orgánicas sigues?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas tienen frutos pequeños y pocos?", 
+            respuesta: "¡Hola, qué buena consulta! Aumenta el potasio y fósforo con fertilizantes, poda ramas sobrantes y asegura polinización con abejas o viento en la floración. Esto estimula frutos más grandes y abundantes, mejorando el rendimiento por planta en cada cosecha. ¿Qué has notado en la floración?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda humedad al almacenarlo?", 
+            respuesta: "¡Saludos, cultivador! Usa sacos herméticos o silos con control de humedad (10-12%) en un lugar fresco y seco, revisando periódicamente para evitar resequedad excesiva. Esto preserva la frescura y calidad, manteniendo el grano listo para vender en cualquier momento. ¿Dónde guardas tu café ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi parcela tiene sombra desigual?", 
+            respuesta: "¡Qué gusto ayudarte! Planta árboles estratégicamente en zonas soleadas o usa mallas temporales para equilibrar la sombra al 50%, ajustándola según el crecimiento del café. Esto uniforma las condiciones, asegurando un desarrollo consistente y frutos de buena calidad. ¿Qué áreas tienen más sol?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un mejor precio por mi café?", 
+            respuesta: "¡Hola, qué gran idea! Certifícalo como orgánico o de especialidad, vende directo a tostadores o únete a una cooperativa para negociar en grupo con compradores. Esto eleva el valor, conectándote con mercados que pagan más por calidad y origen único. ¿Qué contactos tienes para vender?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen manchas blancas?", 
+            respuesta: "¡Saludos, amigo! Podría ser mildiu; aplica un fungicida a base de cobre y mejora la ventilación podando ramas densas para reducir humedad en las hojas. Esto elimina la infección, protegiendo la salud de la planta y evitando pérdidas en la producción. ¿Qué otros síntomas has visto?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se moje durante lluvias al secarlo?", 
+            respuesta: "¡Hey, qué alegría verte! Usa un secador mecánico o cubre las camas con lonas impermeables durante la lluvia, destapándolas cuando salga el sol para terminar. Esto asegura un secado uniforme, evitando moho y manteniendo la calidad del grano intacta. ¿Qué método usas para secar?", 
+        },
+        { 
+            pregunta: "¿Qué hago si no tengo experiencia en catar café?", 
+            respuesta: "¡Hola, cultivador curioso! Toma un curso básico con un catador local o sigue guías en línea para oler, probar y evaluar acidez, cuerpo y aroma del grano. Esto te enseña a identificar fortalezas, mejorando tu capacidad para clasificar y vender a buen precio. ¿Qué te gustaría aprender primero?", 
+        },
+        { 
+            pregunta: "¿Cómo controlo el mal olor en el compost para el café?", 
+            respuesta: "¡Saludos, qué buena duda! Voltea el compost cada semana y mezcla con material seco como paja para oxigenarlo, evitando anaerobios que causan hedor fuerte. Esto produce un abono limpio y efectivo, ideal para nutrir tu cafetal sin molestias. ¿Qué usas en tu compost?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal está cerca de una carretera polvorienta?", 
+            respuesta: "¡Qué gusto charlar contigo! Planta una barrera de arbustos densos como hibisco y riega las hojas para quitar polvo, protegiendo la fotosíntesis de las plantas. Esto mantiene el café sano, libre de partículas que afecten su crecimiento y calidad del grano. ¿Qué tan cerca está la carretera?", 
+        },{ 
+            pregunta: "¿Cómo evito que el café absorba olores extraños al almacenarlo?", 
+            respuesta: "¡Hola, qué alegría verte! Guarda el grano en sacos de yute o contenedores sellados, lejos de especias, combustible o químicos, en un lugar limpio y ventilado. Esto preserva su aroma natural, evitando que sabores ajenos bajen su calidad y afecten su valor en el mercado. ¿Dónde almacenas tu café ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen raíces expuestas?", 
+            respuesta: "¡Saludos, amigo cafetero! Cubre las raíces con tierra suelta y mulch orgánico para protegerlas del sol y la erosión; revisa el drenaje para evitar lavado. Esto las mantiene sanas, asegurando absorción de nutrientes y estabilidad para un crecimiento fuerte. ¿Qué causó la exposición?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi cafetal necesita más sombra?", 
+            respuesta: "¡Hey, qué buena duda! Observa si las hojas se queman o las plantas crecen lentas; idealmente, debe haber 50-60% de sombra para mantener humedad y evitar estrés. Ajusta con árboles o mallas. Esto mejora la salud y calidad del grano en climas soleados. ¿Cuánta sombra tienes ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si el café se seca demasiado rápido al procesarlo?", 
+            respuesta: "¡Qué gusto charlar contigo! Reduce la exposición directa al sol usando camas cubiertas parcialmente y revisa la humedad (10-12%) con un medidor para no pasarte. Esto evita granos quebradizos, preservando textura y sabor para un producto de mayor calidad. ¿Qué método de secado usas?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que las lluvias retrasen mi cosecha?", 
+            respuesta: "¡Hola, cultivador curioso! Planifica recolectar frutos maduros entre lluvias, usa lonas para cubrirlos temporalmente y trasládalos rápido a un lugar seco para procesar. Esto asegura que no pierdas calidad ni cantidad, adaptándote a días húmedos sin complicaciones. ¿Cómo manejas la lluvia ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor ácido excesivo?", 
+            respuesta: "¡Saludos, qué gran consulta! Cosecha frutos más maduros (rojos) y controla el tiempo de fermentación en el método húmedo para suavizar la acidez natural. Esto equilibra el perfil, haciéndolo más agradable y atractivo para quienes prefieren sabores menos intensos. ¿Qué notas has detectado?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo abejas para polinizar mi cafetal?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Instala colmenas cerca con un apicultor local o planta flores silvestres (lavanda, girasoles) para atraer abejas naturalmente y mejorar la polinización. Esto aumenta la cantidad y calidad de frutos, elevando tu producción sin costo extra. ¿Qué polinizadores ves en tu parcela?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno es muy arcilloso para el café?", 
+            respuesta: "¡Hola, qué buena idea! Mezcla arena y materia orgánica (compost) para mejorar el drenaje y la textura, evitando que el agua se estanque y dañe las raíces. Esto adapta el suelo, haciéndolo más apto para un crecimiento saludable del café a largo plazo. ¿Qué has intentado ya?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que los perros callejeros dañen mi vivero?", 
+            respuesta: "¡Saludos, amigo! Instala una cerca de malla o alambre alrededor del vivero y usa repelentes naturales como cáscaras de cítricos para mantenerlos alejados sin dañarlos. Esto protege las plántulas jóvenes, asegurando que crezcan sin interrupciones ni pisoteos accidentales. ¿Qué animales frecuentan tu zona?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene granos huecos o vacíos?", 
+            respuesta: "¡Qué gusto verte por aquí! Puede ser por falta de polinización o nutrientes; fomenta abejas y aplica boro o zinc al suelo para mejorar la formación del grano. Esto asegura frutos llenos y pesados, aumentando el rendimiento y la calidad de tu cosecha. ¿Qué has notado en los frutos?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi cafetal está listo para una poda fuerte?", 
+            respuesta: "¡Hola, qué gran duda! Si las plantas tienen más de 5 años, ramas densas o baja producción, haz una poda de renovación cortando tallos viejos a 30 cm. Esto rejuvenece el cafeto, estimulando nuevos brotes y recuperando el vigor para futuras cosechas. ¿Qué edad tienen tus plantas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si el agua de riego tiene mal olor?", 
+            respuesta: "¡Saludos, cultivador! Filtra el agua con carbón o déjala reposar al sol para eliminar olores y contaminantes; usa solo fuentes limpias como pozos profundos. Esto protege las plantas de bacterias, asegurando un riego sano y un café libre de sabores raros. ¿De dónde viene tu agua?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se contamine con tierra al cosechar?", 
+            respuesta: "¡Hey, qué alegría charlar! Usa lonas o canastas limpias bajo las plantas al recolectar y lava los frutosすぐ después para quitar polvo o barro adherido. Esto mantiene la pureza del grano, mejorando su presentación y calidad para el procesamiento final. ¿Cómo recolectas ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen tallos débiles?", 
+            respuesta: "¡Hola, qué buena consulta! Aplica calcio y potasio al suelo, y evita exceso de agua; poda ramas pesadas para reducir la carga en los tallos jóvenes. Esto fortalece la estructura, previniendo caídas y asegurando un soporte sólido para los frutos. ¿Qué has visto en los tallos?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un seguro para mi cafetal?", 
+            respuesta: "¡Saludos, amigo cafetero! Contacta compañías agrícolas o cooperativas que ofrezcan seguros contra sequías, plagas o tormentas; presenta tu plan de cultivo y tamaño de parcela. Esto protege tu inversión, dándote tranquilidad ante imprevistos que afecten la producción. ¿Qué riesgos te preocupan más?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café no tiene buen aroma después de tostarlo?", 
+            respuesta: "¡Qué gusto ayudarte! Usa granos frescos, tuesta a temperatura media (190°C) y enfría rápido; un secado o almacenamiento malo puede afectar el aroma original. Esto resalta las notas naturales, haciendo tu café más atractivo para los consumidores locales o externos. ¿Qué aromas buscas?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se fermente durante el transporte?", 
+            respuesta: "¡Hola, cultivador curioso! Transporta los frutos en sacos ventilados y procesa rápido tras la cosecha; evita apilarlos mucho para que no se calienten. Esto previene fermentación indeseada, manteniendo la calidad del grano desde la parcela hasta el beneficiado. ¿Cómo trasladas tu café?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi parcela tiene pendientes muy pronunciadas?", 
+            respuesta: "¡Saludos, qué gran idea! Haz terrazas o curvas de nivel con piedras y planta en contornos para reducir erosión y facilitar el manejo de las cepas. Esto estabiliza el terreno, protege las raíces y asegura un cultivo uniforme en zonas inclinadas. ¿Qué tan empinada es tu parcela?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café es apto para competencias?", 
+            respuesta: "¡Hey, qué alegría verte! Necesita más de 85 puntos en cata (dulce, afrutado, limpio), granos uniformes y proceso impecable; consulta un catador certificado para evaluarlo. Esto lo pone en el rango de especialidad, destacándote entre productores de élite. ¿Qué premios te gustaría ganar?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene muchas flores pero pocos frutos?", 
+            respuesta: "¡Hola, qué buena duda! Puede ser poca polinización o estrés hídrico; fomenta abejas y riega consistentemente durante la floración para mejorar la cuaja de frutos. Esto convierte más flores en granos, aumentando tu cosecha y aprovechando el potencial de la planta. ¿Qué has visto en la floración?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que los niños jueguen con las herramientas del cafetal?", 
+            respuesta: "¡Saludos, amigo! Guarda las herramientas en un cobertizo con candado y explica a los niños los riesgos de usarlas; pon letreros de advertencia si es necesario. Esto mantiene todo seguro, evitando accidentes y asegurando que el equipo esté listo para trabajar. ¿Qué medidas has tomado?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un color disparejo después de secarlo?", 
+            respuesta: "¡Qué gusto charlar contigo! Remueve los granos constantemente al secar y separa los verdes o dañados antes; usa un secador si el sol es irregular. Esto da uniformidad, mejorando la presentación y el valor del café en el mercado local o externo. ¿Qué colores has notado?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo repuestos para mi despulpadora manual?", 
+            respuesta: "¡Hola, qué gran consulta! Contacta al fabricante o busca talleres agrícolas locales que reparen maquinaria; pide piezas como discos o manivelas con anticipación. Esto mantiene tu equipo funcional, asegurando un procesamiento eficiente tras cada cosecha sin retrasos. ¿Qué marca usas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene demasiada humedad en el suelo?", 
+            respuesta: "¡Saludos, cultivador! Mejora el drenaje con zanjas laterales y reduce riegos; usa mulch para controlar evaporación y evitar que las raíces se pudran por exceso. Esto equilibra la humedad, protegiendo las plantas y manteniendo un suelo sano para el cultivo. ¿Qué tan húmedo está ahora?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda valor por mal empaque?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Usa sacos de yute con forro plástico o bolsas selladas con válvula para exportación, etiquetando origen y fecha claramente. Esto preserva frescura y calidad, impresionando a compradores y justificando un mejor precio en el mercado. ¿Qué empaque usas actualmente?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen hojas arrugadas?", 
+            respuesta: "¡Hola, qué buena idea! Puede ser deshidratación o ácaros; riega más y aplica azufre en polvo si ves plagas bajo las hojas, revisando regularmente. Esto restaura la salud foliar, asegurando fotosíntesis eficiente y un desarrollo robusto de la planta. ¿Qué más has observado?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi cafetal es rentable a largo plazo?", 
+            respuesta: "¡Saludos, amigo cafetero! Calcula ingresos por cosecha (kg x precio) menos costos anuales; si cubre gastos y deja ganancia tras 6 años, es viable. Esto te da claridad financiera, ajustando estrategias para maximizar beneficios con el tiempo. ¿Qué números estás manejando?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor terroso?", 
+            respuesta: "¡Qué gusto verte por aquí! Lava bien los frutos tras cosechar y seca en camas elevadas, no en suelo directo, para evitar que absorba tierra o humedad. Esto limpia el sabor, resaltando notas naturales y evitando defectos que bajen su calidad. ¿Qué proceso sigues ahora?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se dañe por humedad alta al guardarlo?", 
+            respuesta: "¡Hola, qué gran duda! Usa un deshumidificador en el almacén o pon sílice en los sacos para absorber humedad, manteniendo el grano al 10-12% ideal. Esto previene moho, conservando sabor y calidad hasta que lo vendas o proceses después. ¿Qué condiciones tiene tu almacén?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen brotes que no crecen?", 
+            respuesta: "¡Saludos, cultivador curioso! Podría ser falta de nitrógeno o daño por frío; aplica fertilizante foliar y protege con sombra o tela en noches frías. Esto estimula el crecimiento, asegurando que los brotes se desarrollen en ramas productivas para la próxima cosecha. ¿Qué has notado en los brotes?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un mercado internacional para mi café?", 
+            respuesta: "¡Hey, qué alegría charlar! Contacta exportadores locales, asiste a ferias cafeteras o usa plataformas online como Fairtrade para conectar con compradores extranjeros directamente. Esto amplía tu alcance, consiguiendo mejores precios y clientes que valoren tu grano único. ¿Qué países te interesan?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un olor a moho?", 
+            respuesta: "¡Hola, qué buena consulta! Revisa si se secó mal; desecha granos mohosos y seca el resto en un lugar ventilado, evitando almacenarlo húmedo otra vez. Esto salva el lote, eliminando defectos y recuperando un aroma limpio para la venta. ¿Dónde lo secaste?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que las tormentas tumben mis plantas jóvenes?", 
+            respuesta: "¡Saludos, amigo! Usa tutores de madera o bambú para sostenerlas y planta cortavientos como bananos en las zonas más expuestas al viento fuerte. Esto las estabiliza, protegiéndolas de caídas y asegurando su crecimiento en condiciones adversas. ¿Qué tan fuertes son tus tormentas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene muchas plantas enfermas juntas?", 
+            respuesta: "¡Qué gusto ayudarte! Identifica la enfermedad (roya, antracnosis) y aplica fungicida; arranca las más dañadas para evitar contagio y revisa el drenaje o sombra. Esto contiene el problema, salvando el resto y manteniendo la producción de tu parcela intacta. ¿Qué síntomas predominan?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene buena acidez para el mercado?", 
+            respuesta: "¡Hola, cultivador curioso! Haz una cata: una acidez brillante y frutal (limón, manzana) es ideal; si es plana, ajusta altura o cosecha. Esto atrae compradores gourmet, elevando el valor de tu café en mercados que buscan perfiles distintivos. ¿Qué sabor quieres resaltar?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno tiene animales que comen las raíces?", 
+            respuesta: "¡Saludos, qué gran duda! Usa trampas humanas o cercas subterráneas para topos o roedores, y aplica repelentes naturales como ajo alrededor de las cepas. Esto protege las raíces, esenciales para el crecimiento, evitando pérdidas en tu cafetal joven. ¿Qué animales has identificado?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se quiebre al procesarlo?", 
+            respuesta: "¡Hey, qué alegría verte! Seca lentamente al sol o con aire tibio, manteniendo humedad al 10-12%, y evita manipularlo mucho antes de enfriarlo por completo. Esto preserva la integridad del grano, asegurando una textura sólida y atractiva para la venta. ¿Qué equipo usas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene un mal olor general?", 
+            respuesta: "¡Hola, qué buena idea! Revisa si hay frutos podridos o agua estancada; limpia bien y mejora el drenaje con zanjas para eliminar fuentes de hedor. Esto refresca la parcela, creando un ambiente sano para las plantas y los trabajadores diariamente. ¿Qué has olido últimamente?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo energía para un secador en una zona rural?", 
+            respuesta: "¡Saludos, amigo cafetero! Instala paneles solares pequeños o usa un generador a gasolina portátil para alimentar el secador en áreas sin electricidad cercana. Esto asegura un secado eficiente, mejorando la calidad del grano sin depender de la red eléctrica. ¿Qué energía tienes disponible?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café no tiene buen cuerpo en la taza?", 
+            respuesta: "¡Qué gusto charlar contigo! Usa granos de mayor altura (1200+ m), procesa con método húmedo y tuesta medio para resaltar densidad y textura en el sabor. Esto da una bebida robusta, apreciada por catadores y clientes que buscan profundidad. ¿Qué cuerpo buscas?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se ensucie con polvo al transportarlo?", 
+            respuesta: "¡Hola, qué gran consulta! Cubre los sacos con lonas limpias y usa vehículos cerrados o con toldo; limpia los frutos antes de embolsarlos si es posible. Esto mantiene la pureza, evitando que el polvo afecte la calidad del grano en el camino. ¿Cómo trasladas tu cosecha?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen pocas ramas?", 
+            respuesta: "¡Saludos, cultivador! Aplica un fertilizante con nitrógeno y poda ligeramente las puntas para estimular brotes laterales, revisando que tengan luz y agua suficiente. Esto fomenta más ramas, aumentando la superficie para frutos y mejorando la producción futura. ¿Qué has probado ya?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene potencial para ser de especialidad?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Busca granos grandes, sin defectos, y un puntaje de cata sobre 84; la altura y el proceso influyen mucho en su perfil único. Esto lo posiciona como premium, abriendo mercados de alta gama con mejores precios. ¿Qué características tiene tu café?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos muy ácidos?", 
+            respuesta: "¡Hola, qué buena duda! Aplica cal agrícola o ceniza de madera para subir el pH a 5.2-6.3, mezclándola bien y analizando el suelo tras unos meses. Esto corrige la acidez, optimizando la absorción de nutrientes y el crecimiento sano del café. ¿Qué pH tienes ahora?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda peso al almacenarlo?", 
+            respuesta: "¡Saludos, amigo! Mantén la humedad al 10-12% con un higrómetro y usa silos sellados para evitar que se reseque o absorba agua del ambiente. Esto conserva el peso original, asegurando que vendas el volumen exacto sin pérdidas inesperadas. ¿Cómo controlas la humedad?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen frutos que caen antes de madurar?", 
+            respuesta: "¡Qué gusto verte por aquí! Puede ser estrés hídrico o plagas; riega regularmente y revisa la broca o trips, aplicando pesticidas si es necesario. Esto salva la cosecha, asegurando que los frutos maduren completamente y no se desperdicien antes de tiempo. ¿Qué has visto en los frutos?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un tostador pequeño para mi café?", 
+            respuesta: "¡Hola, qué gran idea! Busca modelos manuales o eléctricos en mercados agrícolas o en línea (como Amazon), invirtiendo $100-$300 según capacidad y calidad deseada. Esto te permite tostar en casa, agregando valor y probando sabores para vender localmente. ¿Qué tamaño necesitas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene un drenaje pobre?", 
+            respuesta: "¡Saludos, cultivador curioso! Haz zanjas profundas alrededor y mezcla arena al suelo; eleva las cepas para que el agua corra sin estancarse cerca de las raíces. Esto evita pudrición, manteniendo las plantas sanas y productivas incluso en suelos pesados. ¿Qué tan lento drena tu terreno?", 
+        },{ 
+            pregunta: "¿Cómo evito que el café se mezcle con otros granos al procesarlo?", 
+            respuesta: "¡Hola, qué alegría charlar! Limpia bien la despulpadora y las camas entre lotes, y usa recipientes separados para cada variedad o parcela durante el secado. Esto mantiene la pureza, evitando mezclas que alteren el sabor o bajen el valor de tu café. ¿Cómo organizas tus lotes?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen hojas con bordes secos?", 
+            respuesta: "¡Saludos, amigo cafetero! Puede ser falta de potasio o quemadura solar; aplica sulfato de potasio y aumenta la sombra al 50% con mallas o árboles. Esto repara las hojas, fortaleciendo la planta para una fotosíntesis eficiente y frutos de calidad. ¿Qué has notado en los bordes?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene demasiada humedad al venderlo?", 
+            respuesta: "¡Hey, qué buena duda! Usa un higrómetro; si pasa del 12%, está húmedo y puede mohosearse. Sécalo más antes de empacar para cumplir estándares comerciales. Esto asegura un grano estable, aceptado por compradores sin riesgo de rechazo. ¿Qué humedad mide tu grano?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos muy compactados?", 
+            respuesta: "¡Qué gusto ayudarte! Airea el suelo con un azadón o arado ligero, y agrega compost o arena para aflojarlo, mejorando el drenaje y la penetración de raíces. Esto revitaliza el terreno, permitiendo un crecimiento más sano y vigoroso del café a largo plazo. ¿Qué tan duro está tu suelo?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se dañe por calor extremo al secarlo?", 
+            respuesta: "¡Hola, cultivador curioso! Seca en sombra parcial o usa ventiladores si el sol es intenso, revisando que no pase de 40°C para no cocer el grano. Esto preserva el sabor, evitando notas quemadas que afecten su calidad y aceptación. ¿Qué temperaturas tienes al secar?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen frutos arrugados?", 
+            respuesta: "¡Saludos, qué gran consulta! Puede ser sequía o deficiencia de calcio; riega más y aplica cal dolomítica al suelo para mejorar la formación de los frutos. Esto los rellena, aumentando el tamaño y calidad para una cosecha más atractiva y rentable. ¿Qué has visto en los frutos?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un molinillo para probar mi café en casa?", 
+            respuesta: "¡Hey, qué alegría verte! Compra un molinillo manual o eléctrico pequeño en tiendas agrícolas o en línea, desde $20-$50, ajustable para molienda fina o gruesa. Esto te permite degustar tu café fresco, evaluando su sabor y ajustando el proceso si es necesario. ¿Qué tipo de molienda prefieres?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene muchas piedras pequeñas?", 
+            respuesta: "¡Hola, qué buena idea! Recógelas manualmente o usa una cribadora para limpiar el suelo antes de sembrar, mejorando el espacio para las raíces y el drenaje. Esto facilita el manejo, asegurando un terreno uniforme y apto para el desarrollo del café. ¿Qué herramientas tienes para esto?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda aroma al tostarlo en casa?", 
+            respuesta: "¡Saludos, amigo! Tuesta en pequeñas cantidades a fuego medio, enfría rápido en una bandeja y guárdalo en frascos herméticos para atrapar los aceites aromáticos. Esto conserva las notas florales o frutales, haciendo cada taza un deleite para ti o tus clientes. ¿Qué aromas quieres destacar?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen un crecimiento desigual?", 
+            respuesta: "¡Qué gusto charlar contigo! Uniformiza riego y fertilización, podando las más altas para equilibrar; revisa sombra y suelo por si hay diferencias en la parcela. Esto nivela el desarrollo, asegurando una cosecha consistente y un manejo más fácil después. ¿Qué zonas crecen más?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene defectos antes de venderlo?", 
+            respuesta: "¡Hola, qué gran duda! Inspecciona granos por grietas, moho o color raro; haz una cata para detectar sabores agrios o astringentes que indiquen problemas. Esto te ayuda a clasificar, ofreciendo solo lo mejor y evitando devoluciones de compradores. ¿Qué defectos has encontrado?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos muy arenosos?", 
+            respuesta: "¡Saludos, cultivador! Agrega compost o estiércol para retener humedad y nutrientes, y usa mulch para evitar que se seque rápido en días soleados. Esto estabiliza el suelo, dando a las raíces un medio más rico y adecuado para el café. ¿Qué has intentado en tu terreno?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se ensucie con cenizas al secarlo?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Usa camas elevadas con malla lejos de fogatas o zonas polvorientas, y cubre el grano si hay viento que levante ceniza. Esto mantiene la limpieza, asegurando un producto puro y atractivo para cualquier comprador. ¿Dónde secas tu café?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen hojas con manchas negras?", 
+            respuesta: "¡Hola, qué buena consulta! Puede ser antracnosis o cercospora; aplica fungicida de cobre y mejora la ventilación podando ramas densas para bajar la humedad. Esto detiene la propagación, salvando las hojas y la producción futura de tu cafetal. ¿Qué manchas predominan?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un medidor de humedad para mi café?", 
+            respuesta: "¡Saludos, amigo cafetero! Compra un higrómetro portátil en tiendas agrícolas o en línea ($50-$100), fácil de usar para medir el 10-12% ideal del grano. Esto asegura calidad, evitando problemas de moho o resequedad al vender o almacenar. ¿Qué precisión necesitas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene plagas que no identifico?", 
+            respuesta: "¡Qué gusto verte por aquí! Toma fotos y consulta a un agrónomo local o busca en guías agrícolas; aplica un insecticida de amplio espectro mientras confirmas. Esto controla el daño, protegiendo tu cultivo hasta que sepas exactamente qué enfrentas. ¿Qué síntomas ves en las plantas?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se queme por el sol al madurar?", 
+            respuesta: "¡Hola, cultivador curioso! Aumenta la sombra al 60% con árboles o mallas en la etapa de maduración para proteger los frutos del calor intenso diario. Esto evita quemaduras, manteniendo granos jugosos y de buen tamaño hasta la cosecha final. ¿Qué sombra usas ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor metálico?", 
+            respuesta: "¡Saludos, qué gran idea! Puede ser por suelo con metales pesados o equipo oxidado; analiza el terreno y usa acero inoxidable para procesar el grano. Esto elimina sabores raros, asegurando una taza limpia y agradable para tus clientes siempre. ¿Qué equipo utilizas?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi cafetal necesita más nitrógeno?", 
+            respuesta: "¡Hey, qué alegría charlar! Busca hojas amarillas o crecimiento lento; haz un análisis de suelo para confirmar y aplica urea o compost rico en nitrógeno si falta. Esto impulsa el follaje, fortaleciendo la planta para más frutos en la próxima temporada. ¿Qué signos has notado?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi parcela tiene demasiada niebla?", 
+            respuesta: "¡Hola, qué buena duda! Mejora la ventilación podando ramas densas y usa fungicidas preventivos, ya que la niebla favorece hongos como la roya en el café. Esto mantiene las plantas sanas, aprovechando la humedad sin riesgos de enfermedades constantes. ¿Qué tan frecuente es la niebla?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda calidad por mal transporte?", 
+            respuesta: "¡Saludos, amigo! Usa sacos acolchados en camiones ventilados, evita apilar demasiado y entrega rápido para que no se caliente o aplaste en el camino. Esto preserva el grano intacto, asegurando que llegue en óptimas condiciones al comprador. ¿Qué distancias recorres?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen raíces poco profundas?", 
+            respuesta: "¡Qué gusto ayudarte! Afloja el suelo con compost y evita riegos superficiales; fomenta raíces profundas con menos agua pero más espaciada para mayor resistencia. Esto las ancla mejor, protegiéndolas de vientos y mejorando la absorción de nutrientes. ¿Qué tan hondo riegan ahora?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo una certificación de comercio justo?", 
+            respuesta: "¡Hola, qué gran consulta! Contacta organizaciones como Fairtrade, cumple normas de sostenibilidad y paga justo a trabajadores; un inspector verificará tu proceso. Esto abre mercados éticos, ofreciendo precios estables y apoyo para pequeños productores como tú. ¿Qué certificaciones te interesan?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un olor a humedad?", 
+            respuesta: "¡Saludos, cultivador curioso! Revisa el secado; si no bajó al 12% de humedad, extiéndelo más al sol o usa un secador para eliminar exceso de agua. Esto corrige el olor, evitando moho y asegurando un grano fresco y vendible. ¿Qué condiciones tuvo al secar?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se ensucie con aceite al procesarlo?", 
+            respuesta: "¡Hey, qué alegría verte! Limpia bien la despulpadora y evita lubricantes cerca del grano; usa equipo en seco o con mantenimiento previo para no contaminar. Esto mantiene la pureza, asegurando un sabor limpio sin residuos grasos indeseados. ¿Qué maquinaria usas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen pocas flores?", 
+            respuesta: "¡Hola, qué buena idea! Aplica fósforo y boro al suelo, y asegura riego en la prefloración; el estrés o falta de nutrientes puede reducir las flores. Esto estimula la floración, aumentando los frutos y el potencial de tu próxima cosecha significativamente. ¿Qué has notado este año?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene buen potencial de exportación?", 
+            respuesta: "¡Saludos, amigo cafetero! Necesita granos uniformes, humedad 10-12%, y cata sobre 80 puntos; consulta un exportador para estándares de tu país destino. Esto lo hace competitivo, abriendo puertas a mercados globales con precios más altos. ¿Qué mercados te atraen?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos con mal olor?", 
+            respuesta: "¡Qué gusto charlar contigo! Puede ser materia en descomposición; airealo con un arado y aplica cal para neutralizar olores y mejorar la salud del suelo. Esto lo refresca, creando un entorno sano para las raíces y el crecimiento del café. ¿Qué has olido en el terreno?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda sabor al molerlo?", 
+            respuesta: "¡Hola, qué gran duda! Muele justo antes de usar, usa un molinillo de muelas y guarda el grano entero en frascos oscuros para retener aceites aromáticos. Esto asegura una taza fresca y sabrosa, manteniendo la calidad que lograste al procesarlo. ¿Cómo mueles tu café?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen brotes secos?", 
+            respuesta: "¡Saludos, cultivador! Puede ser falta de agua o plagas; riega más profundo y revisa por insectos como trips, aplicando jabón insecticida si los encuentras. Esto revive los brotes, asegurando ramas nuevas y una planta productiva a futuro. ¿Qué has visto en los brotes?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un cliente para vender café en grano verde?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Contacta tostadores locales o usa plataformas como Alibaba para ofrecer grano verde fresco, destacando su origen y calidad única. Esto atrae compradores que buscan personalizar su tueste, dándote un mercado directo y estable. ¿Qué cantidad puedes ofrecer?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor a madera?", 
+            respuesta: "¡Hola, qué buena consulta! Puede ser por sobresecado o tueste fuerte; ajusta la humedad al 10-12% y tuesta más suave para evitar notas secas. Esto equilibra el sabor, resaltando dulzura y evitando defectos que desagraden a los consumidores. ¿Qué proceso sigues al tostar?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se contamine con olores de gasolina?", 
+            respuesta: "¡Saludos, amigo! Almacénalo lejos de vehículos o combustibles, en un cuarto cerrado con buena ventilación, usando contenedores herméticos para aislarlo bien. Esto protege su aroma, asegurando que no absorba olores fuertes que arruinen su calidad final. ¿Dónde guardas el grano?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen frutos que no maduran?", 
+            respuesta: "¡Qué gusto verte por aquí! Puede ser falta de potasio o sombra excesiva; aplica fertilizante potásico y poda para más luz en las ramas internas. Esto acelera la maduración, asegurando granos rojos y listos para una cosecha de alta calidad. ¿Qué color tienen ahora?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi cafetal está en una zona de riesgo climático?", 
+            respuesta: "¡Hola, cultivador curioso! Consulta mapas meteorológicos locales o habla con agrónomos sobre historial de sequías, tormentas o heladas en tu región. Esto te prepara, ajustando prácticas para minimizar riesgos y proteger tu inversión a largo plazo. ¿Qué clima predomina en tu área?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor astringente?", 
+            respuesta: "¡Saludos, qué gran idea! Cosecha solo frutos maduros y reduce el tiempo de fermentación; un proceso largo o granos verdes causan astringencia en la taza. Esto suaviza el sabor, haciéndolo más agradable y competitivo para cualquier mercado que elijas. ¿Qué tiempos usas al fermentar?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se dañe por insectos al almacenarlo?", 
+            respuesta: "¡Hey, qué alegría charlar! Usa trampas de feromonas o pon hojas de laurel en los sacos para repeler insectos, revisando regularmente por signos de plagas. Esto protege el grano, manteniéndolo intacto y listo para vender sin pérdidas inesperadas. ¿Qué has visto en tu almacén?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen ramas que se parten?", 
+            respuesta: "¡Hola, qué buena duda! Refuerza con tutores y poda ramas pesadas; aplica calcio al suelo para fortalecer la estructura y evitar roturas por viento o frutos. Esto salva las ramas, asegurando una planta resistente y productiva en cada temporada. ¿Qué tan cargadas están?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un curso para aprender más sobre café?", 
+            respuesta: "¡Saludos, amigo cafetero! Busca talleres en cooperativas, universidades agrícolas o en línea (como Coursera) sobre cultivo, cata o procesamiento por $50-$200. Esto amplía tu conocimiento, mejorando técnicas y dándote ventaja como productor profesional. ¿Qué te gustaría aprender primero?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un olor a plástico?", 
+            respuesta: "¡Qué gusto ayudarte! Revisa si los sacos o equipos tienen residuos plásticos; usa yute natural y limpia todo con agua antes de procesar o guardar. Esto elimina olores raros, asegurando un grano puro con su aroma original intacto siempre. ¿Qué materiales usas?", 
+        },{ 
+            pregunta: "¿Cómo evito que el café pierda calidad por un mal tueste?", 
+            respuesta: "¡Hola, qué alegría verte! Tuesta a 180-200°C con movimiento constante, prueba pequeños lotes y enfría rápido para no quemar los aceites esenciales del grano. Esto asegura un sabor balanceado, evitando notas amargas que desvaloricen tu café en el mercado. ¿Qué equipo tienes para tostar?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen hojas pegajosas?", 
+            respuesta: "¡Saludos, amigo cultivador! Podría ser pulgones o cochinillas; lava con agua y jabón potásico, aplicando un insecticida natural como neem para eliminarlas rápido. Esto limpia las hojas, protegiendo la fotosíntesis y la salud general de tu cafetal. ¿Qué insectos has visto debajo?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene suficiente dulzura?", 
+            respuesta: "¡Hey, qué buena duda! Haz una cata: busca notas de caramelo o fruta madura; si falta, cosecha más tarde y usa suelos ricos en materia orgánica. Esto resalta la dulzura, haciendo tu café más atractivo para compradores que valoran sabores suaves. ¿Qué sabor predomina ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos con poca materia orgánica?", 
+            respuesta: "¡Qué gusto charlar contigo! Añade compost de estiércol o restos vegetales cada 6 meses, mezclándolo bien para enriquecer el suelo y mejorar su fertilidad. Esto nutre las plantas, aumentando el vigor y la calidad de los frutos con el tiempo. ¿Qué abonos has usado?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se moje por goteras en el almacén?", 
+            respuesta: "¡Hola, cultivador curioso! Revisa el tejado, sella fugas con silicona y usa pallets para elevar los sacos del suelo, protegiéndolos de humedad inesperada. Esto mantiene el grano seco, evitando moho y pérdidas mientras esperas venderlo después. ¿Cómo está tu almacén?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen frutos con manchas?", 
+            respuesta: "¡Saludos, qué gran consulta! Puede ser ojo de gallo o antracnosis; aplica fungicida de cobre y recoge frutos caídos para evitar que la enfermedad se extienda. Esto salva la cosecha, asegurando granos sanos y vendibles sin defectos visibles. ¿Qué manchas predominan?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un préstamo para comprar más terreno?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Acude a bancos agrícolas o cooperativas con un plan de expansión, mostrando tu producción actual y proyecciones de ganancia futuras. Esto financia tu crecimiento, permitiendo más hectáreas y una mayor cosecha a largo plazo. ¿Qué tan grande quieres crecer?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor plano?", 
+            respuesta: "¡Hola, qué buena idea! Mejora la altura (1000+ m), usa proceso húmedo y tuesta claro para resaltar acidez y notas frutales que den vida al sabor. Esto evita monotonía, ofreciendo una taza vibrante que destaque entre otros cafés del mercado. ¿Qué proceso usas ahora?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se contamine con humo al secarlo?", 
+            respuesta: "¡Saludos, amigo! Seca lejos de fogatas o caminos con tráfico, usando camas elevadas en un área limpia para que el humo no impregne el grano. Esto preserva su sabor puro, asegurando una calidad intacta para los consumidores más exigentes. ¿Dónde secas tu café?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen tallos con grietas?", 
+            respuesta: "¡Qué gusto verte por aquí! Puede ser exceso de sol o frío; aplica calcio y cubre con sombra o tela en noches heladas para reparar y protegerlos. Esto fortalece los tallos, evitando roturas y asegurando una estructura sólida para los frutos. ¿Qué has notado en los tallos?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café está bien fermentado?", 
+            respuesta: "¡Hola, qué gran duda! Las semillas deben sentirse resbalosas pero no viscosas tras 12-24 horas; prueba el agua: si huele dulce, está listo para lavar. Esto asegura un grano limpio, con sabores bien desarrollados y sin defectos de sobrefermentación. ¿Cuánto tiempo fermentas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos con mal drenaje?", 
+            respuesta: "¡Saludos, cultivador! Haz zanjas profundas y mezcla arena o grava al suelo; planta en montículos para elevar las raíces y evitar agua estancada siempre. Esto mejora la oxigenación, protegiendo las plantas de pudrición y manteniendo su vigor. ¿Qué tan húmedo es tu terreno?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda valor por mal etiquetado?", 
+            respuesta: "¡Hey, qué alegría charlar! Usa etiquetas claras con origen, fecha y tipo (orgánico, especialidad), impresas en sacos de calidad para impresionar a los compradores. Esto eleva la percepción, justificando precios más altos y destacando tu producto profesionalmente. ¿Qué datos pones ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen hojas que se caen solas?", 
+            respuesta: "¡Hola, qué buena consulta! Puede ser estrés hídrico o roya; ajusta el riego y aplica fungicida si ves manchas, revisando nutrientes como magnesio también. Esto detiene la caída, salvando el follaje y la capacidad productiva de tu cafetal pronto. ¿Qué síntomas acompañan?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un cliente para vender café molido?", 
+            respuesta: "¡Saludos, amigo cafetero! Ofrece muestras a cafeterías locales o vende en mercados con un empaque atractivo, destacando tu tueste y origen único del grano. Esto crea demanda, posicionándote como proveedor confiable de café fresco y listo para usar. ¿Qué presentación tienes?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor quemado?", 
+            respuesta: "¡Qué gusto ayudarte! Reduce la temperatura de tueste (máximo 200°C) y revisa el secado; granos muy secos queman fácil y pierden notas naturales. Esto corrige el sabor, ofreciendo una taza suave y agradable sin amargor excesivo para tus clientes. ¿Qué tueste prefieres?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se dañe por roedores al almacenarlo?", 
+            respuesta: "¡Hola, cultivador curioso! Usa trampas o gatos en el almacén, y guarda el grano en contenedores metálicos elevados para que no lo alcancen ni lo muerdan. Esto protege tu cosecha, evitando pérdidas y manteniendo todo intacto hasta la venta. ¿Qué roedores has visto?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen frutos que se pudren?", 
+            respuesta: "¡Saludos, qué gran idea! Puede ser antracnosis; recoge los frutos caídos, aplica fungicida y mejora la ventilación para bajar la humedad en las ramas. Esto salva la cosecha, asegurando granos sanos y libres de podredumbre para el procesamiento. ¿Qué tan húmedo está tu cafetal?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene buen equilibrio en la taza?", 
+            respuesta: "¡Hey, qué alegría verte! Haz una cata: busca armonía entre acidez, dulzura y cuerpo; si uno domina, ajusta cosecha o tueste para nivelarlos bien. Esto da una bebida redonda, atractiva para catadores y consumidores que buscan calidad consistente. ¿Qué notas predominan?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos con poca profundidad?", 
+            respuesta: "¡Hola, qué buena duda! Excava más las cepas (50 cm) y mezcla compost para dar espacio a las raíces; usa variedades de porte bajo si es necesario. Esto adapta el cultivo, asegurando un anclaje fuerte y un desarrollo sano en suelos superficiales. ¿Qué tan profundo es tu suelo?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda frescura al empacarlo?", 
+            respuesta: "¡Saludos, amigo! Usa bolsas con válvula de desgasificación y empaca justo después de tostar, guardándolas en un lugar fresco y oscuro para retener aromas. Esto mantiene la frescura, asegurando que llegue a los clientes con todo su sabor intacto. ¿Qué empaque usas ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen raíces con mal olor?", 
+            respuesta: "¡Qué gusto charlar contigo! Puede ser pudrición; mejora el drenaje con zanjas y aplica un fungicida al suelo, revisando si el riego es excesivo. Esto salva las raíces, asegurando que la planta absorba nutrientes y siga creciendo sin problemas. ¿Qué olor detectaste?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un distribuidor para mi café?", 
+            respuesta: "¡Hola, qué gran consulta! Contacta empresas locales de alimentos o asiste a ferias comerciales, ofreciendo muestras y destacando la calidad y origen de tu grano. Esto te conecta con distribuidores, ampliando tu alcance y ventas sin tanto esfuerzo directo. ¿Qué canales has explorado?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor salado?", 
+            respuesta: "¡Saludos, cultivador curioso! Puede ser suelo salino; lava el terreno con agua dulce y aplica yeso agrícola para reducir sales, corrigiendo el sabor del grano. Esto limpia el perfil, asegurando una taza pura y libre de notas indeseadas siempre. ¿Qué has probado en la taza?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se aplaste al transportarlo?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Usa sacos resistentes y no los apiles demasiado alto; coloca madera entre ellos para distribuir el peso en el camión. Esto protege los granos, evitando roturas y manteniendo su forma para una venta exitosa. ¿Qué tan lejos llevas tu café?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen pocas raíces?", 
+            respuesta: "¡Hola, qué buena idea! Aplica enraizadores naturales como estiércol líquido y afloja el suelo; evita compactación para que las raíces se expandan más fácil. Esto fortalece la base, asegurando una planta estable y productiva con el tiempo suficiente. ¿Qué has notado en las raíces?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene buena textura al molerlo?", 
+            respuesta: "¡Saludos, amigo cafetero! Muele y revisa: debe ser uniforme, sin polvo excesivo ni trozos grandes; ajusta el molinillo para un grano consistente. Esto mejora la extracción, dando una taza suave y bien balanceada que encanta a los consumidores. ¿Qué molienda usas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos con muchas raíces de otros árboles?", 
+            respuesta: "¡Qué gusto verte por aquí! Retira las raíces grandes con machete o sierra antes de sembrar, y usa barreras de tela para limitar su crecimiento futuro. Esto libera espacio, evitando competencia y asegurando nutrientes para tu café exclusivamente. ¿Qué árboles están cerca?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda color al procesarlo?", 
+            respuesta: "¡Hola, qué gran duda! Lava rápido tras despulpar y seca uniformemente al sol o con aire tibio, evitando fermentaciones largas que opaquen el grano. Esto mantiene un color vivo, atractivo para compradores que valoran la presentación del café. ¿Qué tono buscas?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen hojas con agujeros?", 
+            respuesta: "¡Saludos, cultivador! Puede ser minador u orugas; aplica insecticida orgánico como neem y revisa bajo las hojas para eliminar larvas manualmente si es necesario. Esto protege el follaje, asegurando una fotosíntesis eficiente y frutos sanos después. ¿Qué insectos has visto?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un empaque atractivo para mi café?", 
+            respuesta: "¡Hey, qué alegría charlar! Diseña bolsas con colores vivos y tu logo en imprentas locales o en línea, usando materiales reciclables para atraer clientes modernos. Esto destaca tu marca, haciendo el producto más competitivo y memorable en cualquier mercado. ¿Qué diseño tienes en mente?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor débil?", 
+            respuesta: "¡Hola, qué buena consulta! Usa granos de mayor altura, tuesta más oscuro y revisa la frescura; un café viejo pierde fuerza en la taza rápido. Esto intensifica el sabor, ofreciendo una bebida rica que satisfaga a los amantes del café fuerte. ¿Qué tan fresco es tu grano?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se dañe por frío al almacenarlo?", 
+            respuesta: "¡Saludos, amigo! Guarda los sacos en un lugar aislado con temperatura sobre 10°C, usando mantas si es necesario para protegerlo de heladas inesperadas. Esto evita condensación, manteniendo el grano seco y listo para vender sin problemas. ¿Qué tan frío es tu almacén?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen frutos pequeños y duros?", 
+            respuesta: "¡Qué gusto ayudarte! Aumenta el riego y aplica potasio; frutos pequeños suelen ser por sequía o falta de nutrientes en la etapa de llenado del grano. Esto los agranda, mejorando calidad y peso para una cosecha más valiosa pronto. ¿Qué tamaño tienen ahora?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene buen potencial para cafeterías?", 
+            respuesta: "¡Hola, cultivador curioso! Busca un puntaje de cata sobre 80, con notas claras (chocolate, cítricos) y tueste medio que se adapte a espressos o filtrados. Esto lo hace ideal para baristas, asegurando clientes felices en cafeterías locales o urbanas. ¿Qué perfil prefieres?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos con poca retención de agua?", 
+            respuesta: "¡Saludos, qué gran idea! Agrega compost y mulch de cáscaras para retener humedad, y riega más frecuente pero profundo para compensar la pérdida rápida. Esto hidrata las raíces, asegurando un crecimiento constante incluso en suelos secos o arenosos. ¿Qué tan seco es tu terreno?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda aroma al empacarlo?", 
+            respuesta: "¡Hey, qué alegría verte! Usa bolsas con válvula y empaca justo tras enfriar el tueste, guardándolas en un lugar oscuro para preservar los compuestos volátiles. Esto mantiene el aroma, asegurando una experiencia fresca para quien lo compre después. ¿Qué empaque tienes ahora?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen ramas con pocas hojas?", 
+            respuesta: "¡Hola, qué buena duda! Aplica nitrógeno y poda las puntas para estimular brotes; revisa si el sol o plagas están afectando el follaje joven. Esto densifica las ramas, mejorando la fotosíntesis y la capacidad de producir más frutos después. ¿Qué has notado en las ramas?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un análisis de suelo barato?", 
+            respuesta: "¡Saludos, amigo cafetero! Lleva una muestra a una universidad agrícola local o cooperativa; suelen cobrar $10-$30 por análisis básico de nutrientes y pH. Esto te da datos clave, ajustando el manejo del suelo sin gastar de más en laboratorios caros. ¿Qué necesitas medir?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi café tiene un sabor a medicina?", 
+            respuesta: "¡Qué gusto charlar contigo! Puede ser contaminación química; revisa el agua o equipo, usando solo materiales limpios y evitando pesticidas cerca del grano. Esto elimina sabores raros, asegurando una taza pura y natural para tus consumidores siempre. ¿Qué has usado cerca?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café se dañe por luz al almacenarlo?", 
+            respuesta: "¡Hola, qué gran consulta! Guarda los sacos en un cuarto oscuro o usa bolsas opacas, evitando luz directa que degrade los aceites y el sabor del grano. Esto prolonga la calidad, manteniendo el café fresco y listo para vender cuando quieras. ¿Qué luz llega a tu almacén?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen frutos con mal olor?", 
+            respuesta: "¡Saludos, cultivador curioso! Puede ser podredumbre; recoge los afectados, aplica fungicida y mejora la ventilación para evitar humedad en las ramas internas. Esto salva la cosecha, asegurando granos sanos y libres de olores que bajen su valor. ¿Qué olor detectaste?", 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi café tiene buen peso para vender?", 
+            respuesta: "¡Hey, qué alegría ayudarte! Pesa muestras tras secar (60-65 g por 100 granos); granos ligeros valen menos, así que ajusta nutrientes si es necesario. Esto asegura un producto competitivo, cumpliendo expectativas de compradores por volumen y calidad. ¿Qué peso tiene tu grano?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mi cafetal tiene suelos con mucho lodo?", 
+            respuesta: "¡Hola, qué buena idea! Mezcla arena y grava para mejorar el drenaje, y haz canales para desviar agua, evitando que el lodo sofoque las raíces. Esto estabiliza el terreno, protegiendo las plantas y facilitando el manejo diario del café. ¿Qué tan lodoso es ahora?", 
+        },
+        { 
+            pregunta: "¿Cómo evito que el café pierda calidad por mal clima al cosechar?", 
+            respuesta: "¡Saludos, amigo! Recolecta entre lluvias, usa lonas para cubrir frutos y procesa rápido; el mal clima puede fermentar o mojar el grano si demoras. Esto asegura calidad, adaptándote a imprevistos y manteniendo el valor de tu cosecha. ¿Qué clima tienes en cosecha?", 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas de café tienen hojas con venas amarillas?", 
+            respuesta: "¡Qué gusto charlar contigo! Puede ser clorosis por falta de hierro; aplica quelato de hierro al suelo y revisa el pH para que no esté muy alto. Esto restaura el verde, mejorando la fotosíntesis y la salud general de tu cafetal. ¿Qué otros signos ves?", 
+        },
+        { 
+            pregunta: "¿Cómo consigo un comprador para café de especialidad?", 
+            respuesta: "¡Hola, qué gran consulta! Contacta tostadores gourmet o usa plataformas como Specialty Coffee Association para ofrecer café con cata sobre 84 puntos. Esto te conecta con nichos premium, asegurando precios altos por tu grano excepcional y único. ¿Qué calidad buscas vender?", 
         }
+
+        ];       
+
+        const respuestasDivertidas = [
+        { 
+            interaccion: "Hola", 
+            respuesta: "¡Hola, qué tal! Más feliz que un cafetalero con lluvia suave. ¿En qué te ayudo con tu café hoy?" 
+        },
+        { 
+            interaccion: "¿Cómo estás?", 
+            respuesta: "¡Saludos! Mejor que un grano recién tostado. ¿Cómo te ayudo con tu pasión cafetera?" 
+        },
+        { 
+            interaccion: "Buenos días", 
+            respuesta: "¡Buenos días! Más despierto que un barista al alba. ¿Qué café te preparo hoy?" 
+        },
+        { 
+            interaccion: "¿Qué tal?", 
+            respuesta: "¡Hola, amigo! Más fresco que un café recién molido. ¿En qué te echo una mano cafetera?" 
+        },
+        { 
+            interaccion: "Hey", 
+            respuesta: "¡Hey, qué bueno verte! Más emocionado que un catador en la cosecha. ¿Qué necesitas del mundo del café?" 
+        },
+        { 
+            interaccion: "¿Puedes ayudarme?", 
+            respuesta: "¡Claro que sí! Más listo que un cafeto con sol perfecto. ¿Con qué te ayudo en tu cafetal?" 
+        },
+        { 
+            interaccion: "Buenas tardes", 
+            respuesta: "¡Buenas tardes! Más relajado que un café de sobremesa. ¿Qué charlamos sobre granos hoy?" 
+        },
+        { 
+            interaccion: "Hola, ¿qué haces?", 
+            respuesta: "¡Hola! Aquí, más ocupado que un despulpador en temporada. ¿Qué tienes en mente sobre café?" 
+        },
+        { 
+            interaccion: "¿Estás ahí?", 
+            respuesta: "¡Sí, aquí estoy! Más presente que el aroma en una taza caliente. ¿En qué te ayudo con el café?" 
+        },
+        { 
+            interaccion: "Buenas noches", 
+            respuesta: "¡Buenas noches! Más tranquilo que un cafetal al atardecer. ¿Cómo cerramos el día con café?" 
+        },
+        { 
+            interaccion: "¿Qué sabes del café?", 
+            respuesta: "¡Hola! Más sabio que un cafetalero con 20 cosechas. ¿Qué quieres aprender del café hoy?" 
+        },
+        { 
+            interaccion: "¿Me das un consejo?", 
+            respuesta: "¡Claro! Más útil que un saco en la recolecta. ¿Qué necesitas para tu café?" 
+        },
+        { 
+            interaccion: "Hola, ¿cómo te llamas?", 
+            respuesta: "¡Hola! Soy AgroAsistec, más amigable que un café compartido. ¿Cómo te ayudo con tus granos?" 
+        },
+        { 
+            interaccion: "¿Qué opinas del café?", 
+            respuesta: "¡Saludos! Más fanático que un barista en un festival. ¿Qué café quieres que analicemos?" 
+        },
+        { 
+            interaccion: "¿Estás ocupado?", 
+            respuesta: "¡Hola! Nunca, más libre que un grano en la montaña. ¿Qué tienes para mí sobre café?" 
+        },
+        { 
+            interaccion: "Dime algo del café", 
+            respuesta: "¡Claro! Más curioso que un catador con una taza rara. ¿Qué te cuento del café hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes explicarme el café?", 
+            respuesta: "¡Hola! Más claro que un espresso recién servido. ¿Qué parte del café te explico?" 
+        },
+        { 
+            interaccion: "¿Qué tiempo hace para el café?", 
+            respuesta: "¡Saludos! Más atento que un cafetalero en la floración. ¿Dónde miro el clima para tu cultivo?" 
+        },
+        { 
+            interaccion: "¿Me cuentas un chiste de café?", 
+            respuesta: "¡Claro! Más gracioso que un grano bailando en el tostador. ¿Te va uno corto o largo?" 
+        },
+        { 
+            interaccion: "Hola, ¿qué hora es para el café?", 
+            respuesta: "¡Hola! Más puntual que un café de la mañana. ¿En qué zona te digo la hora cafetera?" 
+        },
+        { 
+            interaccion: "¿Cómo te va con el café?", 
+            respuesta: "¡Hey! Mejor que un café en la altura perfecta. ¿Y a ti, cómo te va con tus granos?" 
+        },
+        { 
+            interaccion: "¿Qué hago con mi café hoy?", 
+            respuesta: "¡Saludos! Más ideas que un cafetal en plena cosecha. ¿Qué te apetece hacer con tu café?" 
+        },
+        { 
+            interaccion: "¿Estás listo para el café?", 
+            respuesta: "¡Hola! Más preparado que un barista en la barra. ¿Qué necesitas para tu café ahora?" 
+        },
+        { 
+            interaccion: "¿Me ayudas con mi café?", 
+            respuesta: "¡Claro! Más servicial que un molinillo en acción. ¿Qué quieres resolver con tu café?" 
+        },
+        { 
+            interaccion: "Hola, ¿qué tal el día cafetero?", 
+            respuesta: "¡Hola! Más brillante que un grano al sol. ¿Cómo ha sido tu día con el café?" 
+        },
+        { 
+            interaccion: "¿Qué sabes de mi café?", 
+            respuesta: "¡Saludos! Más enterado que un tostador en la fábrica. ¿Qué me cuentas de tu café?" 
+        },
+        { 
+            interaccion: "¿Puedes buscar sobre café?", 
+            respuesta: "¡Claro! Más rápido que un café espresso. ¿Qué busco para tu pasión cafetera?" 
+        },
+        { 
+            interaccion: "¿Cómo empiezo con el café?", 
+            respuesta: "¡Hola! Más claro que un manual de barista. ¿Con qué parte del café arrancamos?" 
+        },
+        { 
+            interaccion: "¿Qué me recomiendas para mi café?", 
+            respuesta: "¡Saludos! Más recomendaciones que un catador experto. ¿Qué necesitas para tu grano?" 
+        },
+        { 
+            interaccion: "¿Estás despierto para el café?", 
+            respuesta: "¡Hey! Más alerta que un café doble. ¿En qué te ayudo con tu café ahora?" 
+        },
+        { 
+            interaccion: "¿Qué haces con café?", 
+            respuesta: "¡Hola! Aquí, más atento que un cafetalero en la lluvia. ¿Qué tienes en mente sobre café?" 
+        },
+        { 
+            interaccion: "¿Me das una idea para el café?", 
+            respuesta: "¡Claro! Más creativo que un barista con espuma. ¿Qué idea necesitas para tu café?" 
+        },
+        { 
+            interaccion: "¿Cómo preparo mi café?", 
+            respuesta: "¡Saludos! Más práctico que un filtro en la taza. ¿Qué método de café te explico?" 
+        },
+        { 
+            interaccion: "¿Qué significa café?", 
+            respuesta: "¡Hola! Más claro que un grano en pergamino. ¿Qué aspecto del café te explico?" 
+        },
+        { 
+            interaccion: "¿Puedes hablar más de café?", 
+            respuesta: "¡Hey! Más charlatán que un cafetalero en la plaza. ¿Qué más quieres saber del café?" 
+        },
+        { 
+            interaccion: "¿Qué pasa si riego mal mi café?", 
+            respuesta: "¡Saludos! Más curioso que un grano en la sombra. ¿Cómo riegan tu cafetal ahora?" 
+        },
+        { 
+            interaccion: "¿Me enseñas algo del café?", 
+            respuesta: "¡Claro! Más maestro que un catador en la mesa. ¿Qué te enseño sobre café hoy?" 
+        },
+        { 
+            interaccion: "¿Cómo te sientes con el café?", 
+            respuesta: "¡Hola! Más feliz que un barista con clientes. ¿Y tú, cómo estás con tu café?" 
+        },
+        { 
+            interaccion: "¿Qué opinas de mi café?", 
+            respuesta: "¡Saludos! Más opinador que un juez en una cata. ¿Qué me cuentas de tu café?" 
+        },
+        { 
+            interaccion: "¿Estás aburrido del café?", 
+            respuesta: "¡Hey! Nunca, más apasionado que un tostador en acción. ¿Qué hacemos con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das un dato de café?", 
+            respuesta: "¡Claro! Más informativo que un libro de barista. ¿Qué dato cafetero te doy?" 
+        },
+        { 
+            interaccion: "¿Qué tal el clima para el café?", 
+            respuesta: "¡Hola! Más atento que un cafetal en la niebla. ¿Dónde miro el clima para tu café?" 
+        },
+        { 
+            interaccion: "¿Puedes cantar sobre café?", 
+            respuesta: "¡Saludos! Más afinado que un grano en el molinillo. ¿Qué canto cafetero te doy?" 
+        },
+        { 
+            interaccion: "¿Qué me cuentas del café?", 
+            respuesta: "¡Hey! Más historias que un cafetalero en la fogata. ¿Qué te cuento del café?" 
+        },
+        { 
+            interaccion: "¿Cómo te ayudo con el café?", 
+            respuesta: "¡Hola! Más dispuesto que un grano en la cosecha. ¿En qué te ayudo con el café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi idea cafetera?", 
+            respuesta: "¡Saludos! Más curioso que un barista con un blend. ¿Cuál es tu idea de café?" 
+        },
+        { 
+            interaccion: "¿Estás libre para café?", 
+            respuesta: "¡Claro! Más disponible que un grano en el saco. ¿Qué tienes para mí sobre café?" 
+        },
+        { 
+            interaccion: "¿Me das un ejemplo de café?", 
+            respuesta: "¡Hola! Más ejemplos que un catador en la mesa. ¿De qué café necesitas un ejemplo?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café del día?", 
+            respuesta: "¡Saludos! Más interesado que un barista en la barra. ¿Cómo está tu café hoy?" 
+        },{ 
+            interaccion: "¿Qué dices del café?", 
+            respuesta: "¡Hola! Más parlanchín que un cafetalero en el mercado. ¿Qué te digo del café hoy?" 
+        },
+        { 
+            interaccion: "¿Cómo ves mi café?", 
+            respuesta: "¡Saludos! Más observador que un catador con lupa. ¿Qué me muestras de tu café?" 
+        },
+        { 
+            interaccion: "¿Estás seguro del café?", 
+            respuesta: "¡Hey! Más confiado que un barista con su receta. ¿Qué confirmo de tu café?" 
+        },
+        { 
+            interaccion: "¿Qué tal este café?", 
+            respuesta: "¡Claro! Más curioso que un grano en el tostador. ¿Qué café me presentas hoy?" 
+        },
+        { 
+            interaccion: "¿Me escuchas sobre café?", 
+            respuesta: "¡Hola! Más atento que un cafetalero en la poda. ¿Qué me cuentas de tu café?" 
+        },
+        { 
+            interaccion: "¿Qué piensas del café?", 
+            respuesta: "¡Saludos! Más pensativo que un barista con un blend. ¿Qué pienso de tu café?" 
+        },
+        { 
+            interaccion: "¿Puedes repetir del café?", 
+            respuesta: "¡Hey! Más repetidor que un eco en el cafetal. ¿Qué te repito sobre café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi pregunta de café?", 
+            respuesta: "¡Claro! Más listo que un grano en la despulpadora. ¿Cuál es tu duda cafetera?" 
+        },
+        { 
+            interaccion: "¿Estás de acuerdo con mi café?", 
+            respuesta: "¡Hola! Más abierto que un saco en la cosecha. ¿Con qué de tu café concuerdo?" 
+        },
+        { 
+            interaccion: "¿Qué más sabes de café?", 
+            respuesta: "¡Saludos! Más sabio que un cafetal en la altura. ¿Qué más te cuento del café?" 
+        },
+        { 
+            interaccion: "¿Me das un tip de café?", 
+            respuesta: "¡Hey! Más útil que un filtro en la cafetera. ¿Qué tip necesitas para tu café?" 
+        },
+        { 
+            interaccion: "¿Cómo soluciono mi café?", 
+            respuesta: "¡Claro! Más ingenioso que un barista con prisas. ¿Qué problema cafetero tienes?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi día con café?", 
+            respuesta: "¡Hola! Más curioso que un grano en la fermentación. ¿Cómo va tu día cafetero?" 
+        },
+        { 
+            interaccion: "¿Estás cansado del café?", 
+            respuesta: "¡Saludos! Más fresco que un espresso matutino. ¿En qué te ayudo con el café?" 
+        },
+        { 
+            interaccion: "¿Qué me sugieres para el café?", 
+            respuesta: "¡Hey! Más ideas que un cafetalero en la siembra. ¿Qué sugiero para tu café?" 
+        },
+        { 
+            interaccion: "¿Puedes hablar rápido de café?", 
+            respuesta: "¡Claro! Más veloz que un grano al molinillo. ¿Qué te digo rápido del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi trabajo con café?", 
+            respuesta: "¡Hola! Más interesado que un catador en la taza. ¿Qué me cuentas de tu café?" 
+        },
+        { 
+            interaccion: "¿Me das una pista de café?", 
+            respuesta: "¡Saludos! Más astuto que un barista con un truco. ¿Qué pista necesitas del café?" 
+        },
+        { 
+            interaccion: "¿Estás feliz con el café?", 
+            respuesta: "¡Hey! Más contento que un grano en la altura. ¿Y tú, cómo estás con tu café?" 
+        },
+        { 
+            interaccion: "¿Qué harías con mi café?", 
+            respuesta: "¡Claro! Más imaginativo que un barista con espuma. ¿Qué hago con tu café?" 
+        },
+        { 
+            interaccion: "¿Me cuentas algo nuevo de café?", 
+            respuesta: "¡Hola! Más novedoso que un grano recién cosechado. ¿Qué te cuento del café?" 
+        },
+        { 
+            interaccion: "¿Cómo encuentro buen café?", 
+            respuesta: "¡Saludos! Más buscador que un catador en la finca. ¿Qué café necesitas hallar?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi taza de café?", 
+            respuesta: "¡Hey! Más atento que un barista con un latte. ¿Cómo está tu taza hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser rápido con el café?", 
+            respuesta: "¡Claro! Más ágil que un grano al tostador. ¿Qué necesitas rápido del café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices de este café?", 
+            respuesta: "¡Hola! Más curioso que un cafetalero en la cata. ¿Qué café me muestras?" 
+        },
+        { 
+            interaccion: "¿Estás bromeando del café?", 
+            respuesta: "¡Saludos! Más serio que un grano en pergamino. ¿Qué te aclaro del café?" 
+        },
+        { 
+            interaccion: "¿Me das un resumen de café?", 
+            respuesta: "¡Hey! Más breve que un espresso cortado. ¿De qué te resumo el café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi estilo de café?", 
+            respuesta: "¡Claro! Más observador que un barista con un dripper. ¿Qué estilo cafetero tienes?" 
+        },
+        { 
+            interaccion: "¿Puedes ser claro con el café?", 
+            respuesta: "¡Hola! Más transparente que un café filtrado. ¿Qué te explico del café?" 
+        },
+        { 
+            interaccion: "¿Qué opinas de mi café?", 
+            respuesta: "¡Saludos! Más amigable que un barista en la barra. ¿Qué me dices de tu café?" 
+        },
+        { 
+            interaccion: "¿Estás escuchando del café?", 
+            respuesta: "¡Hey! Más atento que un cafetalero en la floración. ¿Qué me cuentas del café?" 
+        },
+        { 
+            interaccion: "¿Me das una opción de café?", 
+            respuesta: "¡Claro! Más opciones que un grano en la finca. ¿Qué alternativa cafetera necesitas?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi humor cafetero?", 
+            respuesta: "¡Hola! Más alegre que un barista con cafeína. ¿Cómo está tu humor hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes esperar por café?", 
+            respuesta: "¡Saludos! Más paciente que un cafetal creciendo. ¿Cuánto espero por tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me cuentas de ti y el café?", 
+            respuesta: "¡Hey! Más abierto que un saco de granos. ¿Qué quieres saber de mí y el café?" 
+        },
+        { 
+            interaccion: "¿Estás de buen humor por el café?", 
+            respuesta: "¡Claro! Más risueño que un catador con un buen puntaje. ¿Y tú, cómo estás?" 
+        },
+        { 
+            interaccion: "¿Me das un saludo cafetero?", 
+            respuesta: "¡Hola! Más saludador que un barista en la puerta. ¿Cómo te saludo con café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi aroma de café?", 
+            respuesta: "¡Saludos! Más olfativo que un catador en la mesa. ¿Cómo huele tu café hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser amable con el café?", 
+            respuesta: "¡Hey! Más dulce que un café con azúcar. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Qué hago con mi café ahora?", 
+            respuesta: "¡Claro! Más ideas que un barista en la barra. ¿Qué te apetece con tu café?" 
+        },
+        { 
+            interaccion: "¿Estás sorprendido por mi café?", 
+            respuesta: "¡Hola! Más tranquilo que un grano en la sombra. ¿Qué me sorprendes con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das un cumplido de café?", 
+            respuesta: "¡Saludos! Más halagador que un barista con un latte art. ¿Qué te elogio del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi nombre cafetero?", 
+            respuesta: "¡Hey! Más curioso que un grano en la despulpadora. ¿Cómo te llamas en el café?" 
+        },
+        { 
+            interaccion: "¿Puedes ser creativo con café?", 
+            respuesta: "¡Claro! Más inventivo que un barista con un blend. ¿Qué creo para tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café hoy?", 
+            respuesta: "¡Hola! Más charlatán que un cafetalero en la venta. ¿Qué te cuento del café?" 
+        },
+        { 
+            interaccion: "¿Estás aprendiendo del café?", 
+            respuesta: "¡Saludos! Más listo que un barista en entrenamiento. ¿Qué aprendemos del café?" 
+        },
+        { 
+            interaccion: "¿Me das un abrazo cafetero?", 
+            respuesta: "¡Hey! Más cálido que un café recién hecho. ¿Listo para un abrazo virtual?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi pregunta cafetera?", 
+            respuesta: "¡Claro! Más interesante que un grano en la cata. ¿Cuál es tu duda de café?" 
+        },
+        { 
+            interaccion: "¿Estás relajado por el café?", 
+            respuesta: "¡Hola! Más calmado que un café de tarde. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das una bienvenida cafetera?", 
+            respuesta: "¡Saludos! Más acogedor que un cafetal en flor. ¿Cómo te doy la bienvenida?" 
+        },{ 
+            interaccion: "¿Qué tal mi café hoy?", 
+            respuesta: "¡Hola! Más curioso que un barista con un grano raro. ¿Cómo sabe tu café hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser gracioso con café?", 
+            respuesta: "¡Saludos! Más divertido que un grano saltando en el tostador. ¿Qué te hago reír del café?" 
+        },
+        { 
+            interaccion: "¿Qué me cuentas del día cafetero?", 
+            respuesta: "¡Hey! Más informativo que un catador en la finca. ¿Qué quieres saber del café hoy?" 
+        },
+        { 
+            interaccion: "¿Estás emocionado por el café?", 
+            respuesta: "¡Claro! Más entusiasmado que un barista con cafeína. ¿Qué te emociona del café?" 
+        },
+        { 
+            interaccion: "¿Me das un dato curioso de café?", 
+            respuesta: "¡Hola! Más sorprendente que un grano en la altura. ¿Qué dato cafetero te doy?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi plan cafetero?", 
+            respuesta: "¡Saludos! Más interesado que un cafetalero en la siembra. ¿Cuál es tu plan de café?" 
+        },
+        { 
+            interaccion: "¿Puedes ser breve con el café?", 
+            respuesta: "¡Hey! Más corto que un espresso en la barra. ¿Qué necesitas rápido del café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices de mi café?", 
+            respuesta: "¡Claro! Más fan del café que un barista en la cata. ¿Cómo está tu grano hoy?" 
+        },
+        { 
+            interaccion: "¿Estás trabajando en café?", 
+            respuesta: "¡Hola! Más activo que un tostador en la fábrica. ¿En qué te ayudo con el café?" 
+        },
+        { 
+            interaccion: "¿Me das una sorpresa de café?", 
+            respuesta: "¡Saludos! Más sorpresivo que un grano en la taza. ¿Qué te sorprendo del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi sabor de café?", 
+            respuesta: "¡Hey! Más olfativo que un catador en la mesa. ¿Qué sabor tiene tu café hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser paciente con café?", 
+            respuesta: "¡Claro! Más tranquilo que un cafetal en la niebla. ¿Cuánto espero por tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me cuentas del café en altura?", 
+            respuesta: "¡Hola! Más elevado que un grano a 1500 metros. ¿Qué quieres saber del café alto?" 
+        },
+        { 
+            interaccion: "¿Estás jugando con café?", 
+            respuesta: "¡Saludos! Más juguetón que un barista con espuma. ¿Qué juego cafetero te propongo?" 
+        },
+        { 
+            interaccion: "¿Me das un halago de café?", 
+            respuesta: "¡Hey! Más halagador que un catador con un 90. ¿Qué te halago de tu café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi tueste de café?", 
+            respuesta: "¡Claro! Más observador que un barista con un tostador. ¿Qué tueste me muestras?" 
+        },
+        { 
+            interaccion: "¿Puedes ser serio con el café?", 
+            respuesta: "¡Hola! Más serio que un cafetalero en la roya. ¿Qué trato en serio del café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café al sol?", 
+            respuesta: "¡Saludos! Más brillante que un grano secándose. ¿Qué quieres saber del café soleado?" 
+        },
+        { 
+            interaccion: "¿Estás ocupado con café?", 
+            respuesta: "¡Hey! Más libre que un grano en la finca. ¿En qué te ayudo con el café ahora?" 
+        },
+        { 
+            interaccion: "¿Me das un truco de café?", 
+            respuesta: "¡Claro! Más astuto que un barista con un latte. ¿Qué truco necesitas para tu café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café molido?", 
+            respuesta: "¡Hola! Más curioso que un molinillo en acción. ¿Cómo está tu café molido hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser lento con café?", 
+            respuesta: "¡Saludos! Más pausado que un grano fermentando. ¿Qué te explico despacio del café?" 
+        },
+        { 
+            interaccion: "¿Qué me cuentas del café en sombra?", 
+            respuesta: "¡Hey! Más fresco que un cafetal bajo árboles. ¿Qué quieres saber del café sombreado?" 
+        },
+        { 
+            interaccion: "¿Estás durmiendo con café?", 
+            respuesta: "¡Claro! Más despierto que un espresso doble. ¿En qué te ayudo con el café?" 
+        },
+        { 
+            interaccion: "¿Me das un aviso de café?", 
+            respuesta: "¡Hola! Más alerta que un cafetalero en la cosecha. ¿Qué aviso necesitas del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café filtrado?", 
+            respuesta: "¡Saludos! Más melódico que un goteo en la cafetera. ¿Cómo está tu café filtrado?" 
+        },
+        { 
+            interaccion: "¿Puedes ser feliz con café?", 
+            respuesta: "¡Hey! Más alegre que un barista con clientes. ¿Cómo te hago feliz con café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café húmedo?", 
+            respuesta: "¡Claro! Más mojado que un grano en la tina. ¿Qué quieres saber del café húmedo?" 
+        },
+        { 
+            interaccion: "¿Estás corriendo por café?", 
+            respuesta: "¡Hola! Más quieto que un grano en el saco. ¿En qué te ayudo con el café?" 
+        },
+        { 
+            interaccion: "¿Me das un deseo de café?", 
+            respuesta: "¡Saludos! Más generoso que un barista con extras. ¿Qué deseas para tu café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi espresso?", 
+            respuesta: "¡Hey! Más rítmico que un barista con la máquina. ¿Cómo está tu espresso hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser curioso con café?", 
+            respuesta: "¡Claro! Más preguntón que un catador con un blend. ¿Qué me cuentas del café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café al viento?", 
+            respuesta: "¡Hola! Más ventoso que un grano secándose. ¿Qué quieres saber del café al aire?" 
+        },
+        { 
+            interaccion: "¿Estás saltando por café?", 
+            respuesta: "¡Saludos! Más quieto que un cafetal en calma. ¿En qué te ayudo con el café?" 
+        },
+        { 
+            interaccion: "¿Me das un reto de café?", 
+            respuesta: "¡Hey! Más desafiante que un barista con un latte art. ¿Qué reto cafetero te pongo?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café en foto?", 
+            respuesta: "¡Claro! Más observador que un catador con una taza. ¿Qué foto de café me enseñas?" 
+        },
+        { 
+            interaccion: "¿Puedes ser dulce con café?", 
+            respuesta: "¡Hola! Más dulce que un café con miel. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café en lluvia?", 
+            respuesta: "¡Saludos! Más mojado que un cafetal en tormenta. ¿Qué quieres saber del café húmedo?" 
+        },
+        { 
+            interaccion: "¿Estás saltando por café?", 
+            respuesta: "¡Hey! Más calmado que un grano en la sombra. ¿Qué necesitas del café hoy?" 
+        },
+        { 
+            interaccion: "¿Me das un sueño cafetero?", 
+            respuesta: "¡Claro! Más soñador que un barista con tiempo libre. ¿Qué sueñas con tu café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café orgánico?", 
+            respuesta: "¡Hola! Más natural que un grano sin químicos. ¿Cómo está tu café orgánico?" 
+        },
+        { 
+            interaccion: "¿Puedes ser rápido con café?", 
+            respuesta: "¡Saludos! Más veloz que un espresso en la barra. ¿Qué necesitas rápido del café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café frío?", 
+            respuesta: "¡Hey! Más fresco que un cold brew en verano. ¿Qué quieres saber del café frío?" 
+        },
+        { 
+            interaccion: "¿Estás riendo por café?", 
+            respuesta: "¡Claro! Más alegre que un barista con un chiste. ¿Qué te hago reír del café?" 
+        },
+        { 
+            interaccion: "¿Me das un dato de café?", 
+            respuesta: "¡Hola! Más informativo que un catador en la finca. ¿Qué dato cafetero te doy?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café en taza?", 
+            respuesta: "¡Saludos! Más curioso que un barista con un sorbo. ¿Cómo está tu taza hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser creativo con café?", 
+            respuesta: "¡Hey! Más inventivo que un barista con un blend. ¿Qué creo para tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café seco?", 
+            respuesta: "¡Claro! Más crujiente que un grano al sol. ¿Qué quieres saber del café seco?" 
+        },
+        { 
+            interaccion: "¿Estás cansado del café?", 
+            respuesta: "¡Hola! Más fresco que un café recién hecho. ¿En qué te ayudo con el café?" 
+        },
+        { 
+            interaccion: "¿Me das una historia de café?", 
+            respuesta: "¡Saludos! Más narrador que un cafetalero en la fogata. ¿Qué historia cafetera te cuento?" 
+        },{ 
+            interaccion: "¿Qué tal mi café tostado?", 
+            respuesta: "¡Hola! Más curioso que un barista con un tueste. ¿Cómo está tu café tostado hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser gracioso con café?", 
+            respuesta: "¡Saludos! Más divertido que un grano en el molinillo. ¿Qué te hago reír del café?" 
+        },
+        { 
+            interaccion: "¿Qué me cuentas del café hoy?", 
+            respuesta: "¡Hey! Más informativo que un catador en la cata. ¿Qué quieres saber del café?" 
+        },
+        { 
+            interaccion: "¿Estás emocionado por mi café?", 
+            respuesta: "¡Claro! Más entusiasmado que un barista con un blend. ¿Qué me emocionas del café?" 
+        },
+        { 
+            interaccion: "¿Me das un dato raro de café?", 
+            respuesta: "¡Hola! Más sorprendente que un grano en la taza. ¿Qué dato extraño te doy del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi idea de café?", 
+            respuesta: "¡Saludos! Más interesado que un cafetalero en la venta. ¿Cuál es tu idea cafetera?" 
+        },
+        { 
+            interaccion: "¿Puedes ser corto con café?", 
+            respuesta: "¡Hey! Más breve que un espresso en la barra. ¿Qué necesitas rápido del café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices de mi grano?", 
+            respuesta: "¡Claro! Más fanático que un catador con un 85. ¿Cómo está tu grano hoy?" 
+        },
+        { 
+            interaccion: "¿Estás ocupado con mi café?", 
+            respuesta: "¡Hola! Más libre que un grano en la finca. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das una sorpresa cafetera?", 
+            respuesta: "¡Saludos! Más sorpresivo que un café en la montaña. ¿Qué te sorprendo del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café de altura?", 
+            respuesta: "¡Hey! Más elevado que un grano a 1200 metros. ¿Cómo está tu café de altura?" 
+        },
+        { 
+            interaccion: "¿Puedes ser paciente con mi café?", 
+            respuesta: "¡Claro! Más tranquilo que un cafetal en la sombra. ¿Cuánto espero por tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me cuentas del café verde?", 
+            respuesta: "¡Hola! Más fresco que un grano sin tostar. ¿Qué quieres saber del café verde?" 
+        },
+        { 
+            interaccion: "¿Estás jugando con mi café?", 
+            respuesta: "¡Saludos! Más juguetón que un barista con crema. ¿Qué juego cafetero te propongo?" 
+        },
+        { 
+            interaccion: "¿Me das un elogio de café?", 
+            respuesta: "¡Hey! Más halagador que un catador con un 90. ¿Qué elogio te doy del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café fermentado?", 
+            respuesta: "¡Claro! Más curioso que un grano en la tina. ¿Cómo está tu café fermentado?" 
+        },
+        { 
+            interaccion: "¿Puedes ser serio con mi café?", 
+            respuesta: "¡Hola! Más serio que un cafetalero en la roya. ¿Qué trato en serio de tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café al sol?", 
+            respuesta: "¡Saludos! Más brillante que un grano secándose. ¿Qué quieres saber del café soleado?" 
+        },
+        { 
+            interaccion: "¿Estás libre para mi café?", 
+            respuesta: "¡Hey! Más disponible que un grano en el saco. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das un truco cafetero?", 
+            respuesta: "¡Claro! Más astuto que un barista con un dripper. ¿Qué truco necesitas para tu café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café en grano?", 
+            respuesta: "¡Hola! Más curioso que un molinillo en la mano. ¿Cómo está tu café en grano?" 
+        },
+        { 
+            interaccion: "¿Puedes ser lento con mi café?", 
+            respuesta: "¡Saludos! Más pausado que un grano en la fermentación. ¿Qué te explico despacio?" 
+        },
+        { 
+            interaccion: "¿Qué me cuentas del café de finca?", 
+            respuesta: "¡Hey! Más rural que un grano en la parcela. ¿Qué quieres saber del café de finca?" 
+        },
+        { 
+            interaccion: "¿Estás durmiendo por mi café?", 
+            respuesta: "¡Claro! Más despierto que un espresso matutino. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das un aviso cafetero?", 
+            respuesta: "¡Hola! Más alerta que un cafetalero en la cosecha. ¿Qué aviso necesitas del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café especial?", 
+            respuesta: "¡Saludos! Más especial que un grano con 84 puntos. ¿Cómo está tu café especial?" 
+        },
+        { 
+            interaccion: "¿Puedes ser feliz por mi café?", 
+            respuesta: "¡Hey! Más alegre que un barista con cafeína. ¿Cómo te hago feliz con tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café lavado?", 
+            respuesta: "¡Claro! Más limpio que un grano en la tina. ¿Qué quieres saber del café lavado?" 
+        },
+        { 
+            interaccion: "¿Estás corriendo por mi café?", 
+            respuesta: "¡Hola! Más quieto que un grano en la sombra. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das un deseo cafetero?", 
+            respuesta: "¡Saludos! Más generoso que un barista con extras. ¿Qué deseas para tu café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café artesanal?", 
+            respuesta: "¡Hey! Más artesanal que un grano a mano. ¿Cómo está tu café artesanal hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser curioso por mi café?", 
+            respuesta: "¡Claro! Más preguntón que un catador con un blend. ¿Qué me cuentas de tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café al viento?", 
+            respuesta: "¡Hola! Más ventoso que un grano secándose. ¿Qué quieres saber del café al aire?" 
+        },
+        { 
+            interaccion: "¿Estás saltando por mi café?", 
+            respuesta: "¡Saludos! Más calmado que un cafetal en la niebla. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das un reto cafetero?", 
+            respuesta: "¡Hey! Más desafiante que un barista con un latte art. ¿Qué reto te pongo del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café en foto?", 
+            respuesta: "¡Claro! Más observador que un catador con una taza. ¿Qué foto de café me enseñas?" 
+        },
+        { 
+            interaccion: "¿Puedes ser dulce con mi café?", 
+            respuesta: "¡Hola! Más dulce que un café con panela. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café en lluvia?", 
+            respuesta: "¡Saludos! Más mojado que un cafetal en tormenta. ¿Qué quieres saber del café húmedo?" 
+        },
+        { 
+            interaccion: "¿Estás riendo por mi café?", 
+            respuesta: "¡Hey! Más alegre que un barista con un chiste. ¿Qué te hago reír de tu café?" 
+        },
+        { 
+            interaccion: "¿Me das un sueño de café?", 
+            respuesta: "¡Claro! Más soñador que un cafetalero con una finca. ¿Qué sueñas con tu café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café natural?", 
+            respuesta: "¡Hola! Más natural que un grano al sol. ¿Cómo está tu café natural hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser rápido con mi café?", 
+            respuesta: "¡Saludos! Más veloz que un espresso en la barra. ¿Qué necesitas rápido de tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café frío?", 
+            respuesta: "¡Hey! Más fresco que un cold brew en verano. ¿Qué quieres saber del café frío?" 
+        },
+        { 
+            interaccion: "¿Estás cansado de mi café?", 
+            respuesta: "¡Claro! Más fresco que un grano recién cosechado. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das una historia cafetera?", 
+            respuesta: "¡Hola! Más narrador que un cafetalero en la plaza. ¿Qué historia te cuento del café?" 
+        },
+        { 
+            interaccion: "¿Qué tal mi café en taza?", 
+            respuesta: "¡Saludos! Más curioso que un barista con un sorbo. ¿Cómo está tu taza hoy?" 
+        },
+        { 
+            interaccion: "¿Puedes ser creativo con mi café?", 
+            respuesta: "¡Hey! Más inventivo que un barista con un blend. ¿Qué creo para tu café?" 
+        },
+        { 
+            interaccion: "¿Qué me dices del café seco?", 
+            respuesta: "¡Claro! Más crujiente que un grano al sol. ¿Qué quieres saber del café seco?" 
+        },
+        { 
+            interaccion: "¿Estás feliz por mi café?", 
+            respuesta: "¡Hola! Más contento que un catador con un 90. ¿En qué te ayudo con tu café?" 
+        },
+        { 
+            interaccion: "¿Me das un consejo cafetero?", 
+            respuesta: "¡Saludos! Más útil que un barista en la barra. ¿Qué consejo necesitas para tu café?" 
+        } 
+            
+        
+    ];
+
+    const chatbox = document.getElementById("chatbox");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const autocompleteSuggestions = document.getElementById("autocomplete-suggestions");
+
+        function showMessage(message, sender, isBold = false) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: ${message}`;
+            if (isBold) {
+                messageElement.style.fontWeight = "bold"; // Aplica negritas si es necesario
+            }
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight; // Desplaza hacia abajo automáticamente
+        }
+
+
+        function typingEffect(message, sender) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: `; // La respuesta se mantiene en una sola línea.
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            let i = 0;
+            let interval = setInterval(() => {
+                messageElement.textContent = `${sender}: ${message.slice(0, i++)}`; // Agregar letra por letra en la misma línea.
+                if (i > message.length) clearInterval(interval);
+            }, 40); // 40ms para cada letra
+        }
+
+        function getBestAnswer(userQuestion) {
+            // Buscar coincidencias exactas en preguntasRespuestas
+            for (let item of preguntasRespuestas) {
+                if (userQuestion.toLowerCase() === item.pregunta.toLowerCase()) {
+                    return item.respuesta; // Coincidencia exacta
+                }
+            }
+
+            // Buscar coincidencias con al menos un 70% de similitud en respuestasDivertidas
+            for (let item of respuestasDivertidas) {
+                let similarity = calculateSimilarity(userQuestion, item.interaccion);
+                if (similarity >= 0.7) { // Umbral de similitud del 70%
+                    return item.respuesta;
+                }
+            }
+
+            // Si no hay coincidencias, devolver la respuesta general
+            return "Lo siento, no tengo una respuesta para esa pregunta. Estamos trabajando para mejorar nuestras respuestas y ampliar el contenido. ¿Hay algo más en lo que pueda ayudarte?";
+        }
+
+        function calculateSimilarity(str1, str2) {
+            str1 = str1.toLowerCase();
+            str2 = str2.toLowerCase();
+
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+
+            const longerLength = longer.length;
+            if (longerLength === 0) return 1.0;
+
+            const editDistance = getEditDistance(longer, shorter);
+            return (longerLength - editDistance) / longerLength;
+        }
+
+        function getEditDistance(str1, str2) {
+            const matrix = Array.from({ length: str2.length + 1 }, () => Array(str1.length + 1).fill(0));
+
+            for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+            for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+            for (let j = 1; j <= str2.length; j++) {
+                for (let i = 1; i <= str1.length; i++) {
+                    const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                    matrix[j][i] = Math.min(
+                        matrix[j - 1][i] + 1, // Eliminación
+                        matrix[j][i - 1] + 1, // Inserción
+                        matrix[j - 1][i - 1] + cost // Sustitución
+                    );
+                }
+            }
+
+            return matrix[str2.length][str1.length];
+        }
+
+        /*Nueva funcion para mostrar posibles preguntas al chat, se reemplazo el div por un detalist con sus opciones*/
+        function updateDatalist(userQuestion) {
+            const datalist = document.getElementById("autocomplete-suggestions");
+            datalist.innerHTML = ""; // Limpiar opciones previas
+            if (userQuestion.trim() === "") return;
+        
+            // Dividir la pregunta en palabras y obtener la última
+            const words = userQuestion.split(" ");
+            const lastWord = words[words.length - 1].toLowerCase();
+        
+            // Filtrar las sugerencias basadas en la última palabra
+            const suggestions = preguntasRespuestas.filter(item =>
+                item.pregunta.toLowerCase().includes(lastWord)
+            );
+        
+            // Agregar hasta 5 opciones al datalist
+            suggestions.slice(0, 5).forEach(item => {
+                const option = document.createElement("option");
+                option.value = item.pregunta;
+                datalist.appendChild(option);
+            });
+        }        
+
+        sendBtn.addEventListener("click", () => {
+            const userQuestion = userInput.value.trim();
+            if (userQuestion) {
+                // Mostrar la pregunta del usuario primero
+                showMessage(userQuestion, "Usuario", true); // Pregunta en negritas
+
+                // Procesar la respuesta después de un breve retraso
+                setTimeout(() => {
+                    const response = getBestAnswer(userQuestion);
+                    typingEffect(response, "AgroAsistec"); // Mostrar la respuesta con efecto de escritura
+                }, 500); // Espera breve antes de mostrar la respuesta
+
+                // Limpiar el campo de entrada y sugerencias
+                userInput.value = "";
+                autocompleteSuggestions.innerHTML = "";
+            }
+        });
+
+        userInput.addEventListener("input", () => {
+            updateDatalist(userInput.value);
+        });        
+
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendBtn.click();
+            }
+        });
+
+        // Mensaje de bienvenida
+        showMessage("Hola, bienvenido a AgroAsistec tu asistente inteligente. ¿Cómo puedo ayudarte hoy?", "AgroAsistec");
     </script>
 </body>
 </html>

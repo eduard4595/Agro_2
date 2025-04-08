@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cuestionario para Producción de Café</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      background-color: white;
+      margin: 40px 20px;
+      padding: 30px 40px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+    }
+
+    h1, h2 {
+      color: #4CAF50;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 500;
+      margin-top: 15px;
+      display: block;
+    }
+
+    .required::after {
+      content: " *";
+      color: red;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1.1rem;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    p {
+      margin-top: 25px;
+      text-align: center;
+      color: #555;
+    }
+
+    .btn-back {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px 0;
+      background-color: #FFA500; /* Naranja */
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-back:hover {
+      background-color: #FF8C00; /* Naranja oscuro */
+    }
+
+    @media print {
+      .btn-back {
+        display: none; /* Oculta el botón en la impresión */
+      }
+    }
+  </style>
+  <script>
+    function validateForm() {
+      const form = document.getElementById('maizForm');
+      const inputs = form.querySelectorAll('input[required], select[required]');
+      
+      for (const input of inputs) {
+        if (input.value.trim() === '') {
+          if (input.type === 'text') {
+            input.value = '0'; // Asignar 0 si el campo está vacío
+          } else {
+            alert(`Por favor, complete el campo: ${input.previousElementSibling.innerText}`);
+            input.focus();
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function toggleOtherInput(selectId, inputId) {
+        const selectElement = document.getElementById(selectId);
+        const otherInput = document.getElementById(inputId);
+        otherInput.style.display = selectElement.value === 'Other' ? 'block' : 'none';
+    }
+
+    function formatNumberInput(input) {
+      const value = input.value.replace(/[^\d]/g, '');
+      input.value = new Intl.NumberFormat('es-MX').format(value);
+    }
+  </script>
+</head>
+<body>
+    <div class="container">
+      <h1>Cuestionario para Producción de Litchi</h1>
+      <p><strong>Instrucciones:</strong> Completa este cuestionario una vez al mes. Usa solo números en tus respuestas (por ejemplo, pesos, horas, días). Es un proceso rápido y te proporcionará una visión clara y útil de tu producción, ayudándote a tomar decisiones más informadas. 🌳🍒</p>
+      <!-- Botón para redirigir al panel de litchi -->
+      <button onclick="location.href='/dashboard_litchi'" class="btn-back">
+        ← Volver al Panel de Litchi
+      </button>
+  
+      <form id="litchiForm" action="{{ url_for('submit_litchi_form') }}" method="POST">
+        <h2>Sección 1: Ingresos y Gastos</h2>
+        
+        <label class="required">1. ¿Cuál fue el total de ingresos por la venta de litchi en tu última cosecha? 
+            <em>(Ejemplo: 5,000 pesos)</em>
+        </label>
+        <input type="text" id="q1" name="q1" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el total de ingresos.')">
+    
+        <label class="required">1.1 ¿Cuántas toneladas cosechaste en tu última cosecha? 
+            <em>(Ejemplo: 5 toneladas)</em>
+        </label>
+        <input type="text" id="q1_1" name="q1_1" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con las toneladas cosechadas.')">
+    
+        <label class="required">1.2 ¿Cuántas hectáreas tienes sembradas con litchi? 
+            <em>(Ejemplo: 10 hectáreas)</em>
+        </label>
+        <input type="text" id="q1_2" name="q1_2" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el número de hectáreas.')">
+    
+        <label class="required">2. ¿Cuánto gastaste en insumos (fertilizantes, pesticidas, combustibles) para tus plantas de litchi en el último ciclo de cultivo? 
+            <em>(Ejemplo: $15,000 MXN)</em>
+        </label>
+        <input type="text" id="q2" name="q2" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en insumos.')">
+    
+        <label class="required">3. ¿Cuánto pagaste por todos los jornales en tu último ciclo de cultivo? 
+            <em>(Ejemplo: 3,000 pesos)</em>
+        </label>
+        <input type="text" id="q3" name="q3" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en jornales.')">
+    
+        <label class="required">4. ¿Cuánto gastaste en servicios (mantenimiento de maquinaria y equipo, riego y seguro de cultivo) para tus plantas de litchi en tu último ciclo de cultivo? 
+            <em>(Ejemplo: 1,000 pesos)</em>
+        </label>
+        <input type="text" id="q4" name="q4" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en servicios.')">
+    
+        <label class="required">5. ¿Cuál es el valor estimado de la maquinaria y equipo que utilizas en tu producción de litchi? 
+            <em>(Ejemplo: 25,000 pesos)</em>
+        </label>
+        <input type="text" id="q5" name="q5" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el valor de la maquinaria.')">
+    
+        <label class="required">6. ¿Cuánto dinero destinarás para cubrir tus gastos en tu producción de litchi en los próximos 30 días? 
+            <em>(Ejemplo: 6,000 pesos)</em>
+        </label>
+        <input type="text" id="q6" name="q6" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el dinero disponible.')">
+    
+        <label class="required">7. ¿Cuánto gastaste en imprevistos relacionados con tu producción de litchi en los últimos 30 días? 
+            <em>(Ejemplo: 3,500 pesos)</em>
+        </label>
+        <input type="text" id="q7" name="q7" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el gasto en imprevistos.')">
+    
+        <label class="required">8. ¿Cuál es el monto total de tus deudas relacionadas con la producción de litchi? 
+            <em>(Ejemplo: 25,000 pesos)</em>
+        </label>
+        <input type="text" id="q8" name="q8" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el monto total de tus deudas.')">
+    
+        <h2>Sección 2: Procesos Productivos</h2>
+    
+        <label class="required">9. ¿Cuántos trabajadores necesitas para poda, fertilización, control de maleza y cosecha en tu último ciclo de cultivo de litchi? 
+            <em>(Ejemplo: 3 trabajadores)</em>
+        </label>
+        <input type="text" id="q9" name="q9" required 
+              oninput="this.setCustomValidity(''); formatNumberInput(this);" 
+              oninvalid="this.setCustomValidity('Por favor, completa este campo con el número de trabajadores.')">
+    
+        <label class="required">10. ¿En qué lugares comercializas tu litchi? 
+            <em>(Marca todas las opciones que apliquen)</em>
+        </label>
+        <select id="q10" name="q10" required 
+                oninput="this.setCustomValidity(''); toggleOtherInput('q10', 'q10_other');" 
+                oninvalid="this.setCustomValidity('Por favor, selecciona al menos una opción.')">
+            <option value="acopio">Centro de acopio</option>
+            <option value="mercado">Mercado local</option>
+            <option value="central">Central de Abastos</option>
+            <option value="Other">Otro</option>
+        </select>
+        <input type="text" id="q10_other" name="q10_other" placeholder="Especifica otra opción" style="display: none; margin-top: 10px;">
+  
+
+        <label class="required">Fecha de captura:</label>
+      <input type="date" id="fecha_captura" name="fecha_captura" required 
+            oninput="this.setCustomValidity('');" 
+            oninvalid="this.setCustomValidity('Por favor, selecciona una fecha.')">
+
+      <label>Comentarios o sugerencias:</label>
+      <textarea id="comments" name="comments" rows="4"></textarea>
+
+      <div style="width: 100%; display: flex; justify-content: center;">
+        <button type="submit" style="width: 300px;">Enviar</button>
+      </div>
+      </form>
+      
+  
+      <p>✨ Tu opinión es muy valiosa para nosotros. Cualquier sugerencia o comentario que nos ayude a mejorar será recibido con gratitud. 🙏 ¡Gracias por tu tiempo y colaboración! Juntos podemos seguir creciendo. 🌳🍒🍒</p>
+      <p>Gracias por completar el cuestionario. Tus respuestas nos ayudarán a mejorar la producción de litchi.</p>
+    </div>
+  </body>
+

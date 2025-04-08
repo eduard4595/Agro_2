@@ -2,74 +2,249 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estados Financieros - Huevos</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1, h2 { color: #4CAF50; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        button { background-color: #4CAF50; color: white; padding: 10px; border: none; cursor: pointer; }
+        body {
+            font-family: Garamond, serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #FFFFFF;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            text-align: center;
+            color: #000000;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        .column {
+            width: 48%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        table th, table td {
+            padding: 8px;
+            text-align: left;
+        }
+        table th {
+            background-color: #F0F0F0;
+            color: black;
+            border-top: 2px solid black;
+            border-bottom: 2px solid black;
+        }
+        table tr:first-child th {
+            border-top: 2px solid black;
+        }
+        table tr:last-child td {
+            border-bottom: 2px solid black;
+        }
+        .negative {
+            color: black;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            background: white;
+            border: 2px solid black;
+            color: black;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #F0F0F0;
+        }
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #FFA500;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-back:hover {
+            background-color: #FF8C00;
+        }
+        .interpretation-box {
+            margin-top: 30px;
+            padding: 15px;
+            border: 2px solid #003366;
+            background-color: #F9F9F9;
+            border-radius: 5px;
+        }
+        @media print {
+            .btn, .btn-back, .producer-input, form {
+                display: none;
+            }
+            h2 {
+                font-size: 14px;
+            }
+            table {
+                font-size: 12px;
+            }
+        }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-    <h1>Estados Financieros - Huevos</h1>
-    <div id="financials">
-        <h2>Balance General</h2>
-        <table>
-            <tr><th>Activos</th><th>Monto (pesos)</th></tr>
-            <tr><td>Maquinaria y equipo</td><td id="assets1"></td></tr>
-            <tr><td>Dinero disponible</td><td id="assets2"></td></tr>
-            <tr><th>Total Activos</th><th id="totalAssets"></th></tr>
-            <tr><th>Pasivos</th><th>Monto (pesos)</th></tr>
-            <tr><td>Deudas</td><td id="liabilities"></td></tr>
-            <tr><th>Total Pasivos</th><th id="totalLiabilities"></th></tr>
-            <tr><th>Patrimonio</th><th id="equity"></th></tr>
-        </table>
+    <div class="container">
+        <h1>Estados Financieros - Producción de Huevos</h1>
 
-        <h2>Estado de Ingresos y Gastos</h2>
-        <table>
-            <tr><th>Ingresos</th><th>Monto (pesos)</th></tr>
-            <tr><td>Venta de huevos</td><td id="income"></td></tr>
-            <tr><th>Gastos</th><th>Monto (pesos)</th></tr>
-            <tr><td>Alimento</td><td id="expense1"></td></tr>
-            <tr><td>Mano de obra</td><td id="expense2"></td></tr>
-            <tr><td>Servicios</td><td id="expense3"></td></tr>
-            <tr><td>Imprevistos</td><td id="expense4"></td></tr>
-            <tr><th>Total Gastos</th><th id="totalExpenses"></th></tr>
-            <tr><th>Utilidad Neta</th><th id="netProfit"></th></tr>
-        </table>
+        <div class="producer-input">
+            <label for="producer_name">Favor de colocar tu nombre como productor o el de tu empresa:</label><br>
+            <input type="text" id="producer_name" placeholder="Nombre del productor o empresa" required>
+        </div>
+
+        <form method="POST">
+            <label for="fecha_captura">Selecciona una fecha de captura:</label>
+            <select id="fecha_captura" name="fecha_captura" required>
+                <option value="">Selecciona una fecha</option>
+                {% for fecha in fechas %}
+                <option value="{{ fecha }}" {% if data and data.fecha_captura == fecha %}selected{% endif %}>{{ fecha }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn">Filtrar</button>
+        </form>
+
+        {% if data %}
+        <h2 id="financial-header">
+            Estados financieros de "{{ producer_name }}" a la fecha {{ data.fecha_captura }}
+        </h2>
+
+        <h2>Balance General</h2>
+        <div class="row">
+            <div class="column">
+                <h3>Activos</h3>
+                <table>
+                    <tr><th>Concepto</th><th>Monto</th></tr>
+                    <tr><td>Dinero disponible</td><td data-value="{{ data.activos.dinero_disponible }}"></td></tr>
+                    <tr><td>Valor de maquinaria y equipo</td><td data-value="{{ data.activos.valor_maquinaria }}"></td></tr>
+                    <tr><td>Valor estimado de las aves</td><td data-value="{{ data.activos.valor_aves }}"></td></tr>
+                    <tr><td><strong>Total Activos</strong></td><td data-value="{{ data.activos.total_activos }}"></td></tr>
+                </table>
+            </div>
+            <div class="column">
+                <h3>Pasivos y Capital</h3>
+                <table>
+                    <tr><th>Concepto</th><th>Monto</th></tr>
+                    <tr><td>Deudas</td><td data-value="{{ data.pasivos.deudas }}"></td></tr>
+                    <tr><td><strong>Total Pasivos</strong></td><td data-value="{{ data.pasivos.total_pasivos }}"></td></tr>
+                    <tr><td>Patrimonio</td><td data-value="{{ data.patrimonio }}"></td></tr>
+                    <tr><td><strong>Pasivo más Capital</strong></td><td data-value="{{ data.capital_mas_pasivo }}"></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="column">
+                <h2>Estado de Resultados</h2>
+                <table>
+                    <tr><th>Concepto</th><th>Monto</th></tr>
+                    <tr><td><strong>Ingresos por venta de huevos</strong></td><td data-value="{{ data.ingresos.venta_huevos }}"></td></tr>
+                    <tr><td style="padding-left: 20px; font-size: 12px;"> Alimento</td><td style="font-size: 12px;" data-value="{{ data.gastos.alimento }}"></td></tr>
+                    <tr><td style="padding-left: 20px; font-size: 12px;"> Mano de obra</td><td style="font-size: 12px;" data-value="{{ data.gastos.mano_obra }}"></td></tr>
+                    <tr><td style="padding-left: 20px; font-size: 12px;"> Servicios</td><td style="font-size: 12px;" data-value="{{ data.gastos.servicios }}"></td></tr>
+                    <tr><td style="padding-left: 20px; font-size: 12px;"> Imprevistos</td><td style="font-size: 12px;" data-value="{{ data.gastos.imprevistos }}"></td></tr>
+                    <tr><td><strong>Total Gastos</strong></td><td class="negative" data-value="{{ data.gastos.total_gastos }}"></td></tr>
+                    <tr><td><strong>Utilidad Neta</strong></td><td data-value="{{ data.utilidad_neta }}"></td></tr>
+                </table>
+            </div>
+            <div class="column">
+                <h2>Razones Financieras</h2>
+                <table>
+                    <tr><th>Razón</th><th>Valor</th></tr>
+                    <tr><td>Margen de Ganancia</td><td>{{ data.razones_financieras.margen_ganancia|round(2) }}%</td></tr>
+                    <tr><td>Razón de Endeudamiento</td><td>{{ data.razones_financieras.razon_endeudamiento|round(2) }}%</td></tr>
+                    <tr><td>Productividad por Ave</td><td>{{ data.razones_financieras.productividad_por_ave|round(2) }}</td></tr>
+                    <tr><td>Costo por Huevo</td><td>{{ data.razones_financieras.costo_por_huevo|round(2) }}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="column">
+                <h2>Datos de Referencia</h2>
+                <table>
+                    <tr><th>Concepto</th><th>Valor</th></tr>
+                    <tr><td>Cantidad de aves</td><td>{{ data.datos_referencia.cantidad_aves }}</td></tr>
+                    <tr><td>Huevos recolectados diariamente</td><td>{{ data.datos_referencia.huevos_diarios }}</td></tr>
+                    <tr><td>Valor promedio por ave</td><td>{{ data.datos_referencia.valor_promedio_ave }}</td></tr>
+                    <tr><td>Lugar de comercialización</td><td>{{ data.datos_referencia.lugar_comercializacion }}</td></tr>
+                </table>
+            </div>
+            <div class="column">
+                <h2>Interpretación AI</h2>
+                <div class="interpretation-box">
+                    <p id="ai-analysis">{{ data.interpretacion_ai }}</p>
+                </div>
+                <p style="margin-top: 10px; font-size: 14px; color: #555;">
+                    Nota: Esta interpretación generada por la inteligencia artificial es solo de referencia y puede contener errores. 
+                    Si necesita más apoyo, no dude en contactar a nuestros expertos.
+                </p>
+            </div>
+        </div>
+
+        <button onclick="printPDF()" class="btn">Descargar en PDF</button>
+
+        <a href="{{ url_for('dashboard_huevos') }}" class="btn-back">
+            ← Volver al Panel de Huevos
+        </a>
+
+        <div class="note" style="text-align: center; margin-top: 20px;">
+            <p>Estados financieros en pesos creados el {{ data.fecha_captura }}.</p>
+            <p>Estos estados financieros no están dictaminados por un contador público certificado y son únicamente para fines informativos.</p>
+            <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
+        </div>
+        {% else %}
+        <p>No se encontraron datos para la fecha seleccionada.</p>
+        {% endif %}
     </div>
-    <button onclick="downloadPDF()">Descargar PDF</button>
 
     <script>
-        const data = JSON.parse(localStorage.getItem("financialData"));
-        const productName = "Huevos";
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-value]').forEach(cell => {
+                const value = parseFloat(cell.getAttribute('data-value'));
+                if (!isNaN(value)) {
+                    cell.textContent = value.toLocaleString('es-MX');
+                }
+            });
 
-        if (data) {
-            // Balance General
-            document.getElementById("assets1").innerText = data.assets1 || 0;
-            document.getElementById("assets2").innerText = data.assets2;
-            const totalAssets = (parseFloat(data.assets1) || 0) + parseFloat(data.assets2);
-            document.getElementById("totalAssets").innerText = totalAssets;
-            document.getElementById("liabilities").innerText = data.liabilities;
-            document.getElementById("totalLiabilities").innerText = data.liabilities;
-            document.getElementById("equity").innerText = totalAssets - parseFloat(data.liabilities);
+            const producerInput = document.getElementById('producer_name');
+            const financialHeader = document.getElementById('financial-header');
 
-            // Estado de Ingresos y Gastos
-            document.getElementById("income").innerText = data.income;
-            document.getElementById("expense1").innerText = data.expense1;
-            document.getElementById("expense2").innerText = data.expense2;
-            document.getElementById("expense3").innerText = data.expense3;
-            document.getElementById("expense4").innerText = data.expense4;
-            const totalExpenses = parseFloat(data.expense1) + parseFloat(data.expense2) + parseFloat(data.expense3) + parseFloat(data.expense4);
-            document.getElementById("totalExpenses").innerText = totalExpenses;
-            document.getElementById("netProfit").innerText = parseFloat(data.income) - totalExpenses;
-        }
+            producerInput.addEventListener('input', () => {
+                const producerName = producerInput.value.trim();
+                financialHeader.textContent = `Estados financieros de "${producerName}" a la fecha {{ data.fecha_captura }}`;
+            });
+        });
 
-        function downloadPDF() {
-            const element = document.getElementById("financials");
-            html2pdf().from(element).save("estados_financieros_huevos.pdf");
+        function printPDF() {
+            const producerName = document.getElementById('producer_name').value;
+            if (!producerName) {
+                alert('Por favor, ingresa el nombre del productor o empresa antes de descargar el PDF.');
+                return;
+            }
+            window.print();
         }
     </script>
 </body>

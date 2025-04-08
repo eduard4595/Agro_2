@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Histórico - Litchi</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: steelblue;
+            color: #ffffff;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+            flex: 1;
+        }
+        nav {
+            width: 250px;
+            background-color: #002855;
+            color: white;
+            padding: 1rem 0;
+            display: flex;
+            flex-direction: column;
+        }
+        nav a {
+            text-decoration: none;
+            color: white;
+            padding: 0.75rem 1rem;
+            transition: background-color 0.3s;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        nav a:hover, nav a.active {
+            background-color: #FFD700;
+            color: #002855;
+        }
+        nav a.red-button {
+            background-color: #ff0000;
+            color: white;
+        }
+        nav a.red-button:hover {
+            background-color: #cc0000;
+        }
+        .filters {
+            padding: 1rem;
+            background-color: #f4f4f4;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        .filters form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .filters label {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            color: #002855;
+        }
+        .filters select, .filters button {
+            padding: 0.5rem;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .cards {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            background-color: #f4f4f4;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            text-align: center;
+            flex: 1;
+            margin: 0 0.5rem;
+        }
+        .card h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #002855;
+        }
+        .card p {
+            margin: 0.5rem 0 0;
+            font-size: 1rem;
+            color: #333;
+        }
+        .card img {
+            width: 30px;
+            height: 30px;
+            margin-bottom: 0.5rem;
+        }
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            height: calc(100% - 400px);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            flex-grow: 1;
+            min-height: 100px;
+        }
+        .chart {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            width: 100%;
+            height: 100%;
+        }
+        .chart h2 {
+            text-align: center;
+            width: 100%;
+        }
+        .chart .quadrant-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            height: 100%;
+        }
+        .quadrant {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        h2 {
+            color: #002855;
+            margin-bottom: 1rem;
+        }
+        canvas, .chart > div {
+            width: 100%;
+            height: 100%;
+        }
+        footer {
+            background-color: rgb(1, 1, 57);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            margin-top: auto;
+        }
+        footer div p {
+            margin: 5px 0;
+        }
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .footer-logo img {
+            width: 20%;
+        }
+        .footer-column {
+            flex: 1;
+            margin: 10px;
+            min-width: 200px;
+            color: white;
+        }
+        .footer-column h3 {
+            margin-bottom: 10px;
+        }
+        .footer-column ul {
+            list-style: none;
+            padding: 0;
+            color: white;
+        }
+        .footer-column ul li {
+            margin-bottom: 5px;
+        }
+        .footer-column ul li img {
+            width: 5%;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .footer-column ul li a {
+            color: white;
+            text-decoration: none;
+        }
+        .footer-legend {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>Análisis Histórico - Litchi</header>
+    <div class="container">
+        <nav>
+            <a onclick="showView('rentabilidad')" class="active">Rentabilidad</a>
+            <a onclick="showView('produccion')">Producción</a>
+            <a onclick="showView('mano_obra')">Mano de Obra</a>
+            <a onclick="showView('patrimonio')">Patrimonio</a>
+            <a href="{{ url_for('dashboard_litchi') }}" class="red-button">Ir al Dashboard de Litchi</a>
+            <div class="filters">
+                <form method="POST" action="{{ url_for('my_analysis_litchi') }}">
+                    <label for="fecha_captura">Selecciona una fecha de captura:</label>
+                    <select id="fecha_captura" name="fecha_captura" required>
+                        <option value="">Selecciona una fecha</option>
+                        {% for fecha in fechas_disponibles %}
+                            <option value="{{ fecha }}" {% if fecha == fecha_seleccionada %}selected{% endif %}>{{ fecha }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn">Filtrar</button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="main-content">
+            <div class="cards">
+                <div class="card">
+                    <img src="https://img.icons8.com/color/48/000000/money.png" alt="Ingresos">
+                    <h3>Total Ingresos</h3>
+                    <p>${{ ultimos_valores['total_ingresos'] }}</p>
+                </div>
+                <div class="card">
+                    <img src="https://img.icons8.com/color/48/000000/field.png" alt="Hectáreas">
+                    <h3>Hectáreas</h3>
+                    <p>{{ ultimos_valores['hectareas_sembradas'] }}</p>
+                </div>
+                <div class="card">
+                    <img src="https://img.icons8.com/color/48/000000/money-bag.png" alt="Gastos">
+                    <h3>Gastos Totales</h3>
+                    <p>${{ ultimos_valores['gastos_totales'] }}</p>
+                </div>
+                <div class="card">
+                    <img src="https://img.icons8.com/color/48/000000/fruit.png" alt="Litchi">
+                    <h3>Productividad por Hectárea</h3>
+                    <p>{{ ultimos_valores['productividad_por_hectarea'] }}</p>
+                </div>
+            </div>
+            <div class="charts">
+                <div class="chart" id="rentabilidad">
+                    <h2>Rentabilidad</h2>
+                    <div class="quadrant-container">
+                        <div class="quadrant">{{ sunburst_html|safe }}</div>
+                        <div class="quadrant">{{ line_html|safe }}</div>
+                        <div class="quadrant">{{ bar_html|safe }}</div>
+                    </div>
+                </div>
+                <div class="chart" id="produccion" style="display: none;">
+                    <h2>Producción</h2>
+                    <div class="quadrant-container">
+                        <div class="quadrant">{{ bar_produccion_html|safe }}</div>
+                        <div class="quadrant">{{ line_costos_vs_ingresos_html|safe }}</div>
+                        <div class="quadrant">{{ line_costo_por_hectarea_html|safe }}</div>
+                    </div>
+                </div>
+                <div class="chart" id="mano_obra" style="display: none;">
+                    <h2>Mano de Obra</h2>
+                    <div class="quadrant-container">
+                        <div class="quadrant">{{ pie_costos_laborales_html|safe }}</div>
+                    </div>
+                </div>
+                <div class="chart" id="patrimonio" style="display: none;">
+                    <h2>Patrimonio</h2>
+                    <div class="quadrant-container">
+                        <div class="quadrant">{{ pie_patrimonio_html|safe }}</div>
+                        <div class="quadrant">{{ line_razon_endeudamiento_html|safe }}</div>
+                        <div class="quadrant">{{ bar_activos_vs_deudas_html|safe }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
+    </footer>
+    <script>
+        function showView(viewId) {
+            document.querySelectorAll('.chart').forEach(function(chart) {
+                chart.style.display = 'none';
+            });
+            document.getElementById(viewId).style.display = 'block';
+            document.querySelectorAll('nav a').forEach(function(link) {
+                link.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            showView('rentabilidad');
+        });
+    </script>
+</body>
+</html>

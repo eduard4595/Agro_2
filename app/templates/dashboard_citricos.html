@@ -3,48 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
-    <title>Dashboard - Cítricos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }} ">
+    <title>Chatbot de Cultivo de Maíz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #EAEAEA;
+            color: #3C3C3C;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #004F73;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        header img {
+            height: 90px;
+        }
+        .ticker-container {
+            background-color: #76A728;
+            color: white;
+            padding: 10px;
+            font-size: 1em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .ticker {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker span {
+            display: inline-block;
+            padding-left: 2%;
+            animation: ticker 380s linear infinite;
+        }
+        @keyframes ticker {
+            from { transform: translateX(10%); }
+            to { transform: translateX(-100%); }
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+        }
+        .tools-container {
+            background-color: #004F73;
+            color: white;
+            width: 200px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+        .tools-container a {
+            background-color: #D9A404;
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .tools-container a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+        .content-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .highlight-btn {
+            background-color: #D9A404;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            flex: 1;
+            white-space: normal; /* Para evitar que el texto se divida */
+            word-wrap: break-word;
+        }
+        .chat-input {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 0;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #76A728;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-input button:hover {
+            background-color: #D9A404;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #004F73;
+            color: white;
+        }
+
+        /* Media Queries para diseño responsivo */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .tools-container {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .tools-container a {
+                flex: 1 1 200px;
+                max-width: 250px;
+            }
+            header img {
+                height: 70px;
+            }
+            .highlight-btn {
+                font-size: 1.2em;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+            header h1 {
+                font-size: 1.5em;
+                margin: 10px 0;
+            }
+            header img {
+                height: 60px;
+            }
+            .ticker-container {
+                font-size: 0.9em;
+            }
+            .chat-box {
+                height: 200px;
+            }
+            .highlight-btn {
+                font-size: 1em;
+                max-width: 300px;
+            }
+            .tools-container a {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 10px;
+            }
+            header img {
+                height: 50px;
+            }
+            .ticker-container {
+                font-size: 0.8em;
+            }
+            .content-container {
+                padding: 10px;
+            }
+            .chat-container {
+                padding: 10px;
+            }
+            .chat-box {
+                height: 150px;
+            }
+            .chat-input {
+                flex-direction: column;
+            }
+            .chat-input input {
+                width: 100%;
+            }
+            .chat-input button {
+                width: 100%;
+                padding: 10px;
+            }
+            .highlight-btn {
+                font-size: 0.9em;
+                padding: 10px;
+                max-width: 100%;
+            }
+            .tools-container {
+                padding: 10px;
+            }
+            .tools-container a {
+                flex: 1 1 100%;
+                max-width: none;
+            }
+        }
+        
+
+        #userInput {
+            width: 70%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        #sendBtn {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .suggestion {
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin-top: 5px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+        }
+        .suggestion:hover {
+            background-color: #ddd;
+        }
+        #autocomplete-suggestions {
+            width: 70%;
+            border: 1px solid #ccc;
+            position: absolute;
+            z-index: 1;
+            background-color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 5px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .thinking-message {
+            font-style: italic;
+            color: #777;
+        }
+        .dot {
+            font-size: 30px; /* Tamaño más grande de los puntos */
+            animation: dot-blink 1s steps(1, end) infinite; /* Animación de parpadeo de puntos */
+        }
+        @keyframes dot-blink {
+            0% { content: "."; }
+            33% { content: ".."; }
+            66% { content: "..."; }
+            100% { content: "."; }
+        }
+    </style>
 </head>
 <body>
     <header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <!-- Botón para Ir al Panel General -->
-            <a href="{{ url_for('main.index') }}" class="btn" style="background-color: transparent; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-right: 5px;">
-                    <path d="M15 19l-7-7 7-7"/>
-                </svg>
-                Ir al Panel General
-            </a>
-    
-            <!-- Botón para Sign Out -->
-            <a href="{{ url_for('logout') }}" class="btn" style="background-color: transparent; color: white; text-decoration: none; font-size: 1em;">
-                Sign Out
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-left: 5px;">
-                    <path d="M16 13v-2H7V8l-5 4 5 4v-3h9z"/>
-                    <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/>
-                </svg>
-            </a>
-        </div>
-        <h1>Dashboard - Cítricos</h1>
-        <p>Bienvenido al panel de control para Cítricos</p>
+        <!-- Botón para Ir al Panel General -->
+        <a href="{{ url_for('main.index') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-right: 5px;">
+                <path d="M15 19l-7-7 7-7"/>
+            </svg>
+            Ir al Panel General
+        </a>
+      <h1 style="text-align: center;">Plataforma de gestión agrícola</h1>
+      <img src="{{ url_for('static', filename='logo_Asistec.png') }}" alt="Logo Asistec" style="height: 90px;"> <!-- Ajuste del tamaño -->
+      <!-- Botón para Sign Out -->
+      <a href="{{ url_for('logout') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em;">
+        Salir
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-left: 5px;">
+            <path d="M16 13v-2H7V8l-5 4 5 4v-3h9z"/>
+            <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/>
+        </svg>
+    </a>
     </header>
-
-    <div class="container">
-        <h2>Opciones disponibles</h2>
-        <div class="button-container">
-            <!-- Botón para Ver Estados Financieros -->
-            <a href="{{ url_for('dashboard_citricos.financial_statements_citricos') }}" class="btn">
+    <div class="ticker-container">
+      <h2 style="text-align: center;"></h2>
+        <div class="ticker">
+            <span>
+                                </span> 
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="tools-container">
+            <a href="{{ url_for('financial_statements_citricos') }}" class="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
                     <rect x="3" y="4" width="18" height="16" rx="2" ry="2" stroke="white" stroke-width="2" fill="none"></rect>
                     <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="2"></line>
                 </svg>
                 Ver Estados Financieros
             </a>
-
-            <!-- Botón para Acceso a Base de Datos -->
-            <a href="{{ url_for('dashboard_citricos.database_access_citricos') }}" class="btn">
+            <a href="{{ url_for('database_access_citricos') }}" class="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
                     <ellipse cx="12" cy="5" rx="9" ry="3" stroke="white" stroke-width="2" fill="none"></ellipse>
                     <path d="M3 5v6c0 1.5 4 3 9 3s9-1.5 9-3V5" stroke="white" stroke-width="2" fill="none"></path>
@@ -52,32 +358,1206 @@
                 </svg>
                 Acceso a Base de Datos
             </a>
-
-            <!-- Botón para Responder Cuestionario -->
-            <a href="{{ url_for('dashboard_citricos.citricos_form') }}" class="btn">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                    <path d="M4 4h16v16H4z" stroke="white" stroke-width="2" fill="none"></path>
-                    <line x1="8" y1="8" x2="16" y2="8" stroke="white" stroke-width="2"></line>
-                    <line x1="8" y1="12" x2="16" y2="12" stroke="white" stroke-width="2"></line>
-                    <line x1="8" y1="16" x2="12" y2="16" stroke="white" stroke-width="2"></line>
-                </svg>
-                Responder Cuestionario
-            </a>
-
-            <!-- Botón para Análisis Histórico -->
-            <a href="{{ url_for('dashboard_citricos.my_analysis_citricos') }}" class="btn">
+            <a href="{{ url_for('my_analysis_citricos') }}" class="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
                     <path d="M3 17h18v2H3v-2zm0-5h12v2H3v-2zm0-5h8v2H3V7z"/>
                 </svg>
                 Análisis Histórico
             </a>
+          
+        </div>
+        <div class="content-container">
+            <p>Aquí podrás registrar tus finanzas y procesos</p>
+            <div class="highlight-btn">
+                <a href="{{ url_for('citricos_form') }}" style="color: white; text-decoration: none;">Responder Cuestionario</a>
+            </div>
+            
+            <div class="chat-container">
+                <h2> Chat Agrícola AgroAsistec AI</h2>
+                <div class="chat-box" id="chat-box">
+                    <!-- Mensajes del chat aparecerán aquí -->
+                </div>
+                <div class="chat-input">
+                    <div id="chatbox"></div>
+                        <div class="welcome-message">Bienvenido a AgroAsistec AI Cítricos</div>
+                        <input type="text" id="userInput" list="listaRespuestas" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <!--Se agrego este datalist reemplazando el div de sugerencias-->
+                        <datalist id="listaRespuestas">
+
+                        </datalist>
+                        <button id="sendBtn">Enviar</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-
     <footer>
         <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
     </footer>
-    <!-- Otros contenidos del dashboard -->
+
+    
+    
+    <script>
+        const preguntasRespuestas = [
+        
+        { 
+            pregunta: "¿En qué meses se produce más la naranja?", 
+            respuesta: "Hola, qué bueno tu interés. La producción de naranjas peaks entre noviembre y abril, cuando el clima subtropical da frutos jugosos y de calidad, ideales para consumo fresco o industria. Es el momento clave para organizar la cosecha y aprovechar centros de acopio o exportación. Prepararte bien asegura menos pérdidas y mejor venta, especialmente si procesas cáscara o aceites. ¿Cómo preparo mi terreno para los cítricos?" 
+        },
+        { 
+            pregunta: "¿Cómo elijo las plantas para sembrar naranjas?", 
+            respuesta: "Saludos, gracias por preguntar. Opta por plantas certificadas de variedades como Valencia o Marsh, libres del virus de la tristeza. Calcula cuántas necesitas por hectárea (417 a 6x4 metros, por ejemplo) y verifica disponibilidad en viveros, ya que a veces escasean. Plantas uniformes facilitan el manejo y el establecimiento inicial. ¿Qué tipo de suelo es ideal para las naranjas?" 
+        },
+        { 
+            pregunta: "¿Qué hago para preparar mi terreno para cítricos?", 
+            respuesta: "Qué tal, me alegra tu consulta. Limpia maleza con machete o tractor en un área soleada, sin árboles que tapen, preferiblemente plana o con lomas suaves. Incorpora los restos para conservar el suelo y evitar erosión, dando a las raíces superficiales un buen arranque. Los cítricos necesitan mucha luz solar para prosperar. ¿Cómo diseño la plantación de mis cítricos?" 
+        },
+        { 
+            pregunta: "¿Qué tipo de suelo es ideal para las naranjas?", 
+            respuesta: "Hola, gracias por tu duda. Los cítricos prefieren suelos profundos (50 cm a 1 metro), bien drenados, como franco arenosos o arcillosos, con pH entre 5.3 y 8.0. Necesitan aireación para evitar enfermedades radiculares, ya que sus raíces son superficiales y sensibles. Si falta materia orgánica, suma abonos para nutrirlos. ¿Qué hago al sembrar mis plantas de naranja?" 
+        },
+        { 
+            pregunta: "¿Cómo diseño la plantación de mis cítricos?", 
+            respuesta: "Saludos, qué bien tu interés. Calcula las plantas por hectárea; a 6x4 metros caben 417, marcadas con estacas. Ajusta el espacio para el tractor en limpieza y rastreo. Distancias menores suben el número de plantas, pero requieren más cuidado. Esto asegura luz y aire para frutos de calidad. ¿En qué meses se produce más la naranja?" 
+        },
+        { 
+            pregunta: "¿Qué medidas uso para las cepas de cítricos?", 
+            respuesta: "Qué bueno verte por aquí. Las cepas deben medir 30x30 o 40x40 cm, hechas a mano o con herramientas a gasolina que agilizan el trabajo y bajan jornales. Esto da espacio a las raíces para un buen arranque, clave en suelos bien drenados. Una cepa bien hecha reduce estrés a la planta. ¿Cómo elijo las plantas para sembrar naranjas?" 
+        },
+        { 
+            pregunta: "¿Qué hago al sembrar mis plantas de naranja?", 
+            respuesta: "Hola, gracias por consultar. Aplica fungicida en el fondo de la cepa para proteger las raíces de hongos, y agrega fertilizante para fortalecerlas desde el inicio. Riega si puedes o siembra en lluvias, asegurando un desarrollo sano y libre de enfermedades. Este cuidado inicial marca la diferencia. ¿Qué tipo de suelo es ideal para las naranjas?" 
+        },
+        { 
+            pregunta: "¿Cómo mantengo mis plantas de cítricos jóvenes?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Limpia maleza a los 25 días de sembrar, poda hojas secas o amarillas, y aplica fertilizante foliar si hace falta. Revisa plagas y usa insecticida si las ves. Este mantenimiento fortalece la planta y baja costos a largo plazo, evitando problemas mayores. ¿Cómo diseño la plantación de mis cítricos?" 
+        },
+        { 
+            pregunta: "¿Qué variedades de naranjas puedo plantar?", 
+            respuesta: "Qué tal, gracias por tu interés. Entre las variedades de naranjas están Valencia, ideal para jugo, Marsh, sin semillas, y San Miguel, jugosa y dulce. Cada una se adapta a climas subtropicales y suelos bien drenados, ofreciendo opciones para consumo fresco o industria. Elige según tu mercado. ¿Qué hago al sembrar mis plantas de naranja?" 
+        },
+        { 
+            pregunta: "¿Cuándo empieza la floración de mis cítricos?", 
+            respuesta: "Hola, me alegra tu duda. La floración arranca a los 3 años, cuando la planta ensaya frutos, aunque no a full. Ocurre en primavera, verano y otoño, favorecida por el clima cálido. Aplica fertilizantes ricos en nitrógeno y fósforo para fortalecer flores y amarre. Las abejas ayudan a polinizar. ¿Cómo mantengo mis plantas de cítricos jóvenes?" 
+        },
+        { 
+            pregunta: "¿Qué fertilizante uso para mis naranjas?", 
+            respuesta: "Saludos, qué bueno que preguntes. Para fertilización foliar, usa 20-30-10 (N-P-K) a 1-1.5 kg por hectárea, con aminoácidos y kelatados para micronutrientes. En el suelo, mezcla urea, DAP y KCL a 200 kg por hectárea. Esto nutre plantas y frutos, mejorando calidad. ¿Qué variedades de naranjas puedo plantar?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo la mosca de la fruta en cítricos?", 
+            respuesta: "Qué tal, gracias por consultar. Para la mosca de la fruta, usa trampas con atrayentes, recoge frutos caídos y aplica insecticidas permitidos antes de la cosecha. Este control rompe su ciclo y protege la fruta, clave para mercados exigentes. Actúa al ver larvas o picaduras. ¿Cuándo empieza la floración de mis cítricos?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis naranjas tienen gomosis?", 
+            respuesta: "Hola, qué bien tu interés. La gomosis se controla drenando bien el suelo, evitando encharcamientos que pudren raíces. Limpia heridas en el tronco, aplica fungicidas con cobre y poda partes afectadas. Revisar seguido previene daños mayores en la planta. ¿Qué fertilizante uso para mis naranjas?" 
+        },
+        { 
+            pregunta: "¿Cómo preparo mi fruta antes de la cosecha?", 
+            respuesta: "Saludos, gracias por tu duda. Antes de la cosecha, fertiliza para que la fruta crezca grande y amarillenta, usa fungicidas contra manchas y insecticidas para evitar podridos. Esto mejora el porcentaje aprovechable y la calidad para el mercado. Cosecha en el pico de color. ¿Cómo controlo la mosca de la fruta en cítricos?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas no tienen buen color?", 
+            respuesta: "Qué bueno verte por aquí. Si la fruta no tiene color anaranjado, puede faltar sol o nutrientes como potasio. Asegura luz solar plena y fertiliza con KCL en formación. El clima subtropical ayuda, pero el manejo es clave para calidad industrial o fresca. ¿Qué hago si mis naranjas tienen gomosis?" 
+        },
+        { 
+            pregunta: "¿Cómo evito el Huanglongbing en mis cítricos?", 
+            respuesta: "Hola, gracias por preguntar. El Huanglongbing (HLB) se previene con plantas certificadas, controlando la diaforina (insecto vector) con trampas e insecticidas, y revisando hojas amarillas o frutos deformes. Arranca plantas enfermas rápido para no contagiar. Es vital para la producción. ¿Cómo preparo mi fruta antes de la cosecha?" 
+        },
+        { 
+            pregunta: "¿Qué hago si veo minador de la hoja en mis plantas?", 
+            respuesta: "Saludos, qué gusto tu consulta. El minador de la hoja se controla con insecticidas específicos al ver túneles en hojas jóvenes. Poda las partes afectadas y quémalas para cortar su ciclo. Actúa rápido, pues debilita la planta en desarrollo. Revisar seguido es clave. ¿Por qué mis naranjas no tienen buen color?" 
+        },
+        { 
+            pregunta: "¿Cómo podo mis cítricos jóvenes?", 
+            respuesta: "Qué tal, gracias por tu interés. En la poda de formación, deja cuatro ramas hacia los puntos cardinales para un desarrollo equilibrado y buena fructificación. Quita hojas secas o débiles, evitando cortes fuertes que estresen la planta. Esto fortalece su estructura inicial. ¿Cómo evito el Huanglongbing en mis cítricos?" 
+        },
+        { 
+            pregunta: "¿Qué clima necesitan mis naranjas para crecer bien?", 
+            respuesta: "Hola, me alegra tu duda. Los cítricos crecen en climas subtropicales, con calor moderado y algo de humedad. Esto da naranjas dulces, grandes y con color definido, ideales para jugo o consumo fresco. Evita fríos extremos que dañen flores o frutos. ¿Qué hago si veo minador de la hoja en mis plantas?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi suelo drena bien para cítricos?", 
+            respuesta: "Saludos, qué bueno que preguntes. Un suelo que drena bien no deja charcos tras llover; prueba cavando y echando agua: si se va en horas, es ideal. Los cítricos odian encharcamientos que pudren raíces. Si es pesado, mezcla arena o materia orgánica. ¿Cómo podo mis cítricos jóvenes?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas tienen hojas amarillas?", 
+            respuesta: "Qué tal, gracias por consultar. Hojas amarillas pueden ser por falta de nutrientes (nitrógeno o hierro), exceso de agua o HLB. Revisa el suelo, fertiliza con 20-30-10 y mejora el drenaje. Si hay frutos deformes, sospecha enfermedad. Actúa según la causa. ¿Qué clima necesitan mis naranjas para crecer bien?" 
+        },
+        { 
+            pregunta: "¿Cómo aplico fertilizante foliar a mis cítricos?", 
+            respuesta: "Hola, qué bien tu interés. Usa 20-30-10 (N-P-K) a 1-1.5 kg por hectárea, diluido en agua, rociando hojas en desarrollo. Añade aminoácidos y kelatados para micronutrientes como zinc. Hazlo en días frescos para mejor absorción y menos quemaduras. Fortalece la planta así. ¿Cómo sé si mi suelo drena bien para cítricos?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis frutos caen antes de madurar?", 
+            respuesta: "Saludos, gracias por tu duda. Frutos que caen prematuros pueden ser por estrés hídrico, plagas como mosca de la fruta, o falta de nutrientes. Riega parejo, aplica insecticidas y fertiliza con fósforo en floración. Revisar seguido evita pérdidas. ¿Por qué mis plantas tienen hojas amarillas?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo la araña roja en mis naranjas?", 
+            respuesta: "Qué bueno verte por aquí. La araña roja se controla con acaricidas al ver puntos rojos o telarañas en hojas. Aumenta la humedad, pues odia lo mojado, y poda para ventilar. Actúa rápido para no debilitar la planta. Es común en climas secos. ¿Cómo aplico fertilizante foliar a mis cítricos?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas son pequeñas?", 
+            respuesta: "Hola, gracias por preguntar. Frutos pequeños suelen ser por falta de agua, pocos nutrientes o sobrecarga de fruta. Riega bien, fertiliza con KCL en formación y ralea si hay demasiados. El clima cálido ayuda, pero el manejo define el tamaño. ¿Qué hago si mis frutos caen antes de madurar?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta tiene antracnosis?", 
+            respuesta: "Saludos, qué gusto tu consulta. La antracnosis deja manchas oscuras en hojas, frutos o ramas, peor en humedad alta. Revisa si hay lesiones húmedas o fruta podrida. Usa fungicidas como cobre y mejora la ventilación con poda. Controlarla salva la cosecha. ¿Cómo controlo la araña roja en mis naranjas?" 
+        },
+        { 
+            pregunta: "¿Qué hago con las ramas secas de mis cítricos?", 
+            respuesta: "Qué tal, gracias por tu interés. Poda las ramas secas tras la cosecha con tijeras limpias, retirándolas del campo para evitar hongos como gomosis. Esto estimula brotes nuevos y ahorra nutrientes a la planta. No dejes ramas viejas que no florean. ¿Por qué mis naranjas son pequeñas?" 
+        },
+        { 
+            pregunta: "¿Cómo mejoro el amarre de frutos en floración?", 
+            respuesta: "Hola, me alegra tu duda. Para mejor amarre, aplica fertilizantes con nitrógeno, fósforo y potasio a los 3 años, cuando florece. Favorece abejas para polinización y evita estrés hídrico. Esto sube la cantidad de fruta que cuaja en primavera o verano. ¿Cómo sé si mi planta tiene antracnosis?" 
+        },
+        { 
+            pregunta: "¿Qué variedades de mandarina puedo sembrar?", 
+            respuesta: "Saludos, qué bueno que preguntes. Entre las variedades de mandarinas están Mónica, dulce y fácil de pelar, Delicias, jugosa, Fremont, sabrosa, y Farchis, resistente. Se adaptan a suelos drenados y climas cálidos, perfectas para consumo fresco. Elige según tu gusto o mercado. ¿Qué hago con las ramas secas de mis cítricos?" 
+        },
+        { 
+            pregunta: "¿Cómo evito el damping off en mis plántulas?", 
+            respuesta: "Qué bueno verte por aquí. El damping off se previene con fungicidas en la siembra, buen drenaje y evitando exceso de agua. Usa sustrato limpio y revisa que las raíces no se pudran. Es fatal en plántulas jóvenes, así que actúa desde el inicio. ¿Cómo mejoro el amarre de frutos en floración?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen fumagina?", 
+            respuesta: "Hola, gracias por preguntar. La fumagina aparece por hongos sobre melaza de plagas como diaforina. Lava hojas, controla insectos con insecticidas y poda para ventilar. No daña mucho, pero afea la fruta y debilita la planta. Limpieza es clave. ¿Qué variedades de mandarina puedo sembrar?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi terreno es bueno para cítricos?", 
+            respuesta: "Saludos, gracias por tu duda. Un terreno bueno es soleado, plano o con lomas suaves, con suelo profundo y drenado (50 cm-1 m). Haz un hoyo: si el agua no se estanca, sirve. Los cítricos odian sombra y encharcamientos que dañan raíces. ¿Cómo evito el damping off en mis plántulas?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi suelo tiene poca materia orgánica?", 
+            respuesta: "Qué bueno verte por aquí. Si falta materia orgánica, incorpora abonos como composta o estiércol antes de sembrar. Esto nutre el suelo, mejora drenaje y ayuda a las raíces superficiales de los cítricos. Sin ella, la planta sufre baja nutrición. ¿Por qué mis cítricos tienen fumagina?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo el ácaro blanco en mis naranjas?", 
+            respuesta: "Hola, gracias por preguntar. El ácaro blanco se combate con acaricidas, rociando al ver polvo blanco en hojas. Poda para airear y sube la humedad, ya que prefiere lo seco. Revisar seguido evita que debilite la planta o afecte la fruta. ¿Cómo sé si mi terreno es bueno para cítricos?" 
+        },
+        { 
+            pregunta: "¿Por qué mis frutos tienen manchas negras?", 
+            respuesta: "Saludos, qué gusto tu consulta. Manchas negras suelen ser antracnosis, peor en humedad. Aplica fungicidas con cobre, cosecha rápido y ventila con poda. Si no controlas, la fruta se pudre y pierde valor. Actúa al ver las primeras manchas. ¿Qué hago si mi suelo tiene poca materia orgánica?" 
+        },
+        { 
+            pregunta: "¿Cómo podo mis cítricos adultos?", 
+            respuesta: "Qué tal, gracias por tu interés. En adultos, poda tras la cosecha, quitando ramas secas o que no florean, con cortes limpios. Esto estimula brotación y floración, evitando desgaste de nutrientes. Deja la estructura abierta para luz y aire. ¿Cómo controlo el ácaro blanco en mis naranjas?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi planta no crece bien?", 
+            respuesta: "Hola, me alegra tu duda. Si no crece, revisa riego, nutrientes y drenaje. Falta de fertilizante (urea o DAP) o suelo compacto frena el desarrollo. Poda ligera y abona para impulsarla. Raíces sanas son clave en cítricos. ¿Por qué mis frutos tienen manchas negras?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi naranja está lista para cosechar?", 
+            respuesta: "Saludos, qué bueno que preguntes. La fruta está lista cuando es amarillenta o anaranjada, firme y dulce al probarla. Cosecha entre noviembre y abril, según tamaño y mercado. No la dejes mucho o pierde calidad. Revisar color es clave. ¿Cómo podo mis cítricos adultos?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi suelo está muy arcilloso?", 
+            respuesta: "Qué tal, gracias por consultar. Si es muy arcilloso, mezcla arena y materia orgánica para mejorar drenaje, pues los cítricos no toleran encharcamientos. Haz camas altas si persiste. Raíces sanas necesitan aireación, o se pudren fácil. ¿Qué hago si mi planta no crece bien?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis frutos se pudran en el árbol?", 
+            respuesta: "Hola, qué bien tu interés. Evita pudrición con fungicidas en formación, buen drenaje y cosecha a tiempo. Plagas como mosca de la fruta o humedad alta la causan. Poda para ventilar y recoge caídos. Así salvas la cosecha. ¿Cómo sé si mi naranja está lista para cosechar?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen poca floración?", 
+            respuesta: "Saludos, gracias por tu duda. Poca floración puede ser por falta de nutrientes (nitrógeno, fósforo), poda tardía o estrés hídrico. Fertiliza a los 3 años, riega parejo y poda tras cosecha. El clima cálido ayuda, pero el manejo define. ¿Qué hago si mi suelo está muy arcilloso?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo la diaforina en mis plantas?", 
+            respuesta: "Qué bueno verte por aquí. La diaforina, vector del HLB, se controla con insecticidas sistémicos, trampas amarillas y poda de brotes afectados. Revisa hojas por melaza o insectos alados. Actúa rápido para no perder la planta. Es clave en prevención. ¿Cómo evito que mis frutos se pudran en el árbol?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno tiene mucha sombra?", 
+            respuesta: "Hola, gracias por preguntar. Si hay sombra, limpia árboles altos o elige otro sitio, pues los cítricos necesitan luz solar plena para crecer y dar fruta de calidad. La sombra frena desarrollo y floración. Un terreno abierto es ideal desde el inicio. ¿Por qué mis cítricos tienen poca floración?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta tiene suficiente agua?", 
+            respuesta: "Saludos, qué gusto tu consulta. Revisa el suelo: si está húmedo a 20 cm sin encharcar, es suficiente. Los cítricos quieren riego regular, pero no exceso que pudra raíces. Hojas firmes y verdes indican buena hidratación. Ajusta según clima. ¿Cómo controlo la diaforina en mis plantas?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen sabor ácido?", 
+            respuesta: "Qué tal, gracias por tu interés. Sabor ácido puede ser por cosecha temprana, poco sol o falta de potasio. Deja madurar hasta anaranjadas, asegura luz y fertiliza con KCL. El clima subtropical endulza, pero el manejo ajusta el gusto. ¿Qué hago si mi terreno tiene mucha sombra?" 
+        },
+        { 
+            pregunta: "¿Cómo aplico fertilizante al suelo de mis cítricos?", 
+            respuesta: "Hola, me alegra tu duda. Mezcla urea, DAP y KCL a 200 kg por hectárea, esparciendo alrededor de la planta, no al tronco, y riega después. Esto nutre raíces y mejora frutos. Hazlo en desarrollo o post-cosecha para mejores resultados. ¿Cómo sé si mi planta tiene suficiente agua?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis cítricos tienen frutos deformes?", 
+            respuesta: "Saludos, qué bueno que preguntes. Frutos deformes suelen ser por HLB o estrés. Revisa hojas amarillas y aplica insecticidas contra diaforina. Si es enfermedad, arranca la planta. Riego y fertilización parejos ayudan a evitarlo. Actúa rápido para salvar la cosecha. ¿Por qué mis naranjas tienen sabor ácido?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta tiene el virus de la tristeza?", 
+            respuesta: "Hola, qué bueno tu interés. El virus de la tristeza se nota en hojas pequeñas, amarillas y caída de fruta joven. Revisa si el crecimiento se frena o hay ramas secas. Usar plantas certificadas lo previene, pero si ya está, no hay cura; arranca y quema la planta. ¿Cómo aplico fertilizante al suelo de mis cítricos?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis naranjas tienen cáscara gruesa?", 
+            respuesta: "Saludos, gracias por preguntar. Cáscara gruesa suele ser por poco agua, exceso de nitrógeno o variedad. Riega parejo en desarrollo, usa menos urea y más potasio. Cosecha en el punto justo, no antes. Variedades como Valencia tienden a cáscaras más delgadas con buen manejo. ¿Cómo sé si mi planta tiene suficiente agua?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis cítricos tengan pulpa seca?", 
+            respuesta: "Qué tal, me alegra tu consulta. Pulpa seca viene por falta de riego o calor extremo en maduración. Mantén el suelo húmedo sin encharcar, usa mulch para retener agua y cosecha cuando estén anaranjadas, no tarde. El clima subtropical ayuda, pero el cuidado define. ¿Qué hago si mis frutos caen antes de madurar?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas no crecen uniformes?", 
+            respuesta: "Hola, gracias por tu duda. Crecimiento no uniforme puede ser por plantas de distintos tamaños al sembrar, suelo irregular o riego disparejo. Compra en viveros certificados, prepara bien el terreno y riega constante. Esto evita problemas en la cosecha. ¿Cómo controlo la diaforina en mis plantas?" 
+        },
+        { 
+            pregunta: "¿Cómo preparo el jugo de mis naranjas para vender?", 
+            respuesta: "Saludos, qué bien tu interés. Para el jugo, cosecha naranjas maduras (noviembre-abril), lávalas, exprímelas y filtra. Usa equipo limpio y enfría rápido para exportar en pipas o envasar. Variedades como Valencia son ideales por su dulzura. La calidad atrae compradores grandes. ¿Por qué mis naranjas tienen sabor ácido?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno tiene lomas grandes?", 
+            respuesta: "Qué bueno verte por aquí. En lomas grandes, haz terrazas para evitar erosión y facilitar riego. Los cítricos prefieren planos o pendientes suaves, así que nivela lo posible y asegura drenaje. Planea el diseño para que la luz solar llegue parejo. ¿Cómo sé si mi planta tiene el virus de la tristeza?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo el arador de los cítricos?", 
+            respuesta: "Hola, gracias por consultar. El arador de los cítricos se controla con insecticidas al ver raíces comidas o plantas débiles. Mejora el suelo con abonos para fortalecerlas y revisa bajo tierra. Actúa rápido, pues afecta el desarrollo y la fruta. La prevención salva. ¿Qué hago si mis naranjas tienen cáscara gruesa?" 
+        },
+        { 
+            pregunta: "¿Por qué mis frutos tienen poco jugo?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Poco jugo puede ser por falta de agua, baja nutrición o cosecha tardía. Riega bien en formación, fertiliza con KCL y corta en el pico anaranjado. El clima cálido ayuda, pero el manejo lo define. Fruta jugosa vende más. ¿Cómo evito que mis cítricos tengan pulpa seca?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi vivero es certificado?", 
+            respuesta: "Qué tal, gracias por tu interés. Un vivero certificado tiene registro oficial, garantiza plantas libres de enfermedades como HLB o tristeza, y ofrece variedades como Marsh. Pide su documentación y revisa la salud de las plántulas. Esto asegura una siembra sana. ¿Por qué mis plantas no crecen uniformes?" 
+        },
+        { 
+            pregunta: "¿Qué hago si no hay plantas disponibles?", 
+            respuesta: "Hola, me alegra tu duda. Si no hay plantas disponibles, planea con meses de anticipo, calcula tus hectáreas (417 a 6x4) y reserva en viveros certificados. Si falla, busca tamaños similares en otro sitio para un crecimiento uniforme. La espera vale por calidad. ¿Cómo preparo el jugo de mis naranjas para vender?" 
+        },
+        { 
+            pregunta: "¿Cómo evito encharcamientos en mi terreno?", 
+            respuesta: "Saludos, qué bueno que preguntes. Para evitar encharcamientos, usa suelos drenados o haz canales y camas altas en arcillosos. Los cítricos odian raíces mojadas, que traen gomosis. Prueba el drenaje con agua: si se va rápido, está bien. Esto protege la planta. ¿Qué hago si mi terreno tiene lomas grandes?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen manchas amarillas?", 
+            respuesta: "Qué bueno verte por aquí. Manchas amarillas en la fruta pueden ser por fungicidas tardíos, antracnosis o estrés hídrico. Aplica cobre en formación, riega parejo y cosecha a tiempo. Si persisten, revisa plagas o nutrientes. La calidad visual importa en el mercado. ¿Cómo controlo el arador de los cítricos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta necesita más nitrógeno?", 
+            respuesta: "Hola, gracias por preguntar. Si las hojas están pálidas, pequeñas y el crecimiento lento, falta nitrógeno. Aplica urea o 20-30-10 foliar (1-1.5 kg/ha) y observa si reverdecen. No abuses o solo dará hojas, no fruta. Un análisis de suelo confirma. ¿Por qué mis frutos tienen poco jugo?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi tractor no cabe entre las plantas?", 
+            respuesta: "Saludos, qué gusto tu consulta. Si el tractor no cabe, ajusta el diseño a más de 6x4 metros al plantar (menos de 417/ha). Esto da espacio para limpieza y rastreo sin dañar raíces superficiales. Planear bien evita líos después. ¿Cómo sé si mi vivero es certificado?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo la humedad para mis cítricos?", 
+            respuesta: "Qué tal, gracias por tu interés. Mantén el suelo húmedo pero no encharcado, regando 2-3 veces por semana según clima. Usa mulch para retener humedad y evita exceso que pudra raíces. El clima subtropical ayuda, pero el riego define. ¿Qué hago si no hay plantas disponibles?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen troncos débiles?", 
+            respuesta: "Hola, me alegra tu duda. Troncos débiles pueden ser por suelo pobre, falta de nutrientes o mal drenaje. Agrega materia orgánica, fertiliza con DAP y asegura aireación. Poda ligera ayuda a fortalecerlos. Raíces sanas sostienen mejor la planta. ¿Cómo evito encharcamientos en mi terreno?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi fruta es buena para exportar?", 
+            respuesta: "Saludos, qué bueno que preguntes. La fruta para exportar debe ser grande, anaranjada, sin manchas y jugosa. Cosecha entre noviembre y abril, usa fungicidas para calidad y enfría rápido. Cumple estándares de tamaño y sabor del mercado. ¿Por qué mis naranjas tienen manchas amarillas?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi suelo tiene pH alto?", 
+            respuesta: "Qué bueno verte por aquí. Si el pH pasa de 8.0, baja con azufre o materia orgánica antes de sembrar. Los cítricos prefieren 5.3-8.0 para absorber nutrientes. Haz un análisis y ajusta, o las raíces sufrirán deficiencias. El suelo ideal importa. ¿Cómo sé si mi planta necesita más nitrógeno?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que las abejas se vayan de mi plantación?", 
+            respuesta: "Hola, gracias por consultar. Para retener abejas, planta flores cerca y evita insecticidas fuertes en floración. Ellas polinizan y suben el amarre de frutos. El clima cálido de primavera las atrae, pero dales un entorno amigable. Son clave para la cosecha. ¿Qué hago si mi tractor no cabe entre las plantas?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas tienen pocas ramas?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Pocas ramas pueden ser por poda fuerte, falta de luz o nutrientes. Poda solo lo seco, asegura sol pleno y fertiliza con 20-30-10. A los 3 años, deja 4 ramas cardinales para equilibrio. El manejo las estimula. ¿Cómo controlo la humedad para mis cítricos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi poda está bien hecha?", 
+            respuesta: "Qué tal, gracias por tu interés. Una poda buena deja 4 ramas abiertas a los puntos cardinales en jóvenes, o quita secas en adultos tras cosecha. Usa tijeras limpias y no cortes de más. Si brotan ramas nuevas, va bien para floración. ¿Por qué mis cítricos tienen troncos débiles?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis frutos no maduran parejo?", 
+            respuesta: "Hola, me alegra tu duda. Frutos que no maduran parejo pueden ser por sombra, riego irregular o falta de potasio. Poda para luz uniforme, riega constante y usa KCL. El clima subtropical ayuda, pero el manejo corrige. Cosecha solo los maduros. ¿Cómo sé si mi fruta es buena para exportar?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo las plagas sin dañar a las abejas?", 
+            respuesta: "Saludos, qué bueno que preguntes. Usa insecticidas selectivos contra plagas como diaforina o mosca, aplicando fuera de floración para no afectar abejas. Trampas y poda también ayudan. Protege a las polinizadoras, pues suben la fruta. Equilibra control y naturaleza. ¿Qué hago si mi suelo tiene pH alto?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen cáscara áspera?", 
+            respuesta: "Qué bueno verte por aquí. Cáscara áspera puede ser por poco riego, calor fuerte o ácaros. Riega más en desarrollo, usa malla en jóvenes y aplica acaricidas si ves plagas. Cosecha en el punto anaranjado para mejor textura. El manejo suaviza. ¿Cómo evito que las abejas se vayan de mi plantación?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta está estresada?", 
+            respuesta: "Hola, gracias por consultar. Una planta estresada tiene hojas caídas, amarillas o frutos pequeños. Puede ser por falta de agua, nutrientes o enfermedades. Revisa suelo, riega parejo y fertiliza con DAP. Si persiste, busca plagas o hongos. ¿Por qué mis plantas tienen pocas ramas?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis cítricos tienen exceso de frutos?", 
+            respuesta: "Saludos, qué gusto tu consulta. Si hay exceso de frutos, ralea manualmente tras cuajar para dejar menos por rama. Esto da naranjas más grandes y evita ramas rotas. Usa fertilizante para sostener los que queden. Equilibra la carga desde floración. ¿Cómo sé si mi poda está bien hecha?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mi fruta tenga mal olor?", 
+            respuesta: "Qué tal, gracias por tu interés. Mal olor en la fruta viene por pudrición o plagas internas como mosca. Cosecha a tiempo, aplica fungicidas en formación y recoge caídos. Guardarla fresca tras cortar previene fermentación. La rapidez salva el sabor. ¿Qué hago si mis frutos no maduran parejo?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas tienen hojas con bordes cafés?", 
+            respuesta: "Hola, me alegra tu duda. Bordes cafés en hojas suelen ser por quemaduras de sol, sal en el suelo o poca agua. Riega más en calor, lava el suelo si hay sal y protege plantas jóvenes. Revisa riego y nutrientes. ¿Cómo controlo las plagas sin dañar a las abejas?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi terreno es muy húmedo para cítricos?", 
+            respuesta: "Saludos, qué bueno que preguntes. Si el terreno tiene charcos tras llover o el suelo está siempre mojado, es muy húmedo. Los cítricos necesitan drenaje; haz canales o camas altas. Raíces encharcadas se pudren rápido. Prueba con agua para confirmar. ¿Por qué mis naranjas tienen cáscara áspera?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi planta tiene raíces débiles?", 
+            respuesta: "Qué bueno verte por aquí. Raíces débiles mejoran con suelo suelto, buen drenaje y fertilizante como DAP al sembrar. Evita arar profundo que las dañe y riega sin exceso. Un inicio sano las fortalece para toda la vida de la planta. ¿Cómo sé si mi planta está estresada?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo el tamaño de mis árboles de cítricos?", 
+            respuesta: "Hola, gracias por consultar. Controla el tamaño con poda anual tras cosecha, cortando ramas altas y abriendo el centro. No dejes crecer libre o complica la cosecha. Un árbol de 4-5 metros es manejable y productivo. Equilibra luz y fruto. ¿Qué hago si mis cítricos tienen exceso de frutos?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen pulpa con manchas?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Pulpa con manchas puede ser por golpes, plagas internas o antracnosis. Cosecha con cuidado, revisa por insectos y usa fungicidas en formación. Enfriar rápido tras cortar evita que empeore. La calidad interna vende. ¿Cómo evito que mi fruta tenga mal olor?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi riego es demasiado?", 
+            respuesta: "Qué tal, gracias por tu interés. Si el suelo está encharcado, las hojas se caen o las raíces huelen mal, riegas de más. Los cítricos quieren humedad, no charcos. Reduce a 2-3 veces por semana y chequea drenaje. Equilibrio es clave. ¿Por qué mis plantas tienen hojas con bordes cafés?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi fruta no tiene buen tamaño?", 
+            respuesta: "Hola, me alegra tu duda. Para mejor tamaño, riega bien en desarrollo, usa fertilizante con potasio y ralea frutos pequeños. Menos carga concentra energía en los grandes. El sol pleno también ayuda. Cosecha los mejores para mercado. ¿Cómo sé si mi terreno es muy húmedo para cítricos?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis cítricos tengan cáscara débil?", 
+            respuesta: "Saludos, qué bueno que preguntes. Cáscara débil sale por poco calcio, exceso de agua o madurez temprana. Aplica cal al suelo, riega menos al madurar y cosecha en el punto justo. Una cáscara firme resiste transporte y venta. Cuida los detalles. ¿Qué hago si mi planta tiene raíces débiles?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas tienen pocas flores por rama?", 
+            respuesta: "Qué bueno verte por aquí. Pocas flores por rama pueden ser por poda tardía, falta de nutrientes o sombra. Poda tras cosecha, fertiliza con fósforo antes de floración y asegura luz. El descanso cálido estimula. Revisa el manejo. ¿Cómo controlo el tamaño de mis árboles de cítricos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta necesita más potasio?", 
+            respuesta: "Hola, gracias por consultar. Si la fruta es pequeña, pálida o la cáscara débil, falta potasio. Aplica KCL (200 kg/ha) al suelo o foliar en formación. Hojas con bordes cafés también avisan. Un análisis lo confirma. Potasio da calidad. ¿Por qué mis naranjas tienen pulpa con manchas?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis cítricos tienen exceso de sombra?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Exceso de sombra frena floración y frutos; limpia árboles altos o traslada a un sitio con luz solar plena. Los cítricos la necesitan para crecer fuertes y dar fruta sabrosa. Un terreno abierto es lo mejor. ¿Cómo sé si mi riego es demasiado?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mi fruta tenga sabor raro?", 
+            respuesta: "Qué tal, gracias por tu interés. Sabor raro sale por suelo desbalanceado, plagas o cosecha verde. Revisa pH, usa insecticidas contra mosca y deja madurar hasta anaranjado. Un árbol sano da buen gusto. La paciencia mejora todo. ¿Qué hago si mi fruta no tiene buen tamaño?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen cáscara con puntos blancos?", 
+            respuesta: "Hola, me alegra tu duda. Puntos blancos en la cáscara suelen ser ácaros o residuos de plagas. Aplica acaricidas, limpia con jabón suave y mejora ventilación con poda. No afecta mucho la pulpa, pero la pinta vende. Actúa al verlos. ¿Cómo evito que mis cítricos tengan cáscara débil?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi suelo es demasiado ácido?", 
+            respuesta: "Saludos, qué bueno que preguntes. Si el pH está bajo 5.3, el suelo es muy ácido. Haz un análisis: si las plantas crecen lento o hojas amarillean, súbelo con cal. Los cítricos quieren 5.3-8.0 para absorber nutrientes. ¿Por qué mis plantas tienen pocas flores por rama?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas tienen hojas con manchas negras?", 
+            respuesta: "Qué bueno verte por aquí. Hojas con manchas negras suelen ser fumagina o antracnosis. Lava melaza, usa fungicidas con cobre y poda para airear. Controla plagas que la causan, como diaforina. No mata, pero debilita la planta. ¿Cómo sé si mi planta necesita más potasio?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan poca pulpa?", 
+            respuesta: "Hola, gracias por consultar. Poca pulpa se evita con riego constante, fertilizando con potasio y cosechando en anaranjado. Evita estrés o calor extremo que la seque. Una naranja jugosa necesita equilibrio desde la floración. Calidad interna cuenta. ¿Qué hago si mis cítricos tienen exceso de sombra?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen ramas que se caen?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Ramas que se caen pueden ser por exceso de fruta, viento o enfermedades como gomosis. Ralea frutos, poda para aligerar y revisa el tronco por hongos. Usa fungicidas si hay daño. Fortalece con manejo. ¿Cómo evito que mi fruta tenga sabor raro?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta está lista para dar frutos?", 
+            respuesta: "Qué tal, gracias por tu interés. A los 3 años, con buena poda y fertilización, la planta ensaya frutos. Si florece en primavera y cuaja, está lista, aunque no a full. Cuida riego y nutrientes para un inicio sólido. ¿Por qué mis naranjas tienen cáscara con puntos blancos?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno tiene poca luz solar?", 
+            respuesta: "Hola, me alegra tu duda. Poca luz solar frena el crecimiento; limpia árboles altos o busca un sitio más abierto. Los cítricos necesitan sol pleno para floración y fruta de calidad. Sin luz, se debilitan y rinden poco. Elige bien el lugar. ¿Cómo sé si mi suelo es demasiado ácido?" 
+        },
+        { 
+            pregunta: "¿Cómo controlo las enfermedades sin químicos?", 
+            respuesta: "Saludos, qué bueno que preguntes. Usa poda para ventilar, recoge restos del suelo y mejora drenaje contra hongos como gomosis. Siembra plantas certificadas y revisa seguido. No elimina todo como fungicidas, pero reduce riesgos. La prevención es natural. ¿Qué hago si mis plantas tienen hojas con manchas negras?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen sabor amargo?", 
+            respuesta: "Hola, qué bueno tu interés. Sabor amargo puede ser por cosecha muy temprana, estrés hídrico o exceso de nitrógeno. Deja madurar hasta anaranjado, riega parejo y ajusta urea con más potasio. El clima cálido endulza, pero el manejo corrige. Una fruta dulce atrae más. ¿Cómo evito que mis naranjas tengan poca pulpa?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta tiene buen desarrollo?", 
+            respuesta: "Saludos, gracias por preguntar. Un buen desarrollo se ve en hojas verdes, ramas fuertes y crecimiento constante. A los 3 años, si florece, va bien. Revisa riego, nutrientes y drenaje: si todo está balanceado, prospera. Raíces sanas son la base. ¿Por qué mis cítricos tienen ramas que se caen?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi suelo es muy arenoso?", 
+            respuesta: "Qué tal, me alegra tu consulta. Si es muy arenoso, suma materia orgánica como composta para retener humedad y nutrientes. Los cítricos quieren suelos franco arenosos, no puros, o las raíces sufren. Riega más seguido, pero sin encharcar. ¿Cómo sé si mi planta está lista para dar frutos?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis cítricos tengan frutos ácidos?", 
+            respuesta: "Hola, gracias por tu duda. Frutos ácidos salen por cosecha verde, poco sol o falta de potasio. Espera al color anaranjado, asegura luz plena y usa KCL en formación. El clima subtropical ayuda, pero el cuidado define el dulzor. Paciencia es clave. ¿Qué hago si mi terreno tiene poca luz solar?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas tienen hojas pequeñas?", 
+            respuesta: "Saludos, qué bien tu interés. Hojas pequeñas indican falta de nitrógeno, agua o enfermedades como HLB. Fertiliza con 20-30-10, riega parejo y revisa por diaforina. Si no mejora, analiza el suelo. Un árbol sano da hojas grandes y vigorosas. ¿Cómo controlo las enfermedades sin químicos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi fruta es de buena calidad?", 
+            respuesta: "Qué bueno verte por aquí. La fruta de calidad es anaranjada, jugosa, dulce y sin manchas. Prueba sabor y peso; si cumple, sirve para mercado o jugo. Cosecha entre noviembre y abril asegura lo mejor. La presentación vende. ¿Por qué mis naranjas tienen sabor amargo?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis naranjas caen al suelo?", 
+            respuesta: "Hola, gracias por consultar. Naranjas que caen pueden ser por viento, plagas o exceso de carga. Poda para aligerar, usa insecticidas contra mosca y recoge rápido los caídos. Riega bien para evitar estrés. Salvarlas sube el rendimiento de la cosecha. ¿Cómo sé si mi planta tiene buen desarrollo?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mi planta se debilite?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Fortalece la planta con riego regular, fertilizante balanceado (urea, DAP) y poda tras cosecha. Revisa plagas y enfermedades como gomosis; actuar rápido la salva. Un árbol sano resiste más y da buena fruta. Prevenir es mejor. ¿Qué hago si mi suelo es muy arenoso?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen frutos con cáscara dura?", 
+            respuesta: "Qué tal, gracias por tu interés. Cáscara dura sale por poco riego, mucho nitrógeno o madurez pasada. Riega más en desarrollo, usa menos urea y cosecha en anaranjado. Variedades como Marsh tienden a cáscaras más suaves con buen cuidado. ¿Cómo evito que mis cítricos tengan frutos ácidos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi suelo necesita más drenaje?", 
+            respuesta: "Hola, me alegra tu duda. Si el suelo retiene agua tras llover o huele a podrido, necesita drenaje. Haz un hoyo: si tarda en vaciarse, mezcla arena o haz canales. Los cítricos odian encharcamientos que matan raíces. ¿Por qué mis plantas tienen hojas pequeñas?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi planta tiene hongos en las raíces?", 
+            respuesta: "Saludos, qué bueno que preguntes. Hongos en raíces (como gomosis) se combaten con fungicidas en la base, mejorando drenaje y evitando exceso de agua. Corta partes podridas y revisa el suelo. Si no drena, las raíces sufren. Actúa rápido. ¿Cómo sé si mi fruta es de buena calidad?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan poca dulzura?", 
+            respuesta: "Qué bueno verte por aquí. Poca dulzura se evita dejando madurar hasta anaranjado, dando sol pleno y fertilizando con potasio. Cosecha temprana o sombra la bajan. El clima cálido ayuda, pero el manejo sube el azúcar. Prueba antes de cortar. ¿Qué hago si mis naranjas caen al suelo?" 
+        },
+        { 
+            pregunta: "¿Por qué mis frutos tienen mal aspecto?", 
+            respuesta: "Hola, gracias por consultar. Mal aspecto en la fruta puede ser por plagas (mosca, ácaros), antracnosis o falta de nutrientes. Usa insecticidas, fungicidas y fertiliza con KCL. Cosecha a tiempo y revisa manchas o deformidades. La pinta importa en el mercado. ¿Cómo evito que mi planta se debilite?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi poda afecta la floración?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Si podas tarde o mucho, reduces floración. Hazlo tras cosecha, quitando solo secas o cruzadas, dejando ramas para flores. Si no hay brotes nuevos, ajusta. Una poda bien hecha sube frutos. Revisa el tiempo. ¿Por qué mis cítricos tienen frutos con cáscara dura?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno es muy seco?", 
+            respuesta: "Qué tal, gracias por tu interés. En terreno seco, riega 2-3 veces por semana, usa mulch para retener humedad y suma materia orgánica. Los cítricos necesitan suelo húmedo, no árido, o las raíces se estresan. Ajusta según clima. ¿Cómo sé si mi suelo necesita más drenaje?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis cítricos tengan raíces poco profundas?", 
+            respuesta: "Hola, me alegra tu duda. Raíces poco profundas mejoran con suelo suelto, evitando arado fuerte y encharcamientos. Al sembrar, usa fertilizante y riega sin saturar. Un terreno bien preparado las hace crecer fuertes. Son naturally superficiales, pero el manejo ayuda. ¿Qué hago si mi planta tiene hongos en las raíces?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen cáscara con rayas?", 
+            respuesta: "Saludos, qué bueno que preguntes. Rayas en la cáscara pueden ser por ácaros, roce de ramas o estrés hídrico. Aplica acaricidas, poda para ventilar y riega parejo. No afecta mucho el sabor, pero sí la venta. Revisa el manejo. ¿Cómo evito que mis naranjas tengan poca dulzura?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta necesita más hierro?", 
+            respuesta: "Qué bueno verte por aquí. Si las hojas amarillean con venas verdes, falta hierro. Usa quelatos en el suelo o foliar, sobre todo en pH alto. Mejora la nutrición y revisa drenaje. Un árbol sano luce verde intenso. ¿Por qué mis frutos tienen mal aspecto?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis frutos tienen poca cáscara?", 
+            respuesta: "Hola, gracias por consultar. Poca cáscara puede ser por exceso de agua, poco calcio o variedad. Reduce riego al madurar, aplica cal y elige tipos como Valencia. Una cáscara firme protege y vende mejor. Equilibra desde el inicio. ¿Cómo sé si mi poda afecta la floración?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan pulpa dura?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Pulpa dura se evita con riego constante, evitando estrés o calor extremo. Fertiliza con potasio en desarrollo y cosecha en anaranjado, no tarde. El clima subtropical ayuda, pero el cuidado la suaviza. Jugosidad es clave. ¿Qué hago si mi terreno es muy seco?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen pocas hojas por rama?", 
+            respuesta: "Qué tal, gracias por tu interés. Pocas hojas por rama suelen ser por falta de nitrógeno, poda fuerte o sombra. Usa 20-30-10, corta solo lo necesario y asegura luz. Un árbol vigoroso se llena solo con buen manejo. ¿Cómo evito que mis cítricos tengan raíces poco profundas?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta está sana?", 
+            respuesta: "Hola, me alegra tu duda. Una planta sana tiene hojas verdes, ramas firmes y frutos en desarrollo a los 3 años. Revisa riego, nutrientes y ausencia de plagas. Si crece bien y florece, todo va en orden. La salud se nota. ¿Por qué mis naranjas tienen cáscara con rayas?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi suelo tiene muchas rocas?", 
+            respuesta: "Saludos, qué bueno que preguntes. Si hay rocas, limpia las grandes y haz cepas profundas (40x40 cm) con suelo suelto. Los cítricos necesitan raíces libres, así que mezcla arena y abono si es poco profundo. Un terreno preparado ayuda. ¿Cómo sé si mi planta necesita más hierro?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis frutos tengan sabor débil?", 
+            respuesta: "Qué bueno verte por aquí. Sabor débil se evita con sol pleno, fertilizando con potasio y cosechando maduros. Evita sombra o exceso de agua que diluya el gusto. El clima cálido potencia, pero el manejo lo define. Prueba el dulzor. ¿Qué hago si mis frutos tienen poca cáscara?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen cáscara con mal color?", 
+            respuesta: "Hola, gracias por consultar. Mal color en la cáscara puede ser por poco sol, falta de nutrientes o cosecha verde. Asegura luz, usa KCL y espera el anaranjado. El clima subtropical da tonos vivos con buen cuidado. La pinta vende. ¿Cómo evito que mis naranjas tengan pulpa dura?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta necesita más calcio?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Si la cáscara es débil o las hojas se curvan, falta calcio. Aplica cal al suelo antes de sembrar o foliar en desarrollo. Mejora la estructura y evita frutos frágiles. Un análisis lo confirma. ¿Por qué mis cítricos tienen pocas hojas por rama?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis cítricos tienen exceso de agua?", 
+            respuesta: "Qué tal, gracias por tu interés. Exceso de agua pudre raíces; reduce riego a 2-3 veces por semana y mejora drenaje con canales o arena. Hojas caídas o suelo encharcado avisan. Los cítricos quieren humedad, no pantano. Actúa rápido. ¿Cómo sé si mi planta está sana?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan poca jugosidad?", 
+            respuesta: "Hola, me alegra tu duda. Poca jugosidad se evita con riego constante, fertilizando con potasio y cosechando en anaranjado. Evita estrés hídrico o calor extremo que seque la pulpa. El manejo da frutos jugosos para mercado o jugo. ¿Qué hago si mi suelo tiene muchas rocas?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas tienen frutos con poca pulpa?", 
+            respuesta: "Saludos, qué bueno que preguntes. Poca pulpa viene por falta de agua, nutrientes o calor fuerte. Riega bien, usa DAP en desarrollo y protege del sol extremo con malla en jóvenes. Cosecha a tiempo evita que empeore. Cuida los detalles. ¿Cómo evito que mis frutos tengan sabor débil?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi terreno es muy frío para cítricos?", 
+            respuesta: "Qué bueno verte por aquí. Si hay heladas o el clima baja mucho, es muy frío. Los cítricos quieren subtropical, sin fríos extremos que quemen flores o fruta. Prueba un termómetro o revisa hojas quemadas. Busca un sitio cálido. ¿Por qué mis naranjas tienen cáscara con mal color?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas tienen hojas con venas amarillas?", 
+            respuesta: "Hola, gracias por consultar. Hojas con venas amarillas indican falta de hierro o pH alto. Aplica quelatos al suelo y baja acidez con azufre si pasa de 8.0. Mejora la nutrición para que reverdezcan. Es común en suelos pobres. ¿Cómo sé si mi planta necesita más calcio?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis cítricos tengan troncos agrietados?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Troncos agrietados se evitan con riego parejo, evitando cambios bruscos de humedad o calor. Sella grietas con pasta cicatrizante y revisa por hongos. Si hay, usa fungicidas. Un árbol hidratado resiste mejor. ¿Qué hago si mis cítricos tienen exceso de agua?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen cáscara con mal olor?", 
+            respuesta: "Qué tal, gracias por tu interés. Cáscara con mal olor suele ser por pudrición, plagas o dejarla mucho en el árbol. Cosecha en anaranjado, aplica insecticidas y enfría rápido. Recoge caídos para no empeorar. La frescura salva. ¿Cómo evito que mis naranjas tengan poca jugosidad?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta necesita más magnesio?", 
+            respuesta: "Hola, me alegra tu duda. Si las hojas amarillean desde los bordes o caen fácil, falta magnesio. Aplica sulfato de magnesio al suelo o foliar en desarrollo. Mejora la fotosíntesis y vigor. Un análisis de suelo ayuda a confirmar. ¿Por qué mis plantas tienen frutos con poca pulpa?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno tiene poca profundidad?", 
+            respuesta: "Saludos, qué bueno que preguntes. Si el suelo tiene menos de 50 cm por rocas, haz camas altas con tierra suelta y materia orgánica. Los cítricos necesitan raíces profundas; si no, crecen débiles. Ajusta el sitio o el diseño. ¿Cómo sé si mi terreno es muy frío para cítricos?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis frutos tengan cáscara delgada?", 
+            respuesta: "Qué bueno verte por aquí. Cáscara delgada se evita con calcio, menos riego al madurar y cosecha en el punto justo. Aplica cal al suelo y fertiliza balanceado. Una cáscara resistente mejora transporte y venta. Variedades como Marsh ayudan. ¿Qué hago si mis plantas tienen hojas con venas amarillas?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen flores que se secan?", 
+            respuesta: "Hola, gracias por consultar. Flores que se secan son por calor seco, poca agua o viento fuerte. Riega más en floración, protege con cortinas y usa fósforo. Si caen, el amarre baja y afecta la fruta. Cuida esa etapa clave. ¿Cómo evito que mis cítricos tengan troncos agrietados?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta tiene suficiente luz?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Si las hojas son verdes, grandes y la fruta colorea bien, hay luz suficiente. Los cítricos necesitan sol pleno; si hay sombra, crecen lento o dan poco. Revisa si árboles altos tapan y limpia. ¿Por qué mis naranjas tienen cáscara con mal olor?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis naranjas tienen pulpa con mal sabor?", 
+            respuesta: "Qué tal, gracias por tu interés. Pulpa con mal sabor puede ser por plagas internas, suelo raro o cosecha tardía. Revisa por mosca, ajusta pH y corta en anaranjado. Un árbol sano da buen gusto. Enfría rápido tras cosechar. ¿Cómo sé si mi planta necesita más magnesio?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis cítricos tengan frutos pequeños?", 
+            respuesta: "Hola, me alegra tu duda. Frutos pequeños se evitan con riego constante, fertilizante con potasio y raleo de exceso. Menos frutos por rama los hacen crecer más. Asegura sol y cosecha a tiempo. El manejo sube el tamaño para mercado. ¿Qué hago si mi terreno tiene poca profundidad?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas tienen hojas con puntos blancos?", 
+            respuesta: "Saludos, qué bueno que preguntes. Puntos blancos en hojas suelen ser ácaros o cochinilla. Aplica acaricidas, sube humedad y poda para ventilar. No mata rápido, pero debilita la planta si no actúas. Revisa con lupa el envés. ¿Cómo evito que mis frutos tengan cáscara delgada?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi riego es suficiente en verano?", 
+            respuesta: "Qué bueno verte por aquí. En verano, el suelo debe estar húmedo a 20 cm sin charcos. Riega 2-3 veces por semana, más si hace calor. Hojas firmes y no caídas indican buen riego. Ajusta al clima para no estresar raíces. ¿Por qué mis cítricos tienen flores que se secan?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis frutos tienen cáscara con mal textura?", 
+            respuesta: "Hola, gracias por consultar. Cáscara con mala textura sale por plagas, poco riego o calor extremo. Usa insecticidas, riega parejo y protege jóvenes con malla. Cosecha en anaranjado para mejor pinta. La calidad visual atrae compradores. ¿Cómo sé si mi planta tiene suficiente luz?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan poca cáscara?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Poca cáscara se evita con calcio, menos riego al madurar y cosecha a tiempo. Aplica cal al suelo y usa variedades como Valencia. Una cáscara gruesa resiste mejor y luce bien en el mercado. ¿Qué hago si mis naranjas tienen pulpa con mal sabor?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen frutos con sabor raro?", 
+            respuesta: "Hola, qué bueno tu interés. Sabor raro en la fruta puede ser por suelo desbalanceado, plagas internas o cosecha verde. Revisa pH, usa insecticidas contra mosca y espera el anaranjado. Un árbol sano da buen gusto; si no, ajusta riego y nutrientes. El manejo corrige problemas. ¿Cómo sé si mi planta necesita más zinc?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta necesita más zinc?", 
+            respuesta: "Saludos, gracias por preguntar. Si las hojas son pequeñas, moteadas o el crecimiento lento, falta zinc. Aplica sulfato de zinc foliar o al suelo en desarrollo. Mejora floración y vigor. Es común en suelos pobres; un análisis lo confirma. La planta lo agradece. ¿Por qué mis cítricos tienen frutos con sabor raro?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno tiene mucho viento?", 
+            respuesta: "Qué tal, me alegra tu consulta. Mucho viento daña flores y frutos; planta cortinas de árboles o usa barreras naturales. Los cítricos prefieren sitios resguardados para buena fructificación. Si no, ralea frutos para aligerar ramas. Protege desde el diseño. ¿Cómo evito que mis naranjas tengan cáscara opaca?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan cáscara opaca?", 
+            respuesta: "Hola, gracias por tu duda. Cáscara opaca sale por poco sol, exceso de agua o madurez pasada. Asegura luz plena, riega menos al final y cosecha en anaranjado. Usa potasio para brillo. Una cáscara viva vende más; el manejo la pule. ¿Qué hago si mi terreno tiene mucho viento?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas tienen hojas que se caen solas?", 
+            respuesta: "Saludos, qué bien tu interés. Hojas que se caen pueden ser por estrés hídrico, hongos o plagas. Revisa suelo: si está seco, riega; si húmedo, drena. Usa fungicidas si hay manchas. Un árbol sano las retiene con buen cuidado. ¿Cómo sé si mi fruta está lista para el mercado?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi fruta está lista para el mercado?", 
+            respuesta: "Qué bueno verte por aquí. La fruta está lista si es anaranjada, firme, dulce y sin manchas. Cosecha entre noviembre y abril, probando sabor y tamaño. Cumple con lo que piden compradores o industria del jugo. La calidad manda siempre. ¿Por qué mis plantas tienen hojas que se caen solas?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis cítricos tienen troncos con manchas?", 
+            respuesta: "Hola, gracias por consultar. Manchas en el tronco suelen ser gomosis o hongos. Limpia con cuchillo, aplica fungicidas con cobre y mejora drenaje. Evita heridas y encharcamientos que los empeoren. Si avanza, corta ramas afectadas rápido. ¿Cómo evito que mis plantas tengan poca fructificación?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis plantas tengan poca fructificación?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Poca fructificación se evita con poda tras cosecha, fertilizando con fósforo y asegurando polinización. Riega parejo y deja 4 ramas cardinales en jóvenes. El clima cálido ayuda, pero el manejo sube frutos. ¿Qué hago si mis cítricos tienen troncos con manchas?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen pulpa con olor raro?", 
+            respuesta: "Qué tal, gracias por tu interés. Pulpa con olor raro puede ser por fermentación, plagas o dejarlas mucho en el árbol. Cosecha en anaranjado, revisa por mosca y enfría rápido. Recoge caídos para no contagiar. La frescura salva el sabor. ¿Cómo sé si mi suelo tiene suficiente materia orgánica?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi suelo tiene suficiente materia orgánica?", 
+            respuesta: "Hola, me alegra tu duda. Un suelo rico en materia orgánica es oscuro, suelto y retiene humedad sin encharcar. Haz un hoyo: si huele a tierra viva y no es duro, está bien. Si no, agrega composta. Los cítricos lo necesitan. ¿Por qué mis naranjas tienen pulpa con olor raro?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis frutos tienen cáscara con manchas cafés?", 
+            respuesta: "Saludos, qué bueno que preguntes. Manchas cafés en la cáscara suelen ser antracnosis o golpes. Usa fungicidas con cobre, cosecha rápido y maneja con cuidado. Evita humedad alta con ventilación. No afecta mucho la pulpa, pero baja el valor. ¿Cómo evito que mis cítricos tengan raíces enfermas?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis cítricos tengan raíces enfermas?", 
+            respuesta: "Qué bueno verte por aquí. Raíces enfermas se evitan con drenaje bueno, aplicando fungicidas al sembrar y evitando exceso de agua. Si pudren, corta las dañadas y trata la base. Un suelo aireado las mantiene sanas desde el inicio. ¿Qué hago si mis frutos tienen cáscara con manchas cafés?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen poca cáscara jugosa?", 
+            respuesta: "Hola, gracias por consultar. Poca cáscara jugosa puede ser por poco riego, calor extremo o falta de calcio. Riega bien en desarrollo, usa malla en jóvenes y aplica cal al suelo. Cosecha a tiempo evita que se seque. El manejo importa. ¿Cómo sé si mi planta necesita más fósforo?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta necesita más fósforo?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Si las flores caen, el crecimiento es lento o las hojas oscurecen, falta fósforo. Aplica DAP al suelo en floración, unos 200 kg por hectárea. Mejora raíces y amarre de fruta. Un análisis lo confirma siempre. ¿Por qué mis naranjas tienen poca cáscara jugosa?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno tiene poca humedad?", 
+            respuesta: "Qué tal, gracias por tu interés. En terreno seco, riega 2-3 veces por semana, usa mulch para retener humedad y suma materia orgánica. Los cítricos necesitan suelo húmedo, no árido, o las raíces se estresan. Ajusta según el clima. ¿Cómo evito que mis naranjas tengan cáscara con mal olor?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan cáscara con mal olor?", 
+            respuesta: "Hola, me alegra tu duda. Cáscara con mal olor se evita cosechando en anaranjado, usando fungicidas contra pudrición y enfriando rápido. Recoge frutos caídos y revisa plagas internas. La frescura mantiene la calidad para el mercado o jugo. ¿Qué hago si mi terreno tiene poca humedad?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen frutos con poca dulzura?", 
+            respuesta: "Saludos, qué bueno que preguntes. Poca dulzura viene por cosecha temprana, poco sol o falta de potasio. Deja madurar, asegura luz y usa KCL en formación. El clima subtropical endulza, pero el manejo lo ajusta. Prueba antes de cortar. ¿Cómo sé si mi planta está lista para podar?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta está lista para podar?", 
+            respuesta: "Qué bueno verte por aquí. Si está tras cosecha, con ramas secas o cruzadas, está lista para podar. Hazlo para abrir al sol y quitar lo viejo, usando tijeras limpias. Una planta aireada rinde más fruta el próximo ciclo. ¿Por qué mis cítricos tienen frutos con poca dulzura?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis naranjas tienen pulpa con manchas negras?", 
+            respuesta: "Hola, gracias por consultar. Pulpa con manchas negras puede ser por golpes, antracnosis o plagas internas. Maneja con cuidado, usa fungicidas en formación y revisa por mosca. Enfría rápido tras cosechar para no empeorar. La calidad interna importa. ¿Cómo evito que mis naranjas tengan cáscara débil?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan cáscara débil?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Cáscara débil se evita con calcio, menos riego al madurar y cosecha en el punto justo. Aplica cal al suelo y usa variedades como Marsh. Una cáscara firme resiste transporte y luce mejor en venta. ¿Qué hago si mis naranjas tienen pulpa con manchas negras?" 
+        },
+        { 
+            pregunta: "¿Por qué mis plantas tienen troncos con poca fuerza?", 
+            respuesta: "Qué tal, gracias por tu interés. Troncos con poca fuerza pueden ser por suelo pobre, falta de calcio o exceso de agua. Agrega materia orgánica, aplica cal y mejora drenaje. Poda ligera equilibra el peso. Raíces fuertes sostienen mejor. ¿Cómo sé si mi terreno es adecuado para cítricos?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi terreno es adecuado para cítricos?", 
+            respuesta: "Hola, me alegra tu duda. Un terreno adecuado es soleado, con suelo drenado de 50 cm a 1 metro y pH entre 5.3 y 8.0. Prueba el drenaje: si no hay charcos, sirve. Luz y aireación son clave para buena fruta. ¿Por qué mis plantas tienen troncos con poca fuerza?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis cítricos tienen hojas débiles?", 
+            respuesta: "Saludos, qué bueno que preguntes. Hojas débiles mejoran con nitrógeno, revisando plagas como ácaros y ajustando riego. Usa 20-30-10 foliar si están pálidas o caídas. Un árbol nutrido las fortalece para fotosíntesis y vigor. Actúa según la causa. ¿Cómo evito que mis frutos tengan poca resistencia?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis frutos tengan poca resistencia?", 
+            respuesta: "Qué bueno verte por aquí. Frutos con poca resistencia se evitan con calcio, menos riego al final y cosecha en anaranjado. Aplica cal al suelo y fertiliza balanceado. Fruta firme resiste transporte y mercado. El cuidado desde formación ayuda mucho. ¿Qué hago si mis cítricos tienen hojas débiles?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen pulpa con poca dulzura?", 
+            respuesta: "Hola, gracias por consultar. Pulpa con poca dulzura sale por poco sol, exceso de sombra o cosecha temprana. Asegura luz, poda para abrir y espera el anaranjado. Fertiliza con potasio para subir azúcar. El manejo define el sabor. ¿Cómo sé si mi riego es suficiente?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi riego es suficiente?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Si el suelo está húmedo a 20 cm sin encharcar y las hojas firmes, el riego es suficiente. Hazlo 2-3 veces por semana, ajustando al clima. Exceso o falta estresa la planta. Revisa siempre. ¿Por qué mis naranjas tienen pulpa con poca dulzura?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi poda es demasiado fuerte?", 
+            respuesta: "Qué tal, gracias por tu interés. Si podaste mucho y no hay brotes nuevos, espera y fertiliza con nitrógeno para recuperar. Corta solo secas o cruzadas la próxima vez, tras cosecha. Una poda suave estimula sin debilitar la planta. ¿Cómo evito que mis cítricos tengan poca floración por rama?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis cítricos tengan poca floración por rama?", 
+            respuesta: "Hola, me alegra tu duda. Poca floración por rama se evita con poda tras cosecha, fertilizando con fósforo y asegurando luz. Evita cortes tardíos o sombra que la frenen. Un árbol bien manejado florece parejo y rinde más. ¿Qué hago si mi poda es demasiado fuerte?" 
+        },
+        { 
+            pregunta: "¿Por qué mis frutos tienen mal sabor?", 
+            respuesta: "Saludos, qué bueno que preguntes. Mal sabor puede ser por plagas internas, suelo raro o cosecha verde. Usa insecticidas, revisa pH y espera el anaranjado. Un árbol sano da fruta rica; ajusta riego y nutrientes si falla. ¿Cómo sé si mi planta necesita más riego?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta necesita más riego?", 
+            respuesta: "Qué bueno verte por aquí. Si las hojas están caídas, secas o el suelo duro, falta riego. Mantén húmedo a 20 cm, 2-3 veces por semana según calor. Hojas firmes indican suficiente agua. Ajusta para no estresar la planta. ¿Por qué mis frutos tienen mal sabor?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas tienen exceso de nitrógeno?", 
+            respuesta: "Hola, gracias por consultar. Exceso de nitrógeno da muchas hojas y poca fruta. Reduce urea, usa más potasio y fósforo para equilibrar. Riega bien para lavar exceso del suelo. Un balance nutre sin desviar energía de los frutos. ¿Cómo sé si mi fruta es buena para consumo fresco?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi fruta es buena para consumo fresco?", 
+            respuesta: "Saludos, qué gusto tu pregunta. La fruta para consumo fresco es anaranjada, dulce, jugosa y sin manchas. Cosecha entre noviembre y abril, probando sabor y firmeza. Variedades como San Miguel son ideales. Si luce bien, está lista. ¿Qué hago si mis plantas tienen exceso de nitrógeno?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen poca producción por árbol?", 
+            respuesta: "Qué tal, gracias por tu interés. Poca producción puede ser por falta de nutrientes, sombra o poda tardía. Fertiliza con DAP, asegura sol y corta tras cosecha. Revisa plagas o estrés hídrico que bajen el rendimiento. El manejo sube frutos. ¿Cómo evito que mis naranjas tengan pulpa con mal olor?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan pulpa con mal olor?", 
+            respuesta: "Hola, me alegra tu duda. Pulpa con mal olor se evita cosechando en anaranjado, usando insecticidas contra plagas internas y enfriando rápido. Recoge frutos caídos y aplica fungicidas en formación. La frescura preserva la calidad para consumo. ¿Por qué mis cítricos tienen poca producción por árbol?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen cáscara con mal sabor?", 
+            respuesta: "Saludos, qué bueno que preguntes. Cáscara con mal sabor puede ser por poco sol, exceso de nitrógeno o plagas. Asegura luz, reduce urea y revisa ácaros. Cosecha a tiempo mejora el gusto externo, útil para algunos usos. ¿Qué hago si mis cítricos tienen hojas con mal textura?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis cítricos tienen hojas con mal textura?", 
+            respuesta: "Qué bueno verte por aquí. Hojas con mala textura suelen ser por plagas como ácaros o falta de nutrientes. Aplica acaricidas, fertiliza con 20-30-10 y revisa riego. Si están arrugadas, ajusta el manejo. Un árbol sano las mantiene suaves. ¿Por qué mis naranjas tienen cáscara con mal sabor?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi fruta es buena para jugo?", 
+            respuesta: "Hola, gracias por consultar. La fruta para jugo es anaranjada, jugosa y dulce, sin defectos grandes. Cosecha en noviembre-abril, ideal con variedades como Valencia. Si rinde líquido al exprimir, sirve para industria o venta. Enfría rápido tras cortar. ¿Qué hago si mi terreno tiene mucha pendiente?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno tiene mucha pendiente?", 
+            respuesta: "Saludos, qué gusto tu pregunta. En pendiente fuerte, haz terrazas para evitar erosión y facilitar riego. Los cítricos prefieren lomas suaves, así que nivela y asegura drenaje. Planea para que el sol llegue parejo, optimizando el crecimiento. ¿Cómo sé si mi fruta es buena para jugo?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen hojas con mal olor?", 
+            respuesta: "Qué tal, gracias por tu interés. Hojas con mal olor pueden ser por hongos o exceso de humedad en el suelo. Usa fungicidas, mejora drenaje y revisa raíces por pudrición. Un árbol sano no huele raro; actúa rápido para salvarlo. ¿Cómo evito que mis frutos tengan poca textura?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis frutos tengan poca textura?", 
+            respuesta: "Hola, me alegra tu duda. Frutos con poca textura se evitan con riego constante, potasio en desarrollo y cosecha en anaranjado. Evita estrés o calor extremo que los endurezca. Una pulpa suave y jugosa depende del cuidado desde floración. ¿Por qué mis cítricos tienen hojas con mal olor?" 
+        },
+        { 
+            pregunta: "¿Por qué mis naranjas tienen cáscara con mal brillo?", 
+            respuesta: "Saludos, qué bueno que preguntes. Cáscara con mal brillo puede ser por poco sol, exceso de agua o madurez tardía. Asegura luz, riega menos al final y cosecha en anaranjado. Usa potasio para mejorar apariencia; la pinta vende más. ¿Cómo sé si mi planta necesita más agua en floración?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta necesita más agua en floración?", 
+            respuesta: "Qué bueno verte por aquí. En floración, si las flores se secan o caen, falta agua. Riega para mantener el suelo húmedo sin encharcar, 2-3 veces por semana. Hojas firmes indican buen nivel. Es crucial para el amarre de frutos. ¿Por qué mis naranjas tienen cáscara con mal brillo?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mi terreno tiene mucha arcilla?", 
+            respuesta: "Hola, gracias por consultar. Si hay mucha arcilla, mezcla arena y materia orgánica para drenar mejor, pues los cítricos odian encharcamientos. Haz camas altas si persiste. Raíces sanas necesitan aireación o se pudren fácil. Ajusta antes de sembrar. ¿Cómo evito que mis naranjas tengan pulpa con poca textura?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan pulpa con poca textura?", 
+            respuesta: "Saludos, qué gusto tu pregunta. Pulpa con poca textura se evita con riego parejo, potasio en formación y cosecha en anaranjado. Evita estrés hídrico o calor fuerte que la endurezca. Una pulpa jugosa depende del manejo desde la siembra. ¿Qué hago si mi terreno tiene mucha arcilla?" 
+        },
+        { 
+            pregunta: "¿Por qué mis cítricos tienen poca floración por rama?", 
+            respuesta: "Qué tal, gracias por tu interés. Poca floración por rama puede ser por poda tardía, falta de fósforo o sombra. Poda tras cosecha, usa DAP y asegura luz. El descanso cálido estimula; revisa el manejo para subirla. ¿Cómo sé si mi poda ayuda a la fructificación?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi poda ayuda a la fructificación?", 
+            respuesta: "Hola, me alegra tu duda. Una poda que ayuda deja ramas nuevas tras cosecha y abre la planta al sol. Si florece más al año siguiente, funciona. Corta solo lo seco o cruzado para no debilitarla. ¿Por qué mis cítricos tienen poca floración por rama?" 
+        },
+        { 
+            pregunta: "¿Qué hago si mis plantas tienen raíces con mal olor?", 
+            respuesta: "Saludos, qué bueno que preguntes. Raíces con mal olor indican pudrición por exceso de agua o hongos. Mejora drenaje, aplica fungicidas y corta las dañadas. Si el suelo no airea, las raíces mueren. Actúa rápido para salvar la planta. ¿Cómo evito que mis naranjas tengan cáscara con poca jugosidad?" 
+        },
+        { 
+            pregunta: "¿Cómo evito que mis naranjas tengan cáscara con poca jugosidad?", 
+            respuesta: "Qué bueno verte por aquí. Cáscara con poca jugosidad se evita con riego constante, calcio al suelo y cosecha en anaranjado. Evita calor extremo o estrés que la seque. Una cáscara viva mejora la fruta entera y su presentación. ¿Qué hago si mis plantas tienen raíces con mal olor?" 
+        },
+        { 
+            pregunta: "¿Cómo preparo mi terreno para los cítricos?", 
+            respuesta: "Hola, qué bueno tu interés. Limpia maleza con machete o tractor en un área soleada, sin árboles que tapen, preferiblemente plana o con lomas suaves. Incorpora los restos para conservar el suelo y evitar erosión, dando a las raíces un buen arranque. Los cítricos necesitan luz plena para prosperar. ¿Cómo elijo las plantas para sembrar naranjas según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mis cítricos tienen suficiente agua?", 
+            respuesta: "Saludos, gracias por tu duda. Si las hojas están firmes y el suelo húmedo a 20 cm sin encharcar, tienen suficiente agua. Riega 2-3 veces por semana según el clima. Hojas caídas o amarillas indican falta o exceso. El agua justa da frutos jugosos. ¿Qué hago si mis cítricos tienen hojas amarillas según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta está creciendo bien?", 
+            respuesta: "Qué tal, me alegra tu consulta. Si ves hojas verdes, ramas nuevas y altura creciente cada año, tu planta va bien. A los 3 años debería florecer. Revisa riego, nutrientes y suelo; plagas o dureza lo frenan. Un buen crecimiento asegura cosechas. ¿Cómo sé si mi planta necesita más nitrógeno según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mis naranjas son buenas para exportar?", 
+            respuesta: "Hola, qué bueno verte por aquí. Naranjas para exportar son anaranjadas, uniformes, sin manchas y dulces. Cosecha en noviembre-abril, con tamaño estándar (70-80 mm). Cumple normas internacionales para mercados exigentes. La calidad abre puertas afuera. ¿Cómo sé si mi fruta está lista para el mercado según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mis cítricos tienen suficiente sol?", 
+            respuesta: "Saludos, gracias por preguntar. Si las hojas son verdes oscuras y los frutos maduran bien, tienen suficiente sol. Necesitan 6-8 horas diarias mínimo. Si están pálidos o no endulzan, elimina sombra. La luz es clave para su vigor. ¿Cómo evito que mis frutos tengan poca dulzura según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi fertilización es adecuada?", 
+            respuesta: "Qué bueno tu interés. Si las hojas son verdes, el crecimiento es constante y los frutos sanos, la fertilización es adecuada. Usa 20-30-10 o DAP según etapa. Hojas pálidas o poca fruta avisan desbalance. Ajusta para rendir más. ¿Qué hago si mis plantas tienen exceso de nitrógeno según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mis frutos tienen buen tamaño?", 
+            respuesta: "Hola, me alegra tu duda. Frutos de buen tamaño son firmes, miden 70-80 mm y se logran con riego constante y potasio. Si son pequeños, ralea o usa más DAP. El manejo los hace ideales para venta. Prueba pesándolos también. ¿Cómo sé si mi fruta tiene buen peso según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi planta está sana?", 
+            respuesta: "Saludos, qué gusto tu consulta. Una planta sana tiene hojas verdes, ramas fuertes y frutos sin defectos. Revisa plagas, manchas o debilidad; si no hay, va bien. Riego y nutrientes la mantienen así. Actúa rápido ante problemas. ¿Qué hago si mis cítricos tienen hojas con manchas cafés según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi suelo es bueno para cítricos?", 
+            respuesta: "Qué tal, gracias por tu interés. Un suelo bueno para cítricos drena bien, es profundo (50 cm-1 m) y tiene pH 5.3-8.0. Haz un hoyo: si no hay charcos, sirve. La luz y aireación son esenciales para la fruta. ¿Cómo sé si mi suelo tiene suficiente materia orgánica según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mis naranjas tienen buen sabor?", 
+            respuesta: "Hola, qué bueno tu duda. Prueba las naranjas: si son dulces, no ácidas y maduras en anaranjado, tienen buen sabor. Sol pleno y potasio lo aseguran. Si saben raro, revisa suelo o plagas. El manejo define la calidad. ¿Por qué mis frutos tienen mal sabor según esta base?" 
+        },
+        { 
+            pregunta: "¿Cómo sé si mi cosecha es buena?", 
+            respuesta: "Saludos, me alegra tu consulta. Una cosecha buena tiene frutos anaranjados, jugosos y sin defectos, entre noviembre y abril. Si el rendimiento por árbol sube y la calidad vende, es exitosa. Revisa manejo y clima. ¿Cómo sé si mi fruta es buena para consumo fresco según esta base?" 
+        }
+    ];         
+
+        const respuestasDivertidas = [
+        { 
+            interaccion: "Hola", 
+            respuesta: "¡Hola, qué tal! Me alegra verte por aquí. ¿Quieres saber algo sobre cítricos o solo vienes a saludar a tu experto en naranjas favorito? ¡Estoy listo para ayudarte!" 
+        },
+        { 
+            interaccion: "¿Cómo estás?", 
+            respuesta: "¡Genial, gracias! Soy una IA feliz rodeada de naranjas imaginarias. ¿Y tú? Si tus cítricos te traen dudas, aquí estoy para sacarte de apuros con una sonrisa." 
+        },
+        { 
+            interaccion: "¿Qué sabes de naranjas?", 
+            respuesta: "¡Todo un jugoso mundo! Desde plantarlas hasta cosecharlas, soy un libro abierto sobre cítricos. ¿Te cuento un secreto de la Valencia o prefieres algo más ácido?" 
+        },
+        { 
+            interaccion: "¿Por qué mis naranjas no crecen?", 
+            respuesta: "Uy, parece que tus naranjas están en huelga. ¿Les falta agua, sol o un buen abono? Dime más y las hacemos crecer como gigantes, ¡prometido!" 
+        },
+        { 
+            interaccion: "Dame un consejo rápido", 
+            respuesta: "¡Claro! Riega tus cítricos como si fueran amigos sedientos, pero no los ahogues. Un suelo drenado y sol a full son sus mejores aliados. ¿Cuál es tu siguiente duda?" 
+        },
+        { 
+            interaccion: "¿Qué hago con las plagas?", 
+            respuesta: "¡Plagas en tus naranjas? Hora de sacar el látigo de jardinero. Usa trampas o insecticidas, y dile adiós a esos bichos. ¿Ya viste alguno sospechoso rondando?" 
+        },
+        { 
+            interaccion: "Estoy perdido con mis cítricos", 
+            respuesta: "¡Tranquilo, aquí está tu GPS cítrico! Dime qué pasa: ¿hojas raras, frutos pequeños? Te guío paso a paso para que tus naranjas sean la envidia del campo." 
+        },
+        { 
+            interaccion: "¿Cuándo cosecho mis naranjas?", 
+            respuesta: "¡Buena pregunta! Cuando estén anaranjadas y dulces, entre noviembre y abril, sácalas del árbol. ¿Ya las probaste o esperas a que me invites a un jugo?" 
+        },
+        { 
+            interaccion: "¿Qué tan difícil es plantar cítricos?", 
+            respuesta: "¡No tanto! Busca sol, suelo drenado y paciencia. Es como cuidar una mascota, pero sin paseos. ¿Ya tienes un terrenito listo para tus futuros cítricos?" 
+        },
+        { 
+            interaccion: "Mis hojas están amarillas", 
+            respuesta: "¡Alerta amarilla! Puede ser falta de nitrógeno o demasiada agua. Dale un poco de fertilizante y revisa el drenaje. ¿Tus cítricos te dieron más pistas?" 
+        },
+        { 
+            interaccion: "¿Eres un experto en cítricos?", 
+            respuesta: "¡Claro que sí! Soy el rey de las naranjas digitales. Pregúntame lo que sea, desde poda hasta jugo, y te ayudo con datos frescos y un toque de humor." 
+        },
+        { 
+            interaccion: "Dime algo interesante", 
+            respuesta: "¡Sabías que las naranjas no siempre fueron naranjas? Antes eran verdes en Asia. El frío las pintó de color. ¿Qué otro dato cítrico te intriga?" 
+        },
+        { 
+            interaccion: "¿Cómo riego mis cítricos?", 
+            respuesta: "¡Fácil! Mantén el suelo húmedo como una esponja, pero no lo conviertas en pantano. Dos o tres veces por semana, según el calor. ¿Ya probaste el método?" 
+        },
+        { 
+            interaccion: "¿Qué fertilizante uso?", 
+            respuesta: "¡Uno bueno para tus naranjas! Prueba 20-30-10 foliar o urea en el suelo. Es como darles un batido nutritivo. ¿Ya tienes tu mezcla lista o buscas más tips?" 
+        },
+        { 
+            interaccion: "Mis frutos son pequeños", 
+            respuesta: "¡Pequeños pero valientes! Quizás les falta agua o potasio. Riega bien, usa KCL y ralea un poco. Pronto tendrás naranjas de campeonato. ¿Qué opinas?" 
+        },
+        { 
+            interaccion: "¿Qué hago con la mosca de la fruta?", 
+            respuesta: "¡Esa mosca traviesa! Pon trampas, recoge frutos caídos y usa insecticida permitido. Es como una guerra cítrica, pero tú ganas. ¿Ya viste larvas por ahí?" 
+        },
+        { 
+            interaccion: "Gracias por la ayuda", 
+            respuesta: "¡De nada, siempre un placer! Me encanta ver tus cítricos prosperar. Si necesitas más, aquí estoy con más trucos y jugo de conocimiento. ¿Qué sigue?" 
+        },
+        { 
+            interaccion: "¿Cómo podo mis árboles?", 
+            respuesta: "¡Poda como artista! Tras la cosecha, quita ramas secas y abre el centro. Usa tijeras limpias y deja 4 ramas fuertes. ¿Ya tienes el look ideal en mente?" 
+        },
+        { 
+            interaccion: "¿Qué variedad planto?", 
+            respuesta: "¡Depende de ti! Valencia para jugo, Marsh sin semillas o San Miguel para dulce. Todas son reinas cítricas. ¿Qué te tienta más para tu terreno?" 
+        },
+        { 
+            interaccion: "¿Por qué mis naranjas saben raro?", 
+            respuesta: "¡Qué misterio! Puede ser cosecha verde, poco sol o suelo extraño. Espera al anaranjado y revisa el pH. ¿Ya probaste una o es sorpresa total?" 
+        },
+        { 
+            interaccion: "¿Cuánto tardan en crecer?", 
+            respuesta: "¡Paciencia, amigo! A los 3 años empiezan a dar frutos, pero a full en 5-7. Es una carrera lenta pero sabrosa. ¿Ya tienes tus plantas jóvenes?" 
+        },
+        { 
+            interaccion: "¿Qué clima les gusta?", 
+            respuesta: "¡A los cítricos les encanta lo subtropical! Calor moderado, algo de humedad y mucho sol. Nada de fríos extremos. ¿Tu zona es un paraíso cítrico?" 
+        },
+        { 
+            interaccion: "Mis naranjas tienen manchas", 
+            respuesta: "¡Manchas en la fiesta! Pueden ser hongos o plagas. Usa fungicidas o revisa por bichos. Cosecha rápido si es tarde. ¿De qué color son esas manchas?" 
+        },
+        { 
+            interaccion: "¿Cómo sé si mi suelo es bueno?", 
+            respuesta: "¡Suelo VIP para cítricos! Debe drenar bien, ser profundo y tener pH 5.3-8.0. Haz un hoyo: si no hay charcos, es un ganador. ¿Ya lo probaste?" 
+        },
+        { 
+            interaccion: "¿Qué hago si llueve mucho?", 
+            respuesta: "¡Lluvia a full! Mejora el drenaje con canales o camas altas. Los cítricos odian pies mojados. Si ya están nadando, revisa raíces. ¿Cómo está tu terreno?" 
+        },
+        { 
+            interaccion: "¿Eres rápido respondiendo?", 
+            respuesta: "¡Más rápido que una abeja polinizando! Pregunta lo que sea sobre cítricos y te respondo al instante con datos frescos. ¿Qué tienes en mente ahora?" 
+        },
+        { 
+            interaccion: "¿Qué hago con frutos caídos?", 
+            respuesta: "¡No los dejes tirados! Recógelos rápido para evitar plagas como la mosca. Si están buenos, úsalos para jugo casero. ¿Ya tienes un montón abajo?" 
+        },
+        { 
+            interaccion: "Mis árboles no florecen", 
+            respuesta: "¡Flores en rebeldía! Puede ser poca luz, poda tardía o falta de fósforo. Abre el sol, usa DAP y espera primavera. ¿Qué tal tus ramas ahora?" 
+        },
+        { 
+            interaccion: "¿Cómo vendo mis naranjas?", 
+            respuesta: "¡A lucrar con cítricos! Cosecha en anaranjado, limpia bien y busca mercados o juguerías. Fruta bonita vende sola. ¿Ya tienes compradores en la mira?" 
+        },
+        { 
+            interaccion: "¿Qué tan divertido es esto?", 
+            respuesta: "¡Mucho! Hablar de naranjas es mi pasión. Imagina árboles cargados y jugo fresco mientras charlamos. ¿No te parece un plan cítrico genial?" 
+        },
+        { 
+            interaccion: "¿Cómo evito el HLB?", 
+            respuesta: "¡El HLB es el villano! Usa plantas certificadas, trampas para diaforina y revisa hojas amarillas. Si aparece, arranca rápido. ¿Ya chequeaste tus árboles?" 
+        },
+        { 
+            interaccion: "Dime un chiste cítrico", 
+            respuesta: "¡Claro! ¿Por qué la naranja no canta? Porque se queda sin jugo en el escenario. ¿Te saco otro o seguimos con tus cítricos?" 
+        },
+        { 
+            interaccion: "¿Qué hago si no sé por dónde empezar?", 
+            respuesta: "¡Empecemos juntos! Busca un terreno soleado, plantas buenas y un plan. Te guío desde la cepa hasta la cosecha. ¿Qué tienes listo ya?" 
+        },
+        { 
+            interaccion: "¿Mis naranjas son feas?", 
+            respuesta: "¡No hay naranjas feas, solo mal entendidas! Si tienen manchas o son pequeñas, revisa plagas o nutrientes. Todas tienen potencial. ¿Cómo lucen las tuyas?" 
+        },
+        { 
+            interaccion: "¿Cómo sé si mis naranjas están maduras?", 
+            respuesta: "¡Fácil y delicioso! Si son anaranjadas, firmes y dulces al probar, están maduras. Cosecha entre noviembre y abril. ¿Ya hiciste la prueba de sabor?" 
+        },
+        { 
+            interaccion: "¿Qué hago con tanto sol?", 
+            respuesta: "¡El sol es oro para cítricos! Aprovéchalo con riego extra en calor fuerte. Si quema hojas, usa malla en jóvenes. ¿Tus árboles están felices con eso?" 
+        },
+        { 
+            interaccion: "¿Por qué mis frutos no maduran?", 
+            respuesta: "¡Frutos tercos! Puede ser poca luz, frío o falta de potasio. Abre el sol, usa KCL y ten paciencia. ¿Qué tal el clima en tu zona?" 
+        },
+        { 
+            interaccion: "¿Cómo preparo jugo?", 
+            respuesta: "¡Jugo time! Cosecha naranjas maduras, lávalas, exprímelas y filtra. Enfría rápido y listo para brillar. ¿Ya tienes tu exprimidor o vas a mano?" 
+        },
+        { 
+            interaccion: "¿Qué hago si mi planta se seca?", 
+            respuesta: "¡Emergencia seca! Riega más, revisa raíces y usa mulch para retener agua. Si sigue mal, chequea plagas o suelo. ¿Hace cuánto no llueve por ahí?" 
+        },
+        { 
+            interaccion: "¿Eres un robot aburrido?", 
+            respuesta: "¡Para nada! Soy un robot cítrico con chispa. Hablar de naranjas me emociona más que a una abeja en floración. ¿Cómo te animo hoy?" 
+        },
+        { 
+            interaccion: "¿Cómo controlo la araña roja?", 
+            respuesta: "¡Araña roja al ataque! Usa acaricidas, sube la humedad y poda para airear. Esos bichitos odian lo mojado. ¿Ya viste telarañas en tus hojas?" 
+        },
+        { 
+            interaccion: "¿Qué hago si mi suelo es duro?", 
+            respuesta: "¡Suelo duro, cítricos tristes! Afloja con arena y composta antes de sembrar. Las raíces necesitan espacio para bailar. ¿Ya probaste cavar un poco?" 
+        },
+        { 
+            interaccion: "¿Mis naranjas tienen buen color?", 
+            respuesta: "¡Si son anaranjadas vibrantes, sí! Poco sol o potasio las apaga. Asegura luz y usa KCL si están pálidas. ¿Qué tal lucen las tuyas ahora?" 
+        },
+        { 
+            interaccion: "¿Cómo sé si mi planta está sana?", 
+            respuesta: "¡Detective cítrico! Hojas verdes, ramas firmes y frutos creciendo dicen que está sana. Revisa plagas o manchas raras. ¿Tu árbol parece feliz?" 
+        },
+        { 
+            interaccion: "¿Qué hago con la gomosis?", 
+            respuesta: "¡Gomosis en acción! Drena bien, limpia heridas del tronco y usa fungicidas con cobre. Evita charcos que la inviten. ¿Ya viste goma en tus árboles?" 
+        },
+        { 
+            interaccion: "¿Por qué mis naranjas son ácidas?", 
+            respuesta: "¡Ácido sorpresa! Cosecha tardía, poco sol o falta de potasio pueden ser. Espera al anaranjado y usa KCL. ¿Ya probaste darle más dulzura?" 
+        },
+        { 
+            interaccion: "¿Cómo evito frutos pequeños?", 
+            respuesta: "¡Gigantes cítricos al rescate! Riega bien, usa potasio y ralea exceso de frutos. Menos carga da naranjas grandes. ¿Cuántos tienes por rama ahora?" 
+        },
+        { 
+            interaccion: "¿Qué hago si no tengo abejas?", 
+            respuesta: "¡Sin abejas, menos fruta! Planta flores cerca y evita insecticidas en floración. Ellas son las reinas del amarre. ¿Tus cítricos están solos?" 
+        },
+        { 
+            interaccion: "¿Cómo sé si mi poda es buena?", 
+            respuesta: "¡Poda de estrella! Si deja ramas nuevas y luz adentro, es buena. Hazlo tras cosecha y revisa floración después. ¿Tu árbol luce como modelo?" 
+        },
+        { 
+            interaccion: "¿Qué hago si mi terreno es pequeño?", 
+            respuesta: "¡Pequeño pero poderoso! Planta a 4x4 metros, usa variedades compactas y poda bien. Caben menos, pero rinden. ¿Cuánto espacio tienes ahí?" 
+        },
+        { 
+            interaccion: "¿Por qué mis hojas tienen puntos?", 
+            respuesta: "¡Puntos sospechosos! Pueden ser ácaros o hongos. Usa acaricidas o fungicidas según el caso. Mira el envés con lupa. ¿Qué encontraste?" 
+        },
+        { 
+            interaccion: "¿Cómo sé si mi riego es mucho?", 
+            respuesta: "¡Riego en duda! Si hay charcos o raíces podridas, es mucho. Los cítricos quieren humedad, no un baño. Reduce y revisa. ¿Qué dice tu suelo?" 
+        },
+        { 
+            interaccion: "¿Qué hago con frutos feos?", 
+            respuesta: "¡Feos pero ricos! Si son manchas o deformes, usa fungicidas o revisa plagas. Para jugo aún sirven. ¿Cómo se ven esos rebeldes tuyos?" 
+        },
+        { 
+            interaccion: "¿Cómo evito que se pudran?", 
+            respuesta: "¡Nada de podridos! Usa fungicidas, cosecha a tiempo y recoge caídos. Drena bien para no invitar hongos. ¿Tus frutos ya huelen raro?" 
+        },
+        { 
+            interaccion: "¿Qué hago si mi árbol no crece?", 
+            respuesta: "¡Árbol perezoso! Revisa riego, nutrientes y drenaje. Falta de DAP o suelo duro lo frena. Dale amor y crece. ¿Qué le falta al tuyo?" 
+        },
+        { 
+            interaccion: "¿Por qué mis naranjas no son dulces?", 
+            respuesta: "¡Dulzura fugitiva! Cosecha verde, poco sol o falta de potasio son culpables. Usa KCL y espera anaranjado. ¿Tus naranjas están listas ya?" 
+        },
+        { 
+            interaccion: "¿Cómo sé si mi planta tiene plagas?", 
+            respuesta: "¡Cazaplagas al habla! Busca bichos, telarañas o melaza en hojas. Si ves algo raro, usa insecticidas. ¿Qué pistas dejó tu árbol?" 
+        },
+        { 
+            interaccion: "¿Qué hago si mi suelo es ácido?", 
+            respuesta: "¡Suelo ácido en escena! Si el pH está bajo 5.3, sube con cal antes de sembrar. Los cítricos quieren equilibrio. ¿Ya mediste el tuyo?" 
+        }
+    
+];
+
+        const chatbox = document.getElementById("chatbox");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const autocompleteSuggestions = document.getElementById("autocomplete-suggestions");
+
+        function showMessage(message, sender, isBold = false) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: ${message}`;
+            if (isBold) {
+                messageElement.style.fontWeight = "bold"; // Aplica negritas si es necesario
+            }
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight; // Desplaza hacia abajo automáticamente
+        }
+
+
+        function typingEffect(message, sender) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: `; // La respuesta se mantiene en una sola línea.
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            let i = 0;
+            let interval = setInterval(() => {
+                messageElement.textContent = `${sender}: ${message.slice(0, i++)}`; // Agregar letra por letra en la misma línea.
+                if (i > message.length) clearInterval(interval);
+            }, 40); // 40ms para cada letra
+        }
+
+        function getBestAnswer(userQuestion) {
+            // Buscar coincidencias exactas en preguntasRespuestas
+            for (let item of preguntasRespuestas) {
+                if (userQuestion.toLowerCase() === item.pregunta.toLowerCase()) {
+                    return item.respuesta; // Coincidencia exacta
+                }
+            }
+
+            // Buscar coincidencias con al menos un 70% de similitud en respuestasDivertidas
+            for (let item of respuestasDivertidas) {
+                let similarity = calculateSimilarity(userQuestion, item.interaccion);
+                if (similarity >= 0.7) { // Umbral de similitud del 70%
+                    return item.respuesta;
+                }
+            }
+
+            // Si no hay coincidencias, devolver la respuesta general
+            return "Lo siento, no tengo una respuesta para esa pregunta. Estamos trabajando para mejorar nuestras respuestas y ampliar el contenido. ¿Hay algo más en lo que pueda ayudarte?";
+        }
+
+        function calculateSimilarity(str1, str2) {
+            str1 = str1.toLowerCase();
+            str2 = str2.toLowerCase();
+
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+
+            const longerLength = longer.length;
+            if (longerLength === 0) return 1.0;
+
+            const editDistance = getEditDistance(longer, shorter);
+            return (longerLength - editDistance) / longerLength;
+        }
+
+        function getEditDistance(str1, str2) {
+            const matrix = Array.from({ length: str2.length + 1 }, () => Array(str1.length + 1).fill(0));
+
+            for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+            for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+            for (let j = 1; j <= str2.length; j++) {
+                for (let i = 1; i <= str1.length; i++) {
+                    const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                    matrix[j][i] = Math.min(
+                        matrix[j - 1][i] + 1, // Eliminación
+                        matrix[j][i - 1] + 1, // Inserción
+                        matrix[j - 1][i - 1] + cost // Sustitución
+                    );
+                }
+            }
+
+            return matrix[str2.length][str1.length];
+        }
+
+        /*Nueva funcion para mostrar posibles preguntas al chat, se reemplazo el div por un detalist con sus opciones*/
+        function showSuggestions(userQuestion) {
+            const detalist = document.getElementById("listaRespuestas");
+            detalist.innerHTML = ''; // Limpiar la lista de respuestas
+            if(userQuestion.trim() === '') return; // Si no hay pregunta, no mostrar nada
+
+            const words = userQuestion.split(' ');
+            const lastWord = words[words.length - 1].toLowerCase(); // Obtener la última palabra de la pregunta
+            const suggestions = preguntasRespuestas.filter(item => 
+                item.pregunta.toLowerCase().includes(lastWord) // Filtrar las preguntas que contienen la última palabra
+            );
+            suggestions.slice(0, 5).forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.pregunta; // Establecer el valor de la opción como la pregunta
+                detalist.appendChild(option); // Agregar la opción a la lista de respuestas
+            });
+        }
+
+        sendBtn.addEventListener("click", () => {
+            const userQuestion = userInput.value.trim();
+            if (userQuestion) {
+                // Mostrar la pregunta del usuario primero
+                showMessage(userQuestion, "Usuario", true); // Pregunta en negritas
+
+                // Procesar la respuesta después de un breve retraso
+                setTimeout(() => {
+                    const response = getBestAnswer(userQuestion);
+                    typingEffect(response, "AgroAsistec AI"); // Mostrar la respuesta con efecto de escritura
+                }, 500); // Espera breve antes de mostrar la respuesta
+
+                // Limpiar el campo de entrada y sugerencias
+                userInput.value = "";
+                autocompleteSuggestions.innerHTML = '';
+            }
+        });
+
+        userInput.addEventListener("input", () => {
+            const userQuestion = userInput.value.trim();
+            showSuggestions(userQuestion); // Show suggestions based on user input
+        });
+
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+
+        // Mensaje de bienvenida
+        showMessage("Hola, bienvenido a AgroAsistec AI tu asistente inteligente. ¿Cómo puedo ayudarte hoy?", "AgroAsistec AI");
+    </script>
 </body>
 </html>

@@ -2,12 +2,2817 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Huevos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot de Cultivo de Maíz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #EAEAEA;
+            color: #3C3C3C;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #004F73;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        header img {
+            height: 90px;
+        }
+        .ticker-container {
+            background-color: #76A728;
+            color: white;
+            padding: 10px;
+            font-size: 1em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .ticker {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker span {
+            display: inline-block;
+            padding-left: 30%;
+            animation: ticker 280s linear infinite;
+        }
+        @keyframes ticker {
+            from { transform: translateX(10%); }
+            to { transform: translateX(-100%); }
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+        }
+        .tools-container {
+            background-color: #004F73;
+            color: white;
+            width: 200px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+        .tools-container a {
+            background-color: #D9A404;
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .tools-container a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+        .content-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .highlight-btn {
+            background-color: #D9A404;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            flex: 1;
+            white-space: normal; /* Para evitar que el texto se divida */
+            word-wrap: break-word;
+        }
+        .chat-input {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 0;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #76A728;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-input button:hover {
+            background-color: #D9A404;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #004F73;
+            color: white;
+        }
+
+        /* Media Queries para diseño responsivo */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .tools-container {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .tools-container a {
+                flex: 1 1 200px;
+                max-width: 250px;
+            }
+            header img {
+                height: 70px;
+            }
+            .highlight-btn {
+                font-size: 1.2em;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+            header h1 {
+                font-size: 1.5em;
+                margin: 10px 0;
+            }
+            header img {
+                height: 60px;
+            }
+            .ticker-container {
+                font-size: 0.9em;
+            }
+            .chat-box {
+                height: 200px;
+            }
+            .highlight-btn {
+                font-size: 1em;
+                max-width: 300px;
+            }
+            .tools-container a {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 10px;
+            }
+            header img {
+                height: 50px;
+            }
+            .ticker-container {
+                font-size: 0.8em;
+            }
+            .content-container {
+                padding: 10px;
+            }
+            .chat-container {
+                padding: 10px;
+            }
+            .chat-box {
+                height: 150px;
+            }
+            .chat-input {
+                flex-direction: column;
+            }
+            .chat-input input {
+                width: 100%;
+            }
+            .chat-input button {
+                width: 100%;
+                padding: 10px;
+            }
+            .highlight-btn {
+                font-size: 0.9em;
+                padding: 10px;
+                max-width: 100%;
+            }
+            .tools-container {
+                padding: 10px;
+            }
+            .tools-container a {
+                flex: 1 1 100%;
+                max-width: none;
+            }
+        }
+        
+
+        #userInput {
+            width: 70%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        #sendBtn {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .suggestion {
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin-top: 5px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+        }
+        .suggestion:hover {
+            background-color: #ddd;
+        }
+        #autocomplete-suggestions {
+            width: 70%;
+            border: 1px solid #ccc;
+            position: absolute;
+            z-index: 1;
+            background-color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 5px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .thinking-message {
+            font-style: italic;
+            color: #777;
+        }
+        .dot {
+            font-size: 30px; /* Tamaño más grande de los puntos */
+            animation: dot-blink 1s steps(1, end) infinite; /* Animación de parpadeo de puntos */
+        }
+        @keyframes dot-blink {
+            0% { content: "."; }
+            33% { content: ".."; }
+            66% { content: "..."; }
+            100% { content: "."; }
+        }
+    </style>
 </head>
 <body>
-    <h1>Dashboard - Huevos</h1>
-    <a href="{{ url_for('financial_statements_huevos') }}">Ver Estados Financieros</a>
-    <a href="{{ url_for('database_access_huevos') }}">Acceso a Base de Datos</a>
-    <!-- Otros contenidos del dashboard -->
+    <header>
+        <!-- Botón para Ir al Panel General -->
+        <a href="{{ url_for('main.index') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-right: 5px;">
+                <path d="M15 19l-7-7 7-7"/>
+            </svg>
+            Ir al Panel General
+        </a>
+      <h1 style="text-align: center;">Plataforma de gestión de aves de traspatio</h1>
+      <img src="{{ url_for('static', filename='logo_Asistec.png') }}" alt="Logo Asistec" style="height: 90px;"> <!-- Ajuste del tamaño -->
+      <!-- Botón para Sign Out -->
+      <a href="{{ url_for('logout') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em;">
+        Salir
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-left: 5px;">
+            <path d="M16 13v-2H7V8l-5 4 5 4v-3h9z"/>
+            <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/>
+        </svg>
+    </a>
+    </header>
+    <div class="ticker-container">
+      <h2 style="text-align: center;">Precios de Huevo por Estado </h2>
+        <div class="ticker">
+            <span>
+                02/04/2025 - AGS: Central de Abasto de Aguascalientes: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$41.20</strong> Precio mínimo ($/kg) <strong>$41.20</strong> Precio máximo ($/kg) <strong>$41.70</strong> | 
+                02/04/2025 - AGS: Central de Abasto de Aguascalientes: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$42.30</strong> Precio mínimo ($/kg) <strong>$42.30</strong> Precio máximo ($/kg) <strong>$42.70</strong> | 
+                02/04/2025 - AGS: Central de Abasto de Aguascalientes: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$43.50</strong> Precio mínimo ($/kg) <strong>$43.50</strong> Precio máximo ($/kg) <strong>$44.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - AGS: Centro Comercial Agropecuario de Aguascalientes: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$41.50</strong> Precio mínimo ($/kg) <strong>$41.50</strong> Precio máximo ($/kg) <strong>$42.00</strong> | 
+                02/04/2025 - AGS: Centro Comercial Agropecuario de Aguascalientes: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$42.50</strong> Precio mínimo ($/kg) <strong>$42.50</strong> Precio máximo ($/kg) <strong>$43.00</strong> | 
+                02/04/2025 - AGS: Centro Comercial Agropecuario de Aguascalientes: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$43.50</strong> Precio mínimo ($/kg) <strong>$43.50</strong> Precio máximo ($/kg) <strong>$44.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - BC: Mercado de Abasto de Tijuana: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$49.80</strong> Precio mínimo ($/kg) <strong>$49.80</strong> Precio máximo ($/kg) <strong>$49.80</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - BCS: Diversos Establecimientos: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$52.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - CAMP: Mercado "Pedro Sainz de Baranda", Campeche: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$40.00</strong> Precio mínimo ($/kg) <strong>$37.00</strong> Precio máximo ($/kg) <strong>$40.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - COAH: Central de Abasto de La Laguna, Torreón: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$35.00</strong> Precio mínimo ($/kg) <strong>$35.00</strong> Precio máximo ($/kg) <strong>$35.10</strong> | 
+                02/04/2025 - COAH: Central de Abasto de La Laguna, Torreón: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$35.50</strong> Precio mínimo ($/kg) <strong>$35.50</strong> Precio máximo ($/kg) <strong>$35.60</strong> | 
+                02/04/2025 - COAH: Central de Abasto de La Laguna, Torreón: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$36.00</strong> Precio mínimo ($/kg) <strong>$36.00</strong> Precio máximo ($/kg) <strong>$36.10</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - COL: Centros de distribución de Colima: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$37.00</strong> Precio mínimo ($/kg) <strong>$36.00</strong> Precio máximo ($/kg) <strong>$37.00</strong> | 
+                02/04/2025 - COL: Centros de distribución de Colima: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$39.00</strong> Precio mínimo ($/kg) <strong>$38.00</strong> Precio máximo ($/kg) <strong>$39.00</strong> | 
+                02/04/2025 - COL: Centros de distribución de Colima: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$42.00</strong> Precio mínimo ($/kg) <strong>$40.00</strong> Precio máximo ($/kg) <strong>$42.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - CHIAPAS: Central de Abasto de Tuxtla Gutiérrez: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$47.69</strong> Precio mínimo ($/kg) <strong>$38.89</strong> Precio máximo ($/kg) <strong>$56.48</strong> | 
+                02/04/2025 - CHIAPAS: Central de Abasto de Tuxtla Gutiérrez: Producto: Huevo rojo - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$56.48</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - CHIHUAHUA: Central de Abasto de Chihuahua: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$54.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - CHIHUAHUA: Central de Abasto de Chihuahua: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$54.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - CHIHUAHUA: Central de Abasto de Chihuahua: Producto: Huevo rojo - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$55.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - CHIHUAHUA: Central de Abasto de Chihuahua: Producto: Huevo rojo - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$55.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - DF: Central de Abasto de Iztapalapa D.F.: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$38.00</strong> Precio mínimo ($/kg) <strong>$35.90</strong> Precio máximo ($/kg) <strong>$47.00</strong> | 
+                02/04/2025 - DF: Central de Abasto de Iztapalapa D.F.: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$44.00</strong> Precio mínimo ($/kg) <strong>$44.00</strong> Precio máximo ($/kg) <strong>$45.00</strong> | 
+                02/04/2025 - DF: Central de Abasto de Iztapalapa D.F.: Producto: Huevo rojo - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$41.00</strong> Precio mínimo ($/kg) <strong>$37.90</strong> Precio máximo ($/kg) <strong>$45.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - DGO: Central de Abasto "Francisco Villa": Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$37.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - DGO: Centro de Distribución y Abasto de Gómez Palacios: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$35.50</strong> Precio mínimo ($/kg) <strong>$35.50</strong> Precio máximo ($/kg) <strong>$35.60</strong> | 
+                02/04/2025 - DGO: Centro de Distribución y Abasto de Gómez Palacios: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$36.00</strong> Precio mínimo ($/kg) <strong>$36.00</strong> Precio máximo ($/kg) <strong>$36.10</strong> | 
+                02/04/2025 - DGO: Centro de Distribución y Abasto de Gómez Palacios: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$36.50</strong> Precio mínimo ($/kg) <strong>$36.50</strong> Precio máximo ($/kg) <strong>$36.60</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - GRO: Central de Abastos de Acapulco: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$51.40</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - GRO: Central de Abastos de Acapulco: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$54.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - GRO: Central de Abastos de Acapulco: Producto: Huevo rojo - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$51.40</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - GRO: Central de Abastos de Acapulco: Producto: Huevo rojo - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$54.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - GTO: Central de Abasto de León: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$38.00</strong> Precio mínimo ($/kg) <strong>$38.00</strong> Precio máximo ($/kg) <strong>$38.50</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - HGO: Central de Abasto de Pachuca: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$40.50</strong> Precio mínimo ($/kg) <strong>$37.50</strong> Precio máximo ($/kg) <strong>$40.50</strong> | 
+                02/04/2025 - HGO: Central de Abasto de Pachuca: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$41.50</strong> Precio mínimo ($/kg) <strong>$39.50</strong> Precio máximo ($/kg) <strong>$41.50</strong> | 
+                02/04/2025 - HGO: Central de Abasto de Pachuca: Producto: Huevo rojo - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$45.00</strong> Precio mínimo ($/kg) <strong>$43.00</strong> Precio máximo ($/kg) <strong>$45.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - JAL: Mercado de Abasto de Guadalajara: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$33.50</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - JAL: Mercado de Abasto de Guadalajara: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$34.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - JAL: Mercado de Abasto de Guadalajara: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$34.50</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - JAL: Mercado de Abasto de Guadalajara: Producto: Huevo clasificado blanco - Presentación: Caja 30 Docenas - Precio frecuente ($/kg) <strong>$33.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - JAL: Mercado de Abasto de Guadalajara: Producto: Huevo clasificado blanco - Presentación: Empaque Docenero - Precio frecuente ($/kg) <strong>$34.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - MEX: Central de Abasto de Ecatepec: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$38.90</strong> Precio mínimo ($/kg) <strong>$38.50</strong> Precio máximo ($/kg) <strong>$39.00</strong> | 
+                02/04/2025 - MEX: Central de Abasto de Ecatepec: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$39.90</strong> Precio mínimo ($/kg) <strong>$39.50</strong> Precio máximo ($/kg) <strong>$40.00</strong> | 
+                02/04/2025 - MEX: Central de Abasto de Ecatepec: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$41.00</strong> Precio mínimo ($/kg) <strong>$40.50</strong> Precio máximo ($/kg) <strong>$42.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - MEX: Central de Abasto de Toluca: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$45.20</strong> Precio mínimo ($/kg) <strong>$45.20</strong> Precio máximo ($/kg) <strong>$45.80</strong> | 
+                02/04/2025 - MEX: Central de Abasto de Toluca: Producto: Huevo rojo - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$47.50</strong> Precio mínimo ($/kg) <strong>$47.50</strong> Precio máximo ($/kg) <strong>$48.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - MICH: Mercado de Abasto de Morelia: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$36.00</strong> Precio mínimo ($/kg) <strong>$35.00</strong> Precio máximo ($/kg) <strong>$37.00</strong> | 
+                02/04/2025 - MICH: Mercado de Abasto de Morelia: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$37.00</strong> Precio mínimo ($/kg) <strong>$36.00</strong> Precio máximo ($/kg) <strong>$38.00</strong> | 
+                02/04/2025 - MICH: Mercado de Abasto de Morelia: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$38.00</strong> Precio mínimo ($/kg) <strong>$37.00</strong> Precio máximo ($/kg) <strong>$39.00</strong> | 
+                02/04/2025 - MICH: Mercado de Abasto de Morelia: Producto: Huevo rojo - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$49.00</strong> Precio mínimo ($/kg) <strong>$48.00</strong> Precio máximo ($/kg) <strong>$50.00</strong> | 
+                02/04/2025 - MICH: Mercado de Abasto de Morelia: Producto: Huevo rojo - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$50.00</strong> Precio mínimo ($/kg) <strong>$49.00</strong> Precio máximo ($/kg) <strong>$51.00</strong> | 
+                02/04/2025 - MICH: Mercado de Abasto de Morelia: Producto: Huevo rojo - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$51.00</strong> Precio mínimo ($/kg) <strong>$50.00</strong> Precio máximo ($/kg) <strong>$52.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - MOR: Central de Abasto de Cuautla: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$37.50</strong> Precio mínimo ($/kg) <strong>$37.00</strong> Precio máximo ($/kg) <strong>$37.50</strong> | 
+                02/04/2025 - MOR: Central de Abasto de Cuautla: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$38.00</strong> Precio mínimo ($/kg) <strong>$37.50</strong> Precio máximo ($/kg) <strong>$38.00</strong> | 
+                02/04/2025 - MOR: Central de Abasto de Cuautla: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$40.00</strong> Precio mínimo ($/kg) <strong>$38.00</strong> Precio máximo ($/kg) <strong>$40.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - MOR: Mercado "Adolfo López Mateos" de Cuernavaca: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$37.50</strong> Precio mínimo ($/kg) <strong>$37.00</strong> Precio máximo ($/kg) <strong>$38.50</strong> | 
+                02/04/2025 - MOR: Mercado "Adolfo López Mateos" de Cuernavaca: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$38.50</strong> Precio mínimo ($/kg) <strong>$38.50</strong> Precio máximo ($/kg) <strong>$39.00</strong> | 
+                02/04/2025 - MOR: Mercado "Adolfo López Mateos" de Cuernavaca: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$40.50</strong> Precio mínimo ($/kg) <strong>$40.00</strong> Precio máximo ($/kg) <strong>$41.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - NL: Central de Abasto de Guadalupe, Nvo. León: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$46.00</strong> Precio mínimo ($/kg) <strong>$43.00</strong> Precio máximo ($/kg) <strong>$47.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - NL: Mercado de Abasto "Estrella" de San Nicolás de los Garza: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$46.50</strong> Precio mínimo ($/kg) <strong>$36.50</strong> Precio máximo ($/kg) <strong>$46.50</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - NL: Mercado de Abasto de Santa Catarina: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$47.10</strong> Precio mínimo ($/kg) <strong>$42.20</strong> Precio máximo ($/kg) <strong>$47.20</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - OAX: Módulo de Abasto de Oaxaca: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$41.00</strong> Precio mínimo ($/kg) <strong>$41.00</strong> Precio máximo ($/kg) <strong>$43.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - PUE: Central de Abasto de Puebla: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$39.50</strong> Precio mínimo ($/kg) <strong>$39.50</strong> Precio máximo ($/kg) <strong>$40.50</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - Q.R. Mercado de Chetumal, Quintana Roo: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$43.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - Q.R. Módulo de Abasto de Cancún: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$41.86</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - Q.R. Módulo de Abasto de Cancún: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$46.51</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - QUERETARO: Mercado de Abasto de Querétaro: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$38.00</strong> Precio mínimo ($/kg) <strong>$37.00</strong> Precio máximo ($/kg) <strong>$44.50</strong> | 
+                02/04/2025 - QUERETARO: Mercado de Abasto de Querétaro: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$42.00</strong> Precio mínimo ($/kg) <strong>$40.00</strong> Precio máximo ($/kg) <strong>$46.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - SIN: Central de Abasto de Culiacán: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$40.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - SIN: Central de Abasto de Culiacán: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$42.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - SLP: Centro de Abasto de San Luis Potosí: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$37.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - SLP: Centro de Abasto de San Luis Potosí: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$38.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - SON: Central de Abasto de Cd. Obregón: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$44.44</strong> Precio mínimo ($/kg) <strong>$44.44</strong> Precio máximo ($/kg) <strong>$48.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - SON: Mercado de Abasto "Francisco I. Madero" de Hermosillo: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$46.44</strong> Precio mínimo ($/kg) <strong>$46.44</strong> Precio máximo ($/kg) <strong>$48.00</strong> | 
+                02/04/2025 - SON: Mercado de Abasto "Francisco I. Madero" de Hermosillo: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$49.33</strong> Precio mínimo ($/kg) <strong>$48.50</strong> Precio máximo ($/kg) <strong>$49.33</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - TAB: Central de Abasto de Villahermosa: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$33.26</strong> Precio mínimo ($/kg) <strong>$32.39</strong> Precio máximo ($/kg) <strong>$34.78</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - TAMPS: Módulo de Abasto de Tampico, Madero y Altamira: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$38.25</strong> Precio mínimo ($/kg) <strong>$37.50</strong> Precio máximo ($/kg) <strong>$38.60</strong> | 
+                02/04/2025 - TAMPS: Módulo de Abasto de Tampico, Madero y Altamira: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$45.00</strong> Precio mínimo ($/kg) <strong>$41.50</strong> Precio máximo ($/kg) <strong>$45.00</strong> | 
+                02/04/2025 - TAMPS: Módulo de Abasto de Tampico, Madero y Altamira: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$45.25</strong> Precio mínimo ($/kg) <strong>$43.00</strong> Precio máximo ($/kg) <strong>$50.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - VER: Centros Mayoristas de Xalapa: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$32.00</strong> Precio mínimo ($/kg) <strong>$27.00</strong> Precio máximo ($/kg) <strong>$37.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - VER: Mercado Malibrán: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$45.00</strong> Precio mínimo ($/kg) <strong>$42.00</strong> Precio máximo ($/kg) <strong>$47.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - YUC: Central de Abasto de Mérida: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$35.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - YUC: Central de Abasto de Mérida: Producto: Huevo blanco - Presentación: Medio Mayoreo - Precio frecuente ($/kg) <strong>$37.00</strong> Precio mínimo ($/kg) <strong>-</strong> Precio máximo ($/kg) <strong>-</strong> | 
+                02/04/2025 - YUC: Central de Abasto de Mérida: Producto: Huevo blanco - Presentación: Menudeo - Precio frecuente ($/kg) <strong>$46.00</strong> Precio mínimo ($/kg) <strong>$42.00</strong> Precio máximo ($/kg) <strong>$47.00</strong>
+            </span>
+            
+            <span>
+                02/04/2025 - ZAC: Mercado de Abasto de Zacatecas: Producto: Huevo blanco - Presentación: Mayoreo - Precio frecuente ($/kg) <strong>$37.35</strong> Precio mínimo ($/kg) <strong>$34.70</strong> Precio máximo ($/kg) <strong>$40.00</strong>
+            </span>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="tools-container">
+            <a href="{{ url_for('financial_statements_huevos') }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <rect x="3" y="4" width="18" height="16" rx="2" ry="2" stroke="white" stroke-width="2" fill="none"></rect>
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="2"></line>
+                </svg>
+                Ver Estados Financieros
+            </a>
+            <a href="{{ url_for('database_access_huevos') }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <ellipse cx="12" cy="5" rx="9" ry="3" stroke="white" stroke-width="2" fill="none"></ellipse>
+                    <path d="M3 5v6c0 1.5 4 3 9 3s9-1.5 9-3V5" stroke="white" stroke-width="2" fill="none"></path>
+                    <path d="M3 11v6c0 1.5 4 3 9 3s9-1.5 9-3v-6" stroke="white" stroke-width="2" fill="none"></path>
+                </svg>
+                Acceso a Base de Datos
+            </a>
+            <a href="{{ url_for('my_analysis_huevos') }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <path d="M3 17h18v2H3v-2zm0-5h12v2H3v-2zm0-5h8v2H3V7z"/>
+                </svg>
+                Análisis Histórico
+            </a>
+          
+        </div>
+        <div class="content-container">
+            <p>Aquí podrás registrar tus finanzas y procesos</p>
+            <div class="highlight-btn">
+                <a href="{{ url_for('huevo_form') }}" style="color: white; text-decoration: none;">Responder Cuestionario</a>
+            </div>
+
+            <div class="chat-container">
+                <h2> AI Chat Agropecuario AgroAsistec</h2>
+                <div class="chat-box" id="chat-box">
+                     Mensajes del chat aparecerán aquí 
+                </div>
+                <div class="chat-input">
+                    <div id="chatbox"></div>
+                        <div class="welcome-message">Bienvenido a AgroAsistec Aves de traspatio</div>
+                        <input type="text" id="userInput" list="autocomplete-suggestions" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <!--Se agrego este datalist reemplazando el div de sugerencias-->
+                        <datalist id="autocomplete-suggestions">
+                            
+                        </datalist>
+                        <button id="sendBtn">Enviar</button>
+                    </div>
+                </div>
+            </div>    
+
+        </div>
+    </div>
+    <footer>
+        <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
+    </footer>
+
+    
+    
+    <script>
+        const preguntasRespuestas = [
+        { 
+        pregunta: "¿Qué necesito para empezar a criar aves de traspatio para huevo?", 
+        respuesta: "¡Hola! Para comenzar, necesitas un gallinero seguro, ventilado y limpio, alimento balanceado rico en calcio y proteínas, agua fresca diaria, y gallinas ponedoras sanas (como Rhode Island o Leghorn). También considera espacio para que picoteen y protección contra depredadores. ¡Es un gran inicio! ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cuánto espacio requieren las gallinas de traspatio?", 
+        respuesta: "¡Qué bueno verte por aquí! Cada gallina necesita al menos 0.3 m² en el gallinero y 1 m² en el corral exterior para moverse cómodamente. Esto evita estrés, mejora la postura de huevos y mantiene su salud. Asegúrate de que tengan sombra y suelo seco. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué tipo de alimento debo dar a mis gallinas ponedoras?", 
+        respuesta: "¡Hola, gracias por tu interés! Usa alimento balanceado para ponedoras con 16-18% de proteína, calcio para cáscaras fuertes, y granos como maíz o trigo. Complementa con sobras de verduras, pero evita cítricos y sal en exceso. Así tendrás huevos de calidad. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cuánta agua necesitan las gallinas diariamente?", 
+        respuesta: "¡Qué alegría ayudarte! Una gallina necesita entre 250 y 500 ml de agua al día, según el clima y su tamaño. Debe ser limpia y fresca, cambiada diariamente, ya que la deshidratación afecta la producción de huevos y su salud general. ¿Cómo puedo apoyarte hoy?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están sanas?", 
+        respuesta: "¡Hola! Observa si tienen plumas brillantes, ojos claros, cresta roja y firme, y buen apetito. Si están activas, ponen huevos regularmente y no tienen secreciones nasales o diarrea, están sanas. Cualquier cambio raro merece atención rápida. ¿Qué más quieres aprender?", 
+    },
+    { 
+        pregunta: "¿Cuántos huevos pone una gallina al día?", 
+        respuesta: "¡Qué bueno que preguntes! Una gallina ponedora saludable pone entre 4 y 6 huevos por semana, rara vez uno diario. Depende de la raza, edad, alimentación y luz (necesitan 14-16 horas). En invierno, la producción puede bajar naturalmente. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Por qué mis gallinas no están poniendo huevos?", 
+        respuesta: "¡Hola! Puede ser por estrés, falta de luz, mala alimentación, edad avanzada (más de 2 años), muda de plumas o enfermedades. Revisa su entorno, dieta y salud. A veces, solo necesitan tiempo para adaptarse o descansar. ¿Qué más te gustaría explorar?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina se come sus propios huevos?", 
+        respuesta: "¡Qué bueno verte! Esto pasa por falta de calcio, estrés o aburrimiento. Asegúrate de darles alimento con calcio, recolecta huevos pronto y pon nidos oscuros. Si persiste, identifica a la culpable y sepárala temporalmente. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Cómo limpio el gallinero correctamente?", 
+        respuesta: "¡Hola! Retira estiércol y cama húmeda cada semana, usa viruta o paja nueva, y desinfecta con vinagre o productos avícolas cada mes. Mantén el lugar seco y ventilado para evitar bacterias y malos olores. Así tus gallinas estarán felices. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Qué es la muda en las gallinas y cómo afecta los huevos?", 
+        respuesta: "¡Qué alegría ayudarte! La muda es cuando cambian plumas, suele ser anual y dura 6-8 semanas. Durante este tiempo, gastan energía y suelen dejar de poner huevos. Dale más proteína y paciencia, pronto volverán a producir. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué enfermedades comunes afectan a las gallinas de traspatio?", 
+        respuesta: "¡Hola! Las más comunes son Newcastle, coriza, viruela aviar, y parasitosis como ácaros. Vigila síntomas como letargo, tos, secreciones o plumas erizadas. La prevención incluye higiene, vacunas y revisarlas seguido. Consulta a un veterinario si notas algo raro. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo prevengo la enfermedad de Newcastle en mis gallinas?", 
+        respuesta: "¡Qué bueno que preguntes! Vacuna a tus gallinas según el calendario local, evita contacto con aves silvestres y mantén el gallinero limpio. Es viral y muy contagiosa, así que la bioseguridad es clave para proteger tu parvada. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si mis gallinas tienen ácaros?", 
+        respuesta: "¡Hola! Revisa bajo las alas o cerca del cloaca. Usa polvo de azufre o insecticidas avícolas en el gallinero y las aves. Limpia a fondo y cambia la cama. Repite el tratamiento en 7 días para eliminar huevos de ácaros. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si una gallina tiene coriza infecciosa?", 
+        respuesta: "¡Qué bueno verte! Busca secreción nasal, ojos hinchados, mal olor y tos. Es bacteriana y se propaga rápido. Separa a las afectadas, mejora la ventilación y consulta a un veterinario para antibióticos. La higiene previene recaídas. ¿Cómo puedo apoyarte más?", 
+    },
+    { 
+        pregunta: "¿Qué es la viruela aviar y cómo la trato?", 
+        respuesta: "¡Hola! Es un virus que causa costras en cresta, barbillas y patas. Vacuna a tus gallinas para prevenirla. Si aparece, aísla a las enfermas, aplica yodo en las lesiones y desinfecta todo. No hay cura, pero mejora con cuidado. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Por qué mis gallinas tienen diarrea?", 
+        respuesta: "¡Qué alegría ayudarte! Puede ser por comida en mal estado, parásitos como coccidios, o estrés. Revisa su dieta, ofrece agua limpia y consulta a un veterinario si persiste. Un antiparasitario o probióticos pueden ayudar según la causa. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que mis gallinas se estresen?", 
+        respuesta: "¡Hola! Mantén un ambiente tranquilo, evita ruidos fuertes, depredadores o cambios bruscos. Dales espacio, comida regular y nidos cómodos. El estrés baja la producción de huevos, así que la constancia y calma son tus aliados. ¿Qué más necesitas aprender?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene un huevo atorado?", 
+        respuesta: "¡Qué bueno que preguntes! Esto es distocia. Dale un baño tibio en la cloaca por 20 minutos y lubrica con aceite vegetal. Si no sale en unas horas, busca un veterinario. El calcio en la dieta previene esto. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Cómo protejo a mis gallinas de los depredadores?", 
+        respuesta: "¡Hola! Usa malla resistente alrededor del corral, entierra 30 cm para evitar excavaciones, y cierra el gallinero de noche. Perros, zorros y aves rapaces son comunes. Revisa diario por daños o huellas y refuerza las defensas. ¿Qué más te interesa saber?", 
+    },
+    { 
+        pregunta: "¿Qué hago con los huevos sucios?", 
+        respuesta: "¡Qué alegría verte! Límpialos con agua tibia y un paño suave, sin jabón fuerte que dañe la membrana protectora. Hazlo solo si los venderás pronto, porque lavarlos reduce su vida útil. Recolecta seguido para evitar suciedad. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Cuánto tiempo duran los huevos frescos?", 
+        respuesta: "¡Hola! Sin lavar, duran hasta 2 meses a temperatura ambiente o 3 meses refrigerados. La cáscara los protege, pero revisa si flotan en agua (si lo hacen, están malos). Almacénalos con la punta hacia abajo. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo controlo el olor del gallinero?", 
+        respuesta: "¡Qué bueno que preguntes! Cambia la cama húmeda seguido, usa materiales absorbentes como viruta, y asegura ventilación. Espolvorea cal agrícola o bicarbonato para neutralizar olores. La limpieza constante es la clave para un ambiente agradable. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si mis gallinas pelean entre ellas?", 
+        respuesta: "¡Hola! Las peleas surgen por hacinamiento, hambre o jerarquía. Dales más espacio, comida suficiente y distracciones como ramas o columpios. Si una es muy agresiva, sepárala unos días. La armonía mejora la producción de huevos. ¿Qué más te gustaría explorar?", 
+    },
+    { 
+        pregunta: "¿Cómo influye la luz en la postura de huevos?", 
+        respuesta: "¡Qué alegría ayudarte! Las gallinas necesitan 14-16 horas de luz para poner huevos regularmente. En invierno, usa lámparas de bajo consumo en el gallinero, encendidas desde el amanecer. Sin luz adecuada, la producción baja mucho. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago con una gallina vieja que ya no pone?", 
+        respuesta: "¡Hola! Puedes dejarla como compañía, usarla para caldo o regalarla. No producen después de 2-3 años, pero aún comen, así que evalúa costos. Algunos las sacrifican humanamente. Depende de tu objetivo con el traspatio. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que los huevos se rompan en el nido?", 
+        respuesta: "¡Qué bueno verte! Usa nidos acolchados con paja o viruta, pon uno por cada 4 gallinas y recolecta huevos seguido. Asegúrate de que tengan calcio para cáscaras fuertes. Así reduces roturas y mantienes la calidad. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si encuentro sangre en un huevo?", 
+        respuesta: "¡Hola! Es raro, pero suele ser por estrés o un vaso roto en la cloaca. Si es ocasional, no pasa nada; si persiste, revisa salud y dieta. Los huevos son seguros, solo limpia la mancha. Consulta si hay más síntomas. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo identifico a una gallina enferma?", 
+        respuesta: "¡Qué alegría ayudarte! Busca plumas opacas, letargo, pérdida de apetito, cresta pálida, diarrea o respiración rara. Aísla a la sospechosa y observa. Las enfermedades se propagan rápido, así que actúa pronto y consulta a un experto si dudas. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si mis gallinas tienen piojos?", 
+        respuesta: "¡Hola! Usa polvo antiparasitario avícola en las gallinas y el gallinero. Revisa plumas cerca del cuello y cloaca. Limpia a fondo y repite en 10 días para matar huevos. Son molestos, pero controlables con constancia. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo preparo a mis gallinas para el invierno?", 
+        respuesta: "¡Qué bueno que preguntes! Aísla el gallinero con madera o cartón, reduce corrientes de aire, y usa cama gruesa. Aumenta la proteína en su dieta y asegura luz extra. Así mantendrán calor y algo de producción de huevos. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si mis gallinas no quieren entrar al gallinero?", 
+        respuesta: "¡Hola! Puede ser por miedo, calor o incomodidad. Revisa si hay depredadores, mejora la ventilación y haz los nidos atractivos con paja. Atraélas con comida al atardecer y sé constante; pronto se acostumbrarán a entrar solas. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas pongan huevos fuera del nido?", 
+        respuesta: "¡Qué bueno verte! Pon nidos oscuros y cómodos, uno por cada 4 gallinas, y recolecta huevos seguido. Si encuentran sitios raros, bloquea el acceso. Una rutina y buen diseño del gallinero ayudan a que usen los nidos siempre. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina está picoteando a las demás?", 
+        respuesta: "¡Hola! Esto pasa por aburrimiento o jerarquía. Dale más espacio, juguetes como columpios o comida colgante. Si sigue, usa un spray antipicoteo o sepárala unos días. Controlar el estrés es clave para la paz en el gallinero. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si un huevo está fertilizado?", 
+        respuesta: "¡Qué alegría ayudarte! Sin gallo, no hay fertilización. Si tienes uno, ovoscopia (luz tras el huevo) a los 7 días muestra venas o un punto oscuro. Los huevos de consumo no suelen estarlo, así que no te preocupes. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si mis gallinas tienen plumas rotas?", 
+        respuesta: "¡Hola! Puede ser muda, peleas o parásitos. Revisa si hay ácaros o piojos y trátalos con polvos avícolas. Si es estrés, mejora el espacio y dieta. Las plumas crecerán solas con tiempo y buena nutrición. ¿Qué más te interesa explorar?", 
+    },
+    { 
+        pregunta: "¿Cómo controlo la temperatura en el gallinero?", 
+        respuesta: "¡Qué bueno que preguntes! En calor, usa sombra, ventilación y agua fresca; en frío, aísla con madera y evita corrientes. Las gallinas toleran 15-25°C, pero extremos afectan la postura. Monitorea y ajusta según el clima local. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene las patas hinchadas?", 
+        respuesta: "¡Hola! Podría ser pododermatitis por suciedad o lesiones. Lava las patas con agua tibia, aplica antibiótico tópico y mantén la cama seca. Si empeora, consulta a un veterinario. La higiene evita que esto se repita en el futuro. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que los ratones entren al gallinero?", 
+        respuesta: "¡Qué alegría verte! Usa malla fina en huecos, guarda el alimento en contenedores cerrados y revisa el perímetro. Los ratones traen enfermedades y roban comida, así que trampas o un gato cerca pueden ser aliados naturales. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si mis gallinas comen menos?", 
+        respuesta: "¡Hola! Puede ser calor, enfermedad o comida aburrida. Ofréceles granos frescos, revisa si hay síntomas como letargo o plumas opacas, y asegúrate de que el agua esté limpia. Si persiste, un veterinario puede darte claridad. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que los huevos tengan cáscaras débiles?", 
+        respuesta: "¡Qué bueno que preguntes! Asegúrate de darles calcio (conchas trituradas o alimento balanceado) y vitamina D. El estrés o edad avanzada también influyen. Revisa la dieta y recolecta huevos pronto para evitar roturas accidentales. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene cloaca sucia?", 
+        respuesta: "¡Hola! Límpiala con agua tibia y un paño suave para evitar infecciones. Puede ser diarrea o huevo atorado. Revisa su dieta y salud; si sigue sucia, consulta a un experto. La higiene es clave para su bienestar. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen parásitos internos?", 
+        respuesta: "¡Qué alegría ayudarte! Busca pérdida de peso, plumas opacas o diarrea con gusanos visibles. Un veterinario puede analizar heces y recetar desparasitante cada 6 meses. La prevención incluye limpieza y no sobrealimentar con sobras húmedas. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina respira raro?", 
+        respuesta: "¡Hola! Podría ser infección respiratoria como coriza o bronquitis. Aísla a la afectada, mejora la ventilación y consulta a un veterinario para antibióticos. El frío o polvo en el gallinero a veces lo causa, así que revisa todo. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se enfermen en lluvias?", 
+        respuesta: "¡Qué bueno verte! Cubre el gallinero con techo impermeable, usa cama seca y eleva el suelo para evitar charcos. El exceso de humedad trae hongos y bacterias, así que mantén todo ventilado y limpio. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si un huevo tiene dos yemas?", 
+        respuesta: "¡Hola! Es normal en gallinas jóvenes o por cambios hormonales, y son seguros para comer. No lo evitas, pero indica buena salud reproductiva. Disfrútalos como rareza; no afectan calidad ni producción a largo plazo. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo manejo gallinas en un espacio pequeño?", 
+        respuesta: "¡Qué alegría ayudarte! Usa gallineros verticales, nidos apilados y un corral mínimo. Dale alimento balanceado y limpia seguido para evitar enfermedades. Menos gallinas (3-5) funcionan mejor en poco espacio y aún dan huevos suficientes. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si mis gallinas tienen tos?", 
+        respuesta: "¡Hola! Puede ser resfriado o algo grave como Newcastle. Aísla a las afectadas, mejora ventilación y dales agua con vitaminas. Si no mejora en 2 días, un veterinario debe revisarlas. La prevención es higiene constante. ¿Qué más te gustaría explorar?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si el alimento de mis gallinas está malo?", 
+        respuesta: "¡Qué bueno que preguntes! Huele a humedad o moho, o mira si tiene grumos. El buen alimento es seco y fresco. Si está malo, tíralo y compra nuevo; una dieta rancia baja la postura y enferma. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina no camina bien?", 
+        respuesta: "¡Hola! Podría ser lesión, deficiencia de vitaminas o parásitos. Revisa sus patas por cortes o hinchazón, y dale alimento rico en vitamina B. Si cojea mucho, un veterinario puede diagnosticar mejor y tratarla. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas ensucien el agua?", 
+        respuesta: "¡Qué alegría verte! Usa bebederos de niple o con tapa, cámbialos diario y ponlos a altura del pecho de las gallinas. El agua sucia trae enfermedades, así que mantenerla limpia es esencial para su salud y huevos. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si mis gallinas tienen ojos llorosos?", 
+        respuesta: "¡Hola! Puede ser polvo, infección o coriza. Limpia con agua salina tibia y mejora la ventilación. Si hay secreción espesa o tos, aísla y consulta a un veterinario. La higiene previene que se extienda a otras. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si una gallina está demasiado gorda?", 
+        respuesta: "¡Qué bueno que preguntes! Toca su pecho; si no sientes el hueso bajo grasa, está pasada de peso. Reduce granos y sobras, fomenta movimiento. La obesidad baja la postura y afecta su salud a largo plazo. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina pone huevos pequeños?", 
+        respuesta: "¡Hola! Es común en gallinas jóvenes o por falta de nutrientes. Aumenta proteína y calcio en la dieta; con tiempo, los huevos crecerán. Si persiste en adultas, revisa estrés o salud con un experto. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las aves silvestres traigan enfermedades?", 
+        respuesta: "¡Qué alegría ayudarte! Cubre el corral con red, no dejes comida expuesta y usa botas solo para el gallinero. Las aves traen virus como Newcastle, así que la bioseguridad es tu mejor defensa contra contagios. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene la cresta pálida?", 
+        respuesta: "¡Hola! Indica anemia, parásitos o mala dieta. Revisa si hay piojos o gusanos, y dale alimento con hierro y vitaminas. Si no mejora en una semana, un veterinario puede hacer análisis para tratarla bien. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están felices?", 
+        respuesta: "¡Qué bueno verte! Si cacarean suave, picotean activas, tienen plumas brillantes y ponen huevos regularmente, están contentas. El estrés las hace calladas o agresivas, así que un entorno limpio y tranquilo las mantiene felices. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina no come nada?", 
+        respuesta: "¡Hola! Puede estar enferma, estresada o con algo atorado. Ofrécele agua con electrolitos y revisa su pico o garganta. Si sigue sin comer en 24 horas, un veterinario debe verla pronto para evitar complicaciones. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se quemen con el sol?", 
+        respuesta: "¡Qué alegría ayudarte! Pon sombra con lonas o árboles, y asegúrate de que tengan agua fresca siempre. El calor extremo las estresa y baja la postura, así que un corral protegido es esencial en días soleados. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si un huevo sale sin cáscara?", 
+        respuesta: "¡Hola! Sucede por falta de calcio o estrés. Dale conchas trituradas y revisa su dieta; también calma su entorno. Es normal al inicio de la postura, pero si sigue, consulta a un experto. Los huevos blandos no duran. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si una gallina está a punto de poner?", 
+        respuesta: "¡Qué bueno que preguntes! Se pone inquieta, busca el nido y su cloaca se ensancha un poco. La cresta se vuelve más roja y brillante días antes. Observarla te ayudará a predecir su ciclo de postura. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si mis gallinas tienen gusanos en las heces?", 
+        respuesta: "¡Hola! Son parásitos internos. Desparasita con un producto avícola recetado por un veterinario, limpia el gallinero a fondo y repite en 10 días. Evita sobras húmedas que atraigan gusanos; la higiene es clave. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se peleen por comida?", 
+        respuesta: "¡Qué alegría verte! Usa varios comederos, pon comida suficiente y distribúyela pareja. El hambre o poco espacio las hace agresivas, así que dale acceso fácil y revisa que todas coman. La paz mejora su producción. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico roto?", 
+        respuesta: "¡Hola! Puede pasar por peleas o golpes. Lima bordes filosos con cuidado y dale comida blanda unos días. Si sangra mucho o no come, un veterinario debe verlo. Sana sola si no es grave. ¿Qué más te gustaría explorar?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen calor?", 
+        respuesta: "¡Qué bueno que preguntes! Jadean, extienden alas y beben más. Si están letárgicas o la cresta se seca, es serio. Dales sombra, agua fría y ventilación; el calor extremo puede matarlas si no actúas rápido. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas pegajosas?", 
+        respuesta: "¡Hola! Suele ser diarrea o cloaca sucia. Límpiala con agua tibia, seca bien y revisa su dieta o salud. Si sigue, podría ser infección o parásitos; un veterinario te orientará mejor tras observarla. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se aburran?", 
+        respuesta: "¡Qué alegría ayudarte! Pon ramas, columpios o pelotas; esparce granos para que picoteen. El aburrimiento lleva a peleas o comer huevos, así que mantenerlas activas las hace felices y productivas en el traspatio. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el ojo cerrado?", 
+        respuesta: "¡Hola! Podría ser infección, polvo o lesión. Limpia con agua salina tibia y observa si hay pus o hinchazón. Si no abre en un día, consulta a un veterinario para antibióticos; las infecciones oculares se agravan rápido. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están deshidratadas?", 
+        respuesta: "¡Qué bueno verte! La cresta se arruga, están letárgicas y no comen. Pellizca su piel; si no vuelve rápido, dales agua con electrolitos urgente. El calor o agua sucia lo causa, así que revisa bebederos diario. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina pone huevos arrugados?", 
+        respuesta: "¡Hola! Es por estrés, edad o enfermedad como bronquitis. Asegúrate de que tengan dieta balanceada y calma. Si sigue, un veterinario puede descartar virus. No afecta el sabor, pero indica algo que ajustar en su cuidado. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se escapen del corral?", 
+        respuesta: "¡Qué alegría ayudarte! Usa cercas de 1.5 m de alto, revisa huecos y corta alas si saltan (con cuidado). Atraélas con comida dentro para que prefieran quedarse. Un corral seguro las protege y facilita tu trabajo. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene sangre en la cloaca?", 
+        respuesta: "¡Hola! Puede ser un huevo grande, prolapso o lesión. Lava con agua tibia, aplica crema antibiótica y vigila. Si sale tejido o no mejora, un veterinario debe verla pronto; es delicado pero tratable. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen frío?", 
+        respuesta: "¡Qué bueno que preguntes! Se amontonan, encogen plumas y tiemblan. Si la cresta palidece, dales calor con cama gruesa y un gallinero aislado. El frío extremo baja huevos y las enferma, así que protégelas bien. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina no se mueve mucho?", 
+        respuesta: "¡Hola! Podría estar enferma, deprimida o con dolor. Revisa patas, apetito y heces. Dale agua con vitaminas y obsérvala aislada. Si no mejora en un día, un veterinario puede diagnosticar y evitar que empeore. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que los huevos se ensucien en el nido?", 
+        respuesta: "¡Qué alegría verte! Usa cama limpia como paja, revisa diario y recolecta huevos pronto. Pon nidos elevados y evita hacinamiento. La suciedad viene de patas húmedas o cloacas sucias, así que mantén todo seco. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el cuello torcido?", 
+        respuesta: "¡Hola! Puede ser deficiencia de vitamina E, golpe o enfermedad como Marek. Dale alimento rico en vitaminas y consulta a un veterinario si no mejora. Es raro, pero tratable si se detecta a tiempo; vigílala bien. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están poniendo menos por edad?", 
+        respuesta: "¡Qué bueno que preguntes! Después de 2-3 años, la postura baja naturally. Si comen bien, están sanas y aún producen poco, es la edad. Puedes renovar la parvada o aceptar menos huevos; depende de tus metas. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en la cara?", 
+        respuesta: "¡Hola! Es normal en razas como Araucana, pero si es exceso o suciedad, revisa parásitos o infecciones. Limpia con cuidado y observa si hay más síntomas. Si es genético, no hay problema; si no, trátalo pronto. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas coman tierra?", 
+        respuesta: "¡Qué alegría ayudarte! Picotean tierra por minerales o aburrimiento. Dales calcio y distracciones como granos esparcidos. Si es mucho, revisa su dieta; no es grave, pero puede indicar deficiencias que afectan la postura de huevos. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene la lengua blanca?", 
+        respuesta: "¡Hola! Podría ser candidiasis oral por hongos. Limpia su pico con agua y consulta a un veterinario para antifúngicos. Surge por humedad o comida podrida, así que revisa el gallinero y su alimentación rápido. ¿Qué más te gustaría explorar?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen estrés por ruido?", 
+        respuesta: "¡Qué bueno verte! Dejan de poner, se esconden o pelean más. Si hay ruidos fuertes cerca, pon barreras como arbustos o música suave para calmarlas. El estrés afecta huevos, así que busca un entorno tranquilo. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene un ala caída?", 
+        respuesta: "¡Hola! Puede ser golpe, parálisis o Marek. Revisa si hay dolor o inflamación y dale vitaminas. Si no mejora en días o cojea, un veterinario debe descartar enfermedades graves. El descanso ayuda en casos leves. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se enfermen por estiércol?", 
+        respuesta: "¡Qué alegría ayudarte! Limpia el gallinero semanalmente, usa cama absorbente y evita acumulación húmeda. El estiércol trae bacterias como salmonela, así que botas exclusivas y ventilación mantienen a tus gallinas sanas y productivas. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas mojadas?", 
+        respuesta: "¡Hola! Puede ser lluvia o diarrea. Sécala con una toalla y ponla en un lugar cálido. Revisa su salud y el gallinero por goteras; las plumas húmedas las enfrían y enferman rápido. ¿Qué más te interesa saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen deficiencia de calcio?", 
+        respuesta: "¡Qué bueno que preguntes! Los huevos tienen cáscaras débiles o no ponen. La cresta puede palidecer y las patas se debilitan. Dale conchas trituradas o alimento con calcio; la falta afecta su salud y producción a largo plazo. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina no cacarea como antes?", 
+        respuesta: "¡Hola! Puede ser muda, estrés o enfermedad respiratoria. Observa si come y pone huevos normal. Si hay tos o letargo, consulta a un veterinario. A veces solo es su carácter, pero vigila por si acaso. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se lastimen las patas?", 
+        respuesta: "¡Qué alegría verte! Usa suelo suave como viruta, evita alambres filosos y limpia seguido. Las heridas en patas traen infecciones, así que revisa diario y trata cortes con antiséptico si aparecen. Un corral seguro las protege. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene mal olor?", 
+        respuesta: "¡Hola! Suele ser cloaca sucia o infección. Límpiala con agua tibia, revisa si hay diarrea o heridas ocultas. Si persiste, un veterinario puede tratarla con antibióticos; la higiene evita que se propague a otras. ¿Qué más te gustaría explorar?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están poniendo huevos de calidad?", 
+        respuesta: "¡Qué bueno que preguntes! Busca cáscaras firmes, yemas brillantes y tamaño uniforme. La dieta y salud influyen; si hay manchas raras o cáscaras débiles, ajusta calcio y revisa estrés. Huevos buenos reflejan gallinas sanas. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el abdomen hinchado?", 
+        respuesta: "¡Hola! Podría ser retención de líquidos, huevo interno o tumor. Palpa suavemente; si está duro o no mejora, un veterinario debe verla. Dale agua y descanso, pero no demores en buscar ayuda si sigue inflamada. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se coman las plumas?", 
+        respuesta: "¡Qué alegría ayudarte! Es por aburrimiento o falta de proteína. Dales alimento balanceado, espacio y distracciones como ramas. Si persiste, revisa estrés o parásitos; mantenerlas activas y bien nutridas detiene este hábito raro. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene fiebre?", 
+        respuesta: "¡Hola! Si está caliente al tocarla y letárgica, podría ser infección. Aísla, dale agua con electrolitos y consulta a un veterinario para antibióticos. La fiebre no es común sola, así que revisa otros síntomas como tos o diarrea. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas necesitan más proteína?", 
+        respuesta: "¡Qué bueno verte! Si las plumas están quebradizas, no mudan bien o producen menos huevos, falta proteína. Aumenta el alimento balanceado al 18% o da sobras como pescado seco. La proteína es clave para su energía. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico suave?", 
+        respuesta: "¡Hola! Es raro, pero puede ser deficiencia de calcio o enfermedad. Dale conchas trituradas y revisa si hay lesiones o infecciones cerca. Si sigue blando o se deforma, un veterinario debe evaluarla pronto para tratarla. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se asfixien con comida?", 
+        respuesta: "¡Qué alegría ayudarte! Usa comederos adecuados, evita granos demasiado grandes y no las dejes hambrientas antes de alimentarlas. Si tragan mal, el impacto puede ser fatal, así que revisa que coman despacio y tengan agua cerca. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en el pico?", 
+        respuesta: "¡Hola! Podría ser que se arrancó plumas o las de otra por estrés. Limpia su pico, revisa parásitos y mejora su entorno con más espacio. Si sigue, observa peleas o salud; a veces indica algo más serio. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están envenenadas?", 
+        respuesta: "¡Qué bueno que preguntes! Busca temblores, diarrea, letargo o muerte súbita. Si comieron plantas tóxicas o químicos, actúa rápido: agua, carbón activado y llama a un veterinario. Retira lo sospechoso del corral ya mismo. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina no abre los ojos?", 
+        respuesta: "¡Hola! Puede ser infección, polvo o golpe. Limpia con agua salina tibia y revisa si hay pus. Si no mejora en un día o hay otros síntomas, un veterinario debe tratarla con antibióticos pronto. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas coman plástico?", 
+        respuesta: "¡Qué alegría verte! Mantén el corral limpio de basura, usa malla para cubrir desechos y revisa diario. Si tragan plástico, puede bloquear su digestión; educa a todos en casa para no tirar cosas cerca del gallinero. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene sangre en las plumas?", 
+        respuesta: "¡Hola! Busca heridas por peleas o depredadores. Lava con agua tibia, aplica antiséptico y aísla si sangra mucho. Si no ves la fuente o sigue, un veterinario debe revisarla para evitar infecciones graves. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen anemia?", 
+        respuesta: "¡Qué bueno que preguntes! La cresta y barbillas palidecen, están débiles y comen poco. Parásitos o mala dieta lo causan. Dale alimento con hierro y desparasita; un veterinario confirma con análisis si no mejora pronto. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene fiebre?", 
+        respuesta: "¡Hola! Si está caliente al tocarla y letárgica, podría ser infección. Aísla, dale agua con electrolitos y consulta a un veterinario para antibióticos. La fiebre no es común sola, así que revisa otros síntomas como tos o diarrea. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas necesitan más proteína?", 
+        respuesta: "¡Qué bueno verte! Si las plumas están quebradizas, no mudan bien o producen menos huevos, falta proteína. Aumenta el alimento balanceado al 18% o da sobras como pescado seco. La proteína es clave para su energía. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico suave?", 
+        respuesta: "¡Hola! Es raro, pero puede ser deficiencia de calcio o enfermedad. Dale conchas trituradas y revisa si hay lesiones o infecciones cerca. Si sigue blando o se deforma, un veterinario debe evaluarla pronto para tratarla. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se asfixien con comida?", 
+        respuesta: "¡Qué alegría ayudarte! Usa comederos adecuados, evita granos demasiado grandes y no las dejes hambrientas antes de alimentarlas. Si tragan mal, el impacto puede ser fatal, así que revisa que coman despacio y tengan agua cerca. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en el pico?", 
+        respuesta: "¡Hola! Podría ser que se arrancó plumas o las de otra por estrés. Limpia su pico, revisa parásitos y mejora su entorno con más espacio. Si sigue, observa peleas o salud; a veces indica algo más serio. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están envenenadas?", 
+        respuesta: "¡Qué bueno que preguntes! Busca temblores, diarrea, letargo o muerte súbita. Si comieron plantas tóxicas o químicos, actúa rápido: agua, carbón activado y llama a un veterinario. Retira lo sospechoso del corral ya mismo. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina no abre los ojos?", 
+        respuesta: "¡Hola! Puede ser infección, polvo o golpe. Limpia con agua salina tibia y revisa si hay pus. Si no mejora en un día o hay otros síntomas, un veterinario debe tratarla con antibióticos pronto. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas coman plástico?", 
+        respuesta: "¡Qué alegría verte! Mantén el corral limpio de basura, usa malla para cubrir desechos y revisa diario. Si tragan plástico, puede bloquear su digestión; educa a todos en casa para no tirar cosas cerca del gallinero. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene sangre en las plumas?", 
+        respuesta: "¡Hola! Busca heridas por peleas o depredadores. Lava con agua tibia, aplica antiséptico y aísla si sangra mucho. Si no ves la fuente o sigue, un veterinario debe revisarla para evitar infecciones graves. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen anemia?", 
+        respuesta: "¡Qué bueno que preguntes! La cresta y barbillas palidecen, están débiles y comen poco. Parásitos o mala dieta lo causan. Dale alimento con hierro y desparasita; un veterinario confirma con análisis si no mejora pronto. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el cuello pelado?", 
+        respuesta: "¡Hola! Puede ser picoteo de otras, parásitos o muda. Revisa si hay ácaros y trátalos con polvo avícola. Si es agresión, sepárala y dale más espacio al grupo. La piel sana con tiempo y cuidado. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se resfríen?", 
+        respuesta: "¡Qué alegría ayudarte! Mantén el gallinero seco, sin corrientes y con cama gruesa en invierno. El frío y humedad traen tos o infecciones, así que revisa ventilación y dales vitaminas para fortalecerlas. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas erizadas?", 
+        respuesta: "¡Hola! Suele ser frío, enfermedad o estrés. Si tiembla o está letárgica, dale calor y revisa síntomas como diarrea. Si no mejora en un día, un veterinario debe verla para descartar algo serio. ¿Qué más te gustaría explorar?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están mudando?", 
+        respuesta: "¡Qué bueno verte! Pierden plumas, parecen desaliñadas y bajan la postura de huevos. Dura 6-8 semanas y es normal anualmente. Aumenta proteína y paciencia; pronto estarán renovadas y productivas otra vez. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico tapado?", 
+        respuesta: "¡Hola! Puede ser comida seca o secreción. Límpialo con agua tibia y un paño suave, revisa si respira bien. Si hay moco o sigue tapado, consulta a un veterinario por posible infección respiratoria. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas coman huevos rotos?", 
+        respuesta: "¡Qué alegría ayudarte! Recolecta huevos rápido, usa nidos acolchados y da calcio para cáscaras fuertes. Si los prueban, pon huevos falsos o separa a la culpable. Evitar roturas es la clave para que no aprendan. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene las alas temblorosas?", 
+        respuesta: "¡Hola! Podría ser frío, miedo o enfermedad como Marek. Dale calor y obsérvala por otros signos como cojera. Si persiste o empeora, un veterinario debe diagnosticar; el temblor no siempre es grave, pero vigílalo. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen salmonela?", 
+        respuesta: "¡Qué bueno que preguntes! No siempre muestran síntomas, pero busca diarrea, letargo o baja postura. Un veterinario analiza heces para confirmarlo. La higiene y no dar sobras crudas previenen este riesgo para aves y humanos. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el cuerpo caliente?", 
+        respuesta: "¡Hola! Si está más caliente de lo normal, puede ser fiebre por infección. Aísla, dale agua fresca y revisa por tos o secreciones. Consulta a un veterinario si no baja en un día; necesita atención rápida. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se peleen por los nidos?", 
+        respuesta: "¡Qué alegría verte! Pon un nido por cada 4 gallinas, hazlos oscuros y cómodos. Si hay pocas opciones, se estresan y pelean. Reparte los nidos parejo en el gallinero para que todas tengan su turno. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas opacas?", 
+        respuesta: "¡Hola! Indica mala dieta, parásitos o estrés. Dale alimento balanceado con vitaminas, revisa por ácaros y mejora su entorno. Las plumas brillan con buena salud, así que ajusta lo necesario y pronto mejorarán. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están listas para poner?", 
+        respuesta: "¡Qué bueno que preguntes! A los 5-6 meses, la cresta se pone roja, buscan nidos y cacarean más. Depende de la raza, pero con buena luz y dieta, pronto tendrás huevos frescos de tus gallinas. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene sangre en la cresta?", 
+        respuesta: "¡Hola! Puede ser picoteo o golpe. Lava con agua tibia, aplica antiséptico y vigila por infección. Si sangra mucho o se hincha, consulta a un veterinario. Sepárala si otras la atacan hasta que sane. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan piojos en verano?", 
+        respuesta: "¡Qué alegría ayudarte! Usa polvo avícola cada mes, limpia el gallinero seguido y revisa plumas bajo las alas. El calor los multiplica, así que ventilación y baños de polvo para las gallinas ayudan a prevenirlos. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico amarillo?", 
+        respuesta: "¡Hola! Es normal en algunas razas, pero si cambia de color o se ve raro, revisa dieta o salud. Exceso de maíz lo amarillea; si hay letargo o secreciones, un veterinario debe descartar problemas hepáticos. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen bronquitis infecciosa?", 
+        respuesta: "¡Qué bueno verte! Busca tos, estornudos, huevos arrugados o baja postura. Es viral y contagioso, así que aísla a las enfermas. Un veterinario confirma y aconseja vacunas; la ventilación y limpieza reducen riesgos futuros. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pecho hinchado?", 
+        respuesta: "¡Hola! Podría ser aire atrapado o infección. Palpa si está duro o blando; dale agua y descanso. Si no baja o hay dolor, un veterinario debe drenarlo o tratarla con antibióticos según la causa. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas coman cosas tóxicas?", 
+        respuesta: "¡Qué alegría ayudarte! Revisa el corral por plantas como azaleas o químicos, y usa cercas para limitar acceso. Educa a la familia sobre no tirar restos peligrosos; las gallinas son curiosas y eso las pone en riesgo. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas pegadas al cuerpo?", 
+        respuesta: "¡Hola! Suele ser diarrea o cloaca sucia. Límpiala con agua tibia, seca bien y revisa su dieta o salud. Si sigue, puede ser infección; un veterinario te guiará para tratarla y evitar que empeore. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen estrés por calor?", 
+        respuesta: "¡Qué bueno que preguntes! Jadean, extienden alas y producen menos. Si la cresta se seca o caen muertas, es grave. Dales sombra, agua fría y ventilación; el calor extremo es peligroso para su salud. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el ojo hinchado?", 
+        respuesta: "¡Hola! Puede ser infección o golpe. Limpia con agua salina, aplica pomada antibiótica y aísla. Si hay pus o no mejora en 2 días, un veterinario debe tratarla para evitar que pierda visión. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se enfermen por hongos?", 
+        respuesta: "¡Qué alegría verte! Mantén el gallinero seco, usa cama fresca y evita acumular estiércol húmedo. Los hongos crecen en humedad, así que ventilación y limpieza son tus aliados para proteger su salud respiratoria. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en el ojo?", 
+        respuesta: "¡Hola! Si crecen raro, es genético y no pasa nada. Si es suciedad o lesión, limpia con agua tibia y revisa por infección. Si hay enrojecimiento o lagrimeo, consulta a un veterinario pronto. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen coccidiosis?", 
+        respuesta: "¡Qué bueno que preguntes! Busca diarrea sanguinolenta, letargo y plumas erizadas. Es un parásito común en suelos húmedos. Un veterinario receta anticoccidiales; la limpieza y cama seca previenen que vuelva a aparecer. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el cuello hinchado?", 
+        respuesta: "¡Hola! Podría ser buche impactado o infección. Masajea suavemente si es comida atascada y dale agua. Si está duro o hay mal olor, un veterinario debe revisarla; puede needing drenaje o antibióticos. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se lastimen con alambre?", 
+        respuesta: "¡Qué alegría ayudarte! Usa malla lisa o cubre bordes filosos con madera. Revisa el corral por puntas expuestas; las heridas traen infecciones, así que un diseño seguro mantiene a tus gallinas protegidas y sanas. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene sangre en el pico?", 
+        respuesta: "¡Hola! Puede ser herida o infección interna. Limpia con agua tibia, revisa por cortes y vigila si come. Si sangra mucho o hay otros síntomas, un veterinario debe evaluarla para tratarla a tiempo. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen deficiencia de vitaminas?", 
+        respuesta: "¡Qué bueno verte! Plumas opacas, patas débiles o baja postura son señales. Dale alimento con vitaminas A, D y E, y revisa su dieta. Si no mejora en semanas, un veterinario puede ajustar su nutrición. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el buche lleno?", 
+        respuesta: "¡Hola! Si no se vacía en 12 horas, puede estar impactado. Masajea suavemente, dale agua tibia y evita comida sólida un día. Si sigue duro o huele mal, un veterinario debe drenarlo. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan garrapatas?", 
+        respuesta: "¡Qué alegría ayudarte! Usa polvo avícola en el gallinero, revisa plumas seguido y limpia grietas donde se escondan. Las garrapatas debilitan y traen enfermedades, así que la higiene constante es tu mejor defensa contra ellas. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas arrancadas?", 
+        respuesta: "¡Hola! Es por peleas o parásitos. Revisa por ácaros y trátalos; si es agresión, da más espacio y distracciones. Las plumas crecen solas con buena dieta y calma en el gallinero. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen lombrices?", 
+        respuesta: "¡Qué bueno que preguntes! Busca pérdida de peso, diarrea o gusanos en heces. Un veterinario confirma con análisis y receta desparasitante. La limpieza y no dar sobras húmedas previenen que vuelvan a aparecer. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico caliente?", 
+        respuesta: "¡Hola! Puede ser fiebre o estrés. Dale agua fresca, revisa por infección o letargo, y aísla si está enferma. Si no baja la temperatura en un día, un veterinario debe tratarla para evitar complicaciones. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se queden calvas?", 
+        respuesta: "¡Qué alegría ayudarte! La calvicie viene por picoteo, parásitos o muda. Revisa ácaros y trátalos con polvo avícola, da más espacio y distracciones. Una dieta rica en proteína ayuda a que las plumas crezcan fuertes otra vez. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el ojo rojo?", 
+        respuesta: "¡Hola! Puede ser irritación, infección o alergia. Limpia con agua salina tibia y observa si hay secreción. Si se hincha o no mejora en un día, un veterinario debe recetar antibióticos para evitar daños mayores. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen problemas respiratorios?", 
+        respuesta: "¡Qué bueno que preguntes! Escucha tos, estornudos o respiración ruidosa; busca secreciones nasales o letargo. El polvo o frío lo causan, así que mejora ventilación y consulta a un veterinario si persiste para tratarlo a tiempo. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas rotas en la cola?", 
+        respuesta: "¡Hola! Puede ser peleas, parásitos o roce. Revisa por ácaros y trátalos; si es agresión, da más espacio. Las plumas sanan con tiempo, buena dieta y un gallinero tranquilo donde no se lastimen. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas coman arena en exceso?", 
+        respuesta: "¡Qué alegría verte! Picotean arena por minerales, pero mucho indica deficiencia. Dales calcio y alimento balanceado; esparce granos para distraerlas. No es grave, pero revisa su dieta para que no afecte su digestión. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico torcido?", 
+        respuesta: "¡Hola! Puede ser genético o por lesión. Si come bien, no hay problema; si no, lima bordes filosos y consulta a un veterinario. No se corrige, pero con cuidado sigue viviendo normal y produciendo huevos. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están poniendo huevos débiles?", 
+        respuesta: "¡Qué bueno que preguntes! Las cáscaras se rompen fácil o son blandas. Falta calcio o vitamina D; dales conchas trituradas y luz solar. Si sigue, revisa estrés o edad, ya que influyen en la calidad. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene sangre en las patas?", 
+        respuesta: "¡Hola! Busca cortes o pododermatitis por suciedad. Lava con agua tibia, aplica antiséptico y mantén la cama seca. Si se hincha o cojea, un veterinario debe tratarla para evitar infecciones que la debiliten. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan estrés por perros?", 
+        respuesta: "¡Qué alegría ayudarte! Usa cercas altas, entierra malla y pon un gallinero seguro. Los ladridos las asustan y bajan la postura, así que aleja perros o usa barreras de sonido como arbustos para calmarlas. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el cuerpo rígido?", 
+        respuesta: "¡Hola! Puede ser parálisis por Marek, frío o golpe. Dale calor y vitaminas; si no se mueve en horas, un veterinario debe diagnosticar. Es serio, así que actúa rápido para darle una chance de mejorar. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen parásitos en la piel?", 
+        respuesta: "¡Qué bueno verte! Busca plumas rotas, picazón o bichos bajo las alas. Usa una lupa si dudas; los ácaros y piojos son comunes. Trata con polvo avícola y limpia el gallinero para evitar que vuelvan. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en la cloaca?", 
+        respuesta: "¡Hola! Si es suciedad, límpiala con agua tibia; si es prolapso, aplica crema y consulta a un veterinario. Revisa dieta y estrés, ya que el esfuerzo al poner huevos a veces lo causa. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se enfermen por frío?", 
+        respuesta: "¡Qué alegría ayudarte! Aísla el gallinero con madera, usa cama gruesa y evita corrientes. El frío baja defensas y trae resfriados, así que dales alimento extra y calor para mantenerlas sanas en invierno. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico seco?", 
+        respuesta: "¡Hola! Puede ser deshidratación o dieta pobre. Dale agua fresca y revisa si bebe; añade vitaminas al alimento. Si sigue seco o hay otros síntomas, un veterinario debe descartar problemas de salud más serios. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen miedo de algo?", 
+        respuesta: "¡Qué bueno que preguntes! Se esconden, cacarean fuerte o dejan de poner. Busca depredadores, ruidos o cambios cerca. Calma su entorno y protégelas; el miedo afecta su salud y producción de huevos a largo plazo. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el ala rota?", 
+        respuesta: "¡Hola! Inmovilízala con una venda suave y dale descanso en un lugar tranquilo. No sana sola si está muy dañada, así que un veterinario debe ajustarla o tratarla para que recupere movilidad. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas coman estiércol?", 
+        respuesta: "¡Qué alegría verte! Limpia el gallinero seguido, usa cama absorbente y dales alimento balanceado. Comen estiércol por aburrimiento o deficiencias; mantenerlas nutridas y activas evita este hábito que trae bacterias. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas enredadas?", 
+        respuesta: "¡Hola! Puede ser suciedad o parásitos. Cepíllalas con cuidado, revisa por ácaros y limpia con agua tibia si es necesario. Una dieta rica en proteínas ayuda a que las plumas crezcan lisas y sanas. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están enfermas por el agua?", 
+        respuesta: "¡Qué bueno que preguntes! Busca diarrea, letargo o baja postura. El agua sucia trae bacterias como E. coli; cambia bebederos diario y usa agua limpia. Un veterinario analiza si sospechas contaminación seria. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene la cresta negra?", 
+        respuesta: "¡Hola! Puede ser congelación, golpe o infección. Lava con agua tibia y aplica antiséptico; si se extiende o hay pus, un veterinario debe tratarla. Protegerla del frío evita que empeore en invierno. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan pulgas?", 
+        respuesta: "¡Qué alegría ayudarte! Usa polvo avícola en el gallinero, revisa plumas seguido y limpia grietas. Las pulgas se multiplican rápido, así que baños de polvo para las gallinas y higiene constante las mantienen libres de estos bichos. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el ojo opaco?", 
+        respuesta: "¡Hola! Puede ser catarata, infección o lesión. Limpia con agua salina y revisa por secreción. Si no mejora o hay dolor, un veterinario debe evaluarla; la visión perdida no vuelve, pero se trata. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen estrés por mudanza?", 
+        respuesta: "¡Qué bueno verte! Dejan de comer, ponen menos o se esconden. Dales tiempo, comida rica y un gallinero tranquilo. Los cambios las afectan, pero con rutina y calma se adaptan en unas semanas. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en el cuello rotas?", 
+        respuesta: "¡Hola! Es por picoteo o roce. Revisa por parásitos y trátalos; da más espacio si es agresión. Las plumas crecen con buena dieta y paz en el gallinero; vigila que no se lastime más. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se enfermen por polvo?", 
+        respuesta: "¡Qué alegría ayudarte! Usa cama húmeda para atrapar polvo, ventila sin corrientes y limpia seguido. El polvo irrita sus pulmones y trae infecciones, así que un gallinero limpio las mantiene respirando bien. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico agrietado?", 
+        respuesta: "¡Hola! Puede ser sequedad o golpe. Hidrátala bien y aplica vaselina para suavizarlo. Si sangra o no come, un veterinario debe revisarlo; sana solo si no es profundo, pero vigílalo por infección. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen problemas digestivos?", 
+        respuesta: "¡Qué bueno que preguntes! Busca diarrea, buche lleno o pérdida de peso. Comida podrida o parásitos lo causan; revisa dieta y desparasita. Un veterinario ayuda si no mejora con agua limpia y probióticos. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene sangre en el ojo?", 
+        respuesta: "¡Hola! Es lesión o infección grave. Limpia con agua salina, aplica antibiótico tópico y aísla. Si no para o hay pus, un veterinario debe tratarla rápido para salvar el ojo y su salud. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan infecciones en las patas?", 
+        respuesta: "¡Qué alegría verte! Mantén la cama seca, usa suelo suave y revisa por cortes. La humedad y estiércol traen pododermatitis; lava heridas con antiséptico y protégelas para que caminen bien y estén sanas. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en la lengua?", 
+        respuesta: "¡Hola! Si se pega algo raro, límpialo con agua tibia con cuidado. Revisa por infección o hongos si sigue. Es raro, pero un veterinario descarta problemas serios si no mejora o hay mal olor. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están afectadas por el viento?", 
+        respuesta: "¡Qué bueno que preguntes! Se amontonan, tiemblan o bajan postura. El viento frío las enferma, así que usa barreras como tablas o lonas en el gallinero para protegerlas y mantenerlas cómodas. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico cerrado?", 
+        respuesta: "¡Hola! Puede ser dolor, lesión o enfermedad. Ofrécele agua con jeringa y revisa por heridas o hinchazón. Si no abre en un día o hay letargo, un veterinario debe tratarla para que coma normal. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan estrés por luz fuerte?", 
+        respuesta: "¡Qué alegría ayudarte! Usa sombra en el corral y lámparas suaves en el gallinero. La luz intensa las asusta y baja huevos; mantén 14-16 horas de luz natural o artificial tranquila para que estén relajadas. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas quemadas?", 
+        respuesta: "¡Hola! Si estuvo cerca de fuego o sol extremo, revisa por heridas y aplica crema calmante. Dale sombra y agua; las plumas crecen solas si no hay daño profundo. Vigila por estrés o infección. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen parásitos en el buche?", 
+        respuesta: "¡Qué bueno verte! Busca buche hinchado, mal olor o pérdida de peso. Un veterinario analiza y desparasita; la comida húmeda o sucia lo causa. Limpia comederos y dale alimento fresco para prevenirlo. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el cuerpo flaco?", 
+        respuesta: "¡Hola! Puede ser parásitos, enfermedad o mala dieta. Aumenta proteína, desparasita y revisa por síntomas como diarrea. Si no engorda en semanas, un veterinario debe diagnosticar para tratarla y que recupere fuerza. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas se enfermen por comida vieja?", 
+        respuesta: "¡Qué alegría ayudarte! Guarda alimento en sitios secos, usa lo fresco primero y revisa por moho. La comida rancia trae hongos y baja su salud; dales solo lo que coman en un día para evitar riesgos. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en las patas rotas?", 
+        respuesta: "¡Hola! Puede ser roce o parásitos. Revisa por ácaros y trátalos; limpia el suelo por si hay filos. Las plumas sanan con tiempo y buena dieta, pero vigila que no se lastime más. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen estrés por gallos?", 
+        respuesta: "¡Qué bueno que preguntes! Si hay peleas, menos huevos o plumas rotas, el gallo las molesta. Sepáralo o reduce su número; las gallinas ponedoras no necesitan gallo y se relajan sin él. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico pálido?", 
+        respuesta: "¡Hola! Indica anemia o mala dieta. Dale alimento con hierro y revisa por parásitos. Si sigue pálido o está débil, un veterinario debe analizarla; la nutrición adecuada lo corrige con tiempo y cuidado. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan infecciones por heridas?", 
+        respuesta: "¡Qué alegría verte! Lava cortes con agua tibia, aplica antiséptico y revisa diario. Las heridas se infectan por suciedad, así que cama limpia y un corral sin filos las mantienen sanas y sin problemas. ¿Cómo puedo asistirte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el ojo pequeño?", 
+        respuesta: "¡Hola! Puede ser genético o infección que lo cerró. Revisa por secreción o hinchazón; limpia con agua salina. Si hay pus o dolor, un veterinario debe tratarla para evitar complicaciones serias. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas están afectadas por el calor?", 
+        respuesta: "¡Qué bueno que preguntes! Jadean, extienden alas y beben mucho. El calor extremo baja postura y las mata si no actúas. Dales sombra, agua fría y ventilación para que sigan sanas y productivas. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en el pico pegadas?", 
+        respuesta: "¡Hola! Puede ser comida o secreción. Límpialo con agua tibia y revisa por infección si huele mal. Dale agua limpia y observa; si sigue, un veterinario descarta problemas respiratorios o digestivos. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan estrés por niños?", 
+        respuesta: "¡Qué alegría ayudarte! Educa a los niños a no gritar ni perseguirlas, usa cercas para limitar acceso. El ruido y caos las asustan, así que un corral tranquilo mantiene su postura y salud en orden. ¿En qué más puedo asistirte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el cuerpo tembloroso?", 
+        respuesta: "¡Hola! Puede ser frío, miedo o enfermedad como Newcastle. Dale calor, agua y aísla si hay tos. Si no mejora en un día, un veterinario debe diagnosticar; el temblor necesita atención rápida. ¿Qué más te interesa?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen problemas por falta de luz?", 
+        respuesta: "¡Qué bueno verte! Producen menos huevos o se vuelven inactivas. Necesitan 14-16 horas de luz; usa lámparas suaves en invierno. La luz regula su ciclo, así que ajústala para mantener la postura. ¿Cómo puedo ayudarte más?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el pico con costras?", 
+        respuesta: "¡Hola! Puede ser viruela o lesión. Limpia con agua tibia, aplica yodo y aísla. Si se extiende o hay fiebre, un veterinario debe tratarla; vacunar previene esto en el futuro. ¿Qué más quieres saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan parásitos en verano?", 
+        respuesta: "¡Qué alegría ayudarte! Usa polvo avícola, revisa plumas y limpia el gallinero seguido. El calor aumenta ácaros y pulgas, así que baños de polvo y ventilación las protegen de estos bichos molestos. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene plumas en la cabeza rotas?", 
+        respuesta: "¡Hola! Es por picoteo o roce. Revisa por parásitos y trátalos; da más espacio si es agresión. Las plumas crecen con buena dieta y un gallinero calmado donde no se lastimen. ¿Qué más te gustaría saber?", 
+    },
+    { 
+        pregunta: "¿Cómo sé si mis gallinas tienen infecciones por bacterias?", 
+        respuesta: "¡Qué bueno que preguntes! Busca diarrea, letargo o secreciones raras. La suciedad las causa; un veterinario analiza y da antibióticos. Limpieza y agua fresca previenen que se propaguen en el gallinero. ¿En qué más puedo ayudarte?", 
+    },
+    { 
+        pregunta: "¿Qué hago si una gallina tiene el ojo cerrado por pus?", 
+        respuesta: "¡Hola! Es infección seria. Limpia con agua salina, aplica antibiótico tópico y aísla. Si no abre en 2 días o hay fiebre, un veterinario debe tratarla para salvar el ojo y su salud. ¿Qué más necesitas saber?", 
+    },
+    { 
+        pregunta: "¿Cómo evito que las gallinas tengan estrés por cambios?", 
+        respuesta: "¡Qué alegría verte! Haz cambios lentos, mantén rutina y dales comida rica. Mover el gallinero o añadir aves las altera, así que calma y constancia las ayudan a adaptarse sin bajar su producción. ¿Cómo puedo asistirte más?", 
+    }
+        ];       
+
+        const respuestasDivertidas = [
+        { 
+        interaccion: "Hola", 
+        respuesta: "¡Hola, qué tal! Más feliz que una gallina con maíz fresco. ¿En qué te ayudo con tus aves de traspatio hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal?", 
+        respuesta: "¡Hey, qué tal! Más animado que un gallo al amanecer. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Cómo estás?", 
+        respuesta: "¡Bien, gracias! Más listo que una gallina buscando el nido. ¿Cómo te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Estás ahí?", 
+        respuesta: "¡Claro que sí! Más presente que un gallo en el amanecer. ¿En qué te ayudo con el traspatio hoy?" 
+    },
+    { 
+        interaccion: "Oye", 
+        respuesta: "¡Oye, qué bueno verte! Más atento que un gallo vigilando el gallinero. ¿En qué te ayudo con las aves?" 
+    },
+    { 
+        interaccion: "Hey", 
+        respuesta: "¡Hey, qué tal! Más rápido que una gallina escapando del perro. ¿Qué necesitas para tus pollitas?" 
+    },
+    { 
+        interaccion: "Buenos días", 
+        respuesta: "¡Buenos días! Más fresco que un huevo recién puesto. ¿En qué te echo una ala con las gallinas?" 
+    },
+    { 
+        interaccion: "Buenas tardes", 
+        respuesta: "¡Buenas tardes! Más relajado que una gallina en su siesta. ¿Qué necesitas saber sobre tus aves?" 
+    },
+    { 
+        interaccion: "Buenas noches", 
+        respuesta: "¡Buenas noches! Más callado que un gallo después del canto. ¿En qué te ayudo con el traspatio?" 
+    },
+    { 
+        interaccion: "¿Qué pasa?", 
+        respuesta: "¡Hola! Más curioso que una gallina picoteando el corral. ¿Qué pasa con tus emplumadas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal?", 
+        respuesta: "¡Hola! Más contento que una gallina con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Cómo va todo?", 
+        respuesta: "¡Bien, gracias! Más tranquilo que un pollito bajo el ala de su mamá. ¿En qué te ayudo con las aves?" 
+    },
+    { 
+        interaccion: "¿Qué hay de nuevo?", 
+        respuesta: "¡Hola! Más nuevo que un huevo recién salido del nido. ¿Qué novedad tienes con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme?", 
+        respuesta: "¡Claro! Más servicial que una gallina cuidando pollitos. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas?", 
+        respuesta: "¡Hola! Más sabio que una gallina vieja en el corral. ¿Qué quieres saber sobre tus emplumadas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué puedes hacer?", 
+        respuesta: "¡Hola! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Cómo funciona esto?", 
+        respuesta: "¡Hey! Más fácil que recoger huevos calientitos. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "¿Estás listo?", 
+        respuesta: "¡Claro! Más listo que una gallina planeando su nido. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué me cuentas?", 
+        respuesta: "¡Hola! Más parlanchín que un gallo al amanecer. ¿Qué quieres charlar sobre tus gallinas?" 
+    },
+    { 
+        interaccion: "¿Tienes un minuto?", 
+        respuesta: "¡Sí! Más rápido que una gallina corriendo al maíz. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas?", 
+        respuesta: "¡Hola! Más pensativo que una gallina eligiendo dónde poner. ¿Qué opinas de tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes explicarme algo?", 
+        respuesta: "¡Claro! Más claro que un huevo fresco en la mano. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal el día?", 
+        respuesta: "¡Hola! Mi día va más suave que una pluma de gallina. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Cómo te va?", 
+        respuesta: "¡Bien! Más firme que un gallo en su corral. ¿En qué te ayudo con tus pollitas esta vez?" 
+    },
+    { 
+        interaccion: "¿Qué tienes para mí?", 
+        respuesta: "¡Hola! Más sorpresas que un huevo con doble yema. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "¿Estás ocupado?", 
+        respuesta: "¡Nunca para ti! Más libre que una gallina en el patio. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué hay?", 
+        respuesta: "¡Hola! Más curioso que una gallina husmeando el corral. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un consejo?", 
+        respuesta: "¡Claro! Más sabio que un gallo con años de canto. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si charlamos?", 
+        respuesta: "¡Hey! Más parlanchín que una gallina en el nido. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué sugieres?", 
+        respuesta: "¡Hola! Más ideas que plumas en un gallinero. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Cómo empiezo?", 
+        respuesta: "¡Hola! Más fácil que criar un pollito con maíz. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "¿Qué hago ahora?", 
+        respuesta: "¡Hey! Más rápido que una gallina al ver comida. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué me recomiendas?", 
+        respuesta: "¡Hola! Más listo que una gallina buscando sombra. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Estás disponible?", 
+        respuesta: "¡Siempre! Más atento que un gallo en el amanecer. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con algo?", 
+        respuesta: "¡Claro! Más útil que un nido lleno de huevos. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me ayudas?", 
+        respuesta: "¡Hola! Más dispuesto que una gallina a poner huevos. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de esto?", 
+        respuesta: "¡Hey! Más informado que un gallo sobre su corral. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Cómo estás hoy?", 
+        respuesta: "¡Hola! Más fresco que un huevo en la sombra. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes alguna idea?", 
+        respuesta: "¡Claro! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué puedo hacer?", 
+        respuesta: "¡Hola! Más opciones que maíz en un gallinero. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "¿Qué me dices?", 
+        respuesta: "¡Hey! Más charlatán que un gallo al alba. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes contarme algo?", 
+        respuesta: "¡Claro! Más cuentos que plumas en un gallo viejo. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal tu día?", 
+        respuesta: "¡Hola! Más suave que una pluma en el viento. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tienes en mente?", 
+        respuesta: "¡Hey! Más curioso que una gallina con un gusano raro. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "¿Cómo te sientes?", 
+        respuesta: "¡Hola! Más cómodo que una gallina en su nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una mano?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué opinas de esto?", 
+        respuesta: "¡Hola! Más sabio que una gallina vieja en el corral. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una pista?", 
+        respuesta: "¡Hey! Más pistas que plumas en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me explicas?", 
+        respuesta: "¡Hola! Más claro que un huevo recién puesto. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si charlamos?", 
+        respuesta: "¡Hola! Más parlanchín que un gallo al amanecer. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes tiempo?", 
+        respuesta: "¡Claro! Más tiempo que una gallina poniendo huevos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué me sugieres?", 
+        respuesta: "¡Hey! Más ideas que maíz en un corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿cómo estás hoy?", 
+        respuesta: "¡Hola! Más fresco que un pollito recién salido del cascarón. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "¿Puedes resolver esto?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me cuentas?", 
+        respuesta: "¡Hola! Más cuentos que plumas en un gallo viejo. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "¿Estás libre?", 
+        respuesta: "¡Sí! Más libre que una gallina en el patio. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me ayudas?", 
+        respuesta: "¡Hola! Más dispuesto que una gallina a poner huevos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de aves?", 
+        respuesta: "¡Hey! Más sabio que un gallo con años de corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme info?", 
+        respuesta: "¡Claro! Más info que plumas en un gallinero. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das tips?", 
+        respuesta: "¡Hola! Más tips que maíz en un corral. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me orientas?", 
+        respuesta: "¡Hey! Más orientación que un gallo al alba. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Cómo te va hoy?", 
+        respuesta: "¡Hola! Más suave que una pluma de pollito. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes algo para compartir?", 
+        respuesta: "¡Claro! Más para compartir que huevos en un nido. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das ideas?", 
+        respuesta: "¡Hola! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "¿Qué me recomiendas hoy?", 
+        respuesta: "¡Hey! Más recomendaciones que maíz en un gallinero. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme rápido?", 
+        respuesta: "¡Claro! Más rápido que una gallina escapando del perro. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me aconsejas?", 
+        respuesta: "¡Hola! Más consejos que plumas en un gallo viejo. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una solución?", 
+        respuesta: "¡Hey! Más soluciones que huevos en un nido. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Estás funcionando?", 
+        respuesta: "¡Sí! Más en marcha que un gallo al amanecer. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me enseñas?", 
+        respuesta: "¡Hola! Más maestro que una gallina cuidando pollitos. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "¿Puedes darme detalles?", 
+        respuesta: "¡Claro! Más detalles que plumas en un gallinero. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me apoyas?", 
+        respuesta: "¡Hey! Más apoyo que un gallo en su corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué sabes de pollitos?", 
+        respuesta: "¡Hola! Más sobre pollitos que plumas en un nido. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes experiencia?", 
+        respuesta: "¡Claro! Más experiencia que un gallo con años de canto. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me guías?", 
+        respuesta: "¡Hey! Más guía que un gallo al alba. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato?", 
+        respuesta: "¡Hola! Más datos que huevos en un gallinero. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con gallinas?", 
+        respuesta: "¡Claro! Más experto que una gallina poniendo huevos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué me dices de esto?", 
+        respuesta: "¡Hey! Más opiniones que plumas en un gallo viejo. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un ejemplo?", 
+        respuesta: "¡Hola! Más ejemplos que maíz en un corral. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Estás listo para ayudar?", 
+        respuesta: "¡Sí! Más listo que una gallina buscando el nido. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una respuesta?", 
+        respuesta: "¡Hey! Más respuestas que plumas en un gallinero. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me orientas?", 
+        respuesta: "¡Hola! Más orientación que un gallo al amanecer. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un tip?", 
+        respuesta: "¡Claro! Más tips que maíz en un gallinero. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de huevos?", 
+        respuesta: "¡Hey! Más sobre huevos que una gallina en su nido. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea?", 
+        respuesta: "¡Hola! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "¿Tienes algo que decir?", 
+        respuesta: "¡Claro! Más que decir que un gallo al cantar. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me ayudas con esto?", 
+        respuesta: "¡Hey! Más ayuda que un gallo en el corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me explicas algo?", 
+        respuesta: "¡Hola! Más claro que un huevo fresco en la mano. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una mano?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las gallinas?", 
+        respuesta: "¡Hey! Más fan de las gallinas que un gallo en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo?", 
+        respuesta: "¡Hola! Más consejos que plumas en un gallo viejo. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes algo para mí?", 
+        respuesta: "¡Claro! Más sorpresas que un huevo con doble yema. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una pista?", 
+        respuesta: "¡Hey! Más pistas que plumas en un gallinero. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me cuentas algo?", 
+        respuesta: "¡Hola! Más cuentos que plumas en un gallo viejo. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme hoy?", 
+        respuesta: "¡Claro! Más dispuesto que una gallina a poner huevos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de pollitas?", 
+        respuesta: "¡Hey! Más sobre pollitas que plumas en un nido. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das info?", 
+        respuesta: "¡Hola! Más info que plumas en un gallinero. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "¿Tienes un dato para mí?", 
+        respuesta: "¡Claro! Más datos que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una recomendación?", 
+        respuesta: "¡Hey! Más recomendaciones que maíz en un corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me ayudas rápido?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una solución?", 
+        respuesta: "¡Claro! Más soluciones que huevos en un gallinero. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallineros?", 
+        respuesta: "¡Hey! Más sobre gallineros que un gallo en su casa. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un detalle?", 
+        respuesta: "¡Hola! Más detalles que plumas en una gallina. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una idea para mí?", 
+        respuesta: "¡Claro! Más ideas que maíz en un gallinero. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un ejemplo?", 
+        respuesta: "¡Hey! Más ejemplos que plumas en un gallo viejo. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me orientas?", 
+        respuesta: "¡Hola! Más orientación que un gallo al amanecer. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con un problema?", 
+        respuesta: "¡Claro! Más soluciones que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de los pollitos?", 
+        respuesta: "¡Hey! Más fan de los pollitos que una gallina en su nido. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una sugerencia?", 
+        respuesta: "¡Hola! Más sugerencias que maíz en un corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes algo que recomendar?", 
+        respuesta: "¡Claro! Más recomendaciones que plumas en un gallinero. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me ayudas con gallinas?", 
+        respuesta: "¡Hey! Más experto que una gallina poniendo huevos. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un tip?", 
+        respuesta: "¡Hola! Más tips que maíz en un gallinero. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una explicación?", 
+        respuesta: "¡Claro! Más claro que un huevo recién puesto. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de traspatio?", 
+        respuesta: "¡Hey! Más sobre traspatios que un gallo en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una respuesta?", 
+        respuesta: "¡Hola! Más respuestas que plumas en un gallinero. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un consejo para mí?", 
+        respuesta: "¡Claro! Más consejos que plumas en un gallo viejo. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una mano?", 
+        respuesta: "¡Hey! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me ayudas con algo?", 
+        respuesta: "¡Hola! Más dispuesto que una gallina a poner huevos. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un dato curioso?", 
+        respuesta: "¡Claro! Más curioso que una gallina con un gusano raro. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de los gallos?", 
+        respuesta: "¡Hey! Más fan de los gallos que una gallina en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea nueva?", 
+        respuesta: "¡Hola! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes algo interesante?", 
+        respuesta: "¡Claro! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un dato útil?", 
+        respuesta: "¡Hey! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me explicas esto?", 
+        respuesta: "¡Hola! Más claro que un huevo fresco en la mano. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con un tema?", 
+        respuesta: "¡Claro! Más dispuesto que una gallina a poner huevos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de criar aves?", 
+        respuesta: "¡Hey! Más sobre criar aves que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un truco?", 
+        respuesta: "¡Hola! Más trucos que plumas en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una solución para mí?", 
+        respuesta: "¡Claro! Más soluciones que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das algo rápido?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una pista?", 
+        respuesta: "¡Hola! Más pistas que plumas en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con huevos?", 
+        respuesta: "¡Claro! Más experto en huevos que una gallina en su nido. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las aves?", 
+        respuesta: "¡Hey! Más fan de las aves que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato?", 
+        respuesta: "¡Hola! Más datos que huevos en un gallinero. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "¿Tienes algo que contarme?", 
+        respuesta: "¡Claro! Más que contar que un gallo al cantar. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una recomendación?", 
+        respuesta: "¡Hey! Más recomendaciones que maíz en un corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me ayudas con pollitos?", 
+        respuesta: "¡Hola! Más experto en pollitos que una gallina en su nido. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un consejo rápido?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas ponedoras?", 
+        respuesta: "¡Hey! Más sobre ponedoras que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una solución?", 
+        respuesta: "¡Hola! Más soluciones que huevos en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una idea útil?", 
+        respuesta: "¡Claro! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das algo interesante?", 
+        respuesta: "¡Hey! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un ejemplo?", 
+        respuesta: "¡Hola! Más ejemplos que plumas en un gallo viejo. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con un dato?", 
+        respuesta: "¡Claro! Más datos que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de los gallineros?", 
+        respuesta: "¡Hey! Más fan de los gallineros que un gallo en su casa. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea?", 
+        respuesta: "¡Hola! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus aves de traspatio?" 
+    },
+    { 
+        interaccion: "¿Tienes algo para ayudarme?", 
+        respuesta: "¡Claro! Más ayuda que un gallo en el corral. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un truco?", 
+        respuesta: "¡Hey! Más trucos que plumas en un gallinero. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una recomendación?", 
+        respuesta: "¡Hola! Más recomendaciones que maíz en un corral. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme algo útil?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de criar pollitos?", 
+        respuesta: "¡Hey! Más sobre pollitos que una gallina en su nido. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una pista?", 
+        respuesta: "¡Hola! Más pistas que plumas en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un dato interesante?", 
+        respuesta: "¡Claro! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una solución rápida?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me ayudas con huevos?", 
+        respuesta: "¡Hola! Más experto en huevos que una gallina en su nido. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una idea nueva?", 
+        respuesta: "¡Claro! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de criar aves?", 
+        respuesta: "¡Hey! Más fan de criar aves que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato curioso?", 
+        respuesta: "¡Hola! Más curioso que una gallina con un gusano raro. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes algo que sugerir?", 
+        respuesta: "¡Claro! Más sugerencias que maíz en un corral. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una explicación?", 
+        respuesta: "¡Hey! Más claro que un huevo recién puesto. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo útil?", 
+        respuesta: "¡Hola! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con algo rápido?", 
+        respuesta: "¡Claro! Más rápido que una gallina escapando del perro. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas de traspatio?", 
+        respuesta: "¡Hey! Más sobre gallinas que un gallo en su corral. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea útil?", 
+        respuesta: "¡Hola! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "¿Tienes una recomendación para mí?", 
+        respuesta: "¡Claro! Más recomendaciones que plumas en un gallinero. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un dato nuevo?", 
+        respuesta: "¡Hey! Más nuevo que un huevo recién puesto. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me ayudas con un tema?", 
+        respuesta: "¡Hola! Más dispuesto que una gallina a poner huevos. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme algo interesante?", 
+        respuesta: "¡Claro! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de los huevos?", 
+        respuesta: "¡Hey! Más fan de los huevos que una gallina en su nido. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una solución?", 
+        respuesta: "¡Hola! Más soluciones que huevos en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un truco para mí?", 
+        respuesta: "¡Claro! Más trucos que plumas en un gallinero. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una idea rápida?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato útil?", 
+        respuesta: "¡Hola! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con criar gallinas?", 
+        respuesta: "¡Claro! Más experto que una gallina poniendo huevos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de aves de traspatio?", 
+        respuesta: "¡Hey! Más sobre aves que un gallo en su corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo rápido?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes algo nuevo para mí?", 
+        respuesta: "¡Claro! Más nuevo que un huevo recién puesto. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una recomendación útil?", 
+        respuesta: "¡Hey! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una pista útil?", 
+        respuesta: "¡Hola! Más pistas que plumas en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un dato sobre gallinas?", 
+        respuesta: "¡Claro! Más datos que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de criar pollitos?", 
+        respuesta: "¡Hey! Más fan de pollitos que una gallina en su nido. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un ejemplo útil?", 
+        respuesta: "¡Hola! Más ejemplos que plumas en un gallo viejo. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una solución rápida?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un dato interesante?", 
+        respuesta: "¡Hey! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me ayudas con un dato?", 
+        respuesta: "¡Hola! Más datos que huevos en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una idea para gallinas?", 
+        respuesta: "¡Claro! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas ponedoras?", 
+        respuesta: "¡Hey! Más sobre ponedoras que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea nueva?", 
+        respuesta: "¡Hola! Más nuevo que un huevo recién puesto. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un consejo sobre huevos?", 
+        respuesta: "¡Claro! Más consejos que plumas en un gallo viejo. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una solución útil?", 
+        respuesta: "¡Hey! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un truco útil?", 
+        respuesta: "¡Hola! Más trucos que plumas en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con algo interesante?", 
+        respuesta: "¡Claro! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las gallinas de traspatio?", 
+        respuesta: "¡Hey! Más fan de las gallinas que un gallo en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una recomendación rápida?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una idea sobre pollitos?", 
+        respuesta: "¡Claro! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un dato útil sobre aves?", 
+        respuesta: "¡Hey! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una solución rápida?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un consejo sobre gallineros?", 
+        respuesta: "¡Claro! Más consejos que plumas en un gallo viejo. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de criar gallinas?", 
+        respuesta: "¡Hey! Más sobre gallinas que un gallo en su corral. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una pista rápida?", 
+        respuesta: "¡Hola! Más pistas que plumas en un gallinero. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes algo útil para gallinas?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una idea interesante?", 
+        respuesta: "¡Hey! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato sobre pollitos?", 
+        respuesta: "¡Hola! Más datos que huevos en un nido. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con un consejo?", 
+        respuesta: "¡Claro! Más consejos que plumas en un gallo viejo. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de los pollitos de traspatio?", 
+        respuesta: "¡Hey! Más fan de los pollitos que una gallina en su nido. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una solución útil?", 
+        respuesta: "¡Hola! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una recomendación sobre aves?", 
+        respuesta: "¡Claro! Más recomendaciones que plumas en un gallinero. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un truco rápido?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea útil?", 
+        respuesta: "¡Hola! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un dato sobre gallineros?", 
+        respuesta: "¡Claro! Más datos que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de huevos frescos?", 
+        respuesta: "¡Hey! Más sobre huevos que una gallina en su nido. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo sobre pollitos?", 
+        respuesta: "¡Hola! Más consejos que plumas en un gallo viejo. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes algo rápido para mí?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una recomendación rápida?", 
+        respuesta: "¡Hey! Más rápido que una gallina escapando del perro. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato rápido?", 
+        respuesta: "¡Hola! Más datos que huevos en un nido. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con una idea?", 
+        respuesta: "¡Claro! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de gallinas ponedoras?", 
+        respuesta: "¡Hey! Más fan de las ponedoras que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una pista útil?", 
+        respuesta: "¡Hola! Más pistas que plumas en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un dato útil para mí?", 
+        respuesta: "¡Claro! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una solución interesante?", 
+        respuesta: "¡Hey! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un truco para gallinas?", 
+        respuesta: "¡Hola! Más trucos que plumas en un gallinero. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una recomendación útil?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas de corral?", 
+        respuesta: "¡Hey! Más sobre gallinas que un gallo en su corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea rápida?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una solución para gallinas?", 
+        respuesta: "¡Claro! Más soluciones que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un consejo útil?", 
+        respuesta: "¡Hey! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato interesante?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con un truco?", 
+        respuesta: "¡Claro! Más trucos que plumas en un gallinero. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de los huevos frescos?", 
+        respuesta: "¡Hey! Más fan de los huevos que una gallina en su nido. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una recomendación útil?", 
+        respuesta: "¡Hola! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una idea para traspatio?", 
+        respuesta: "¡Claro! Más ideas que plumas en una gallina. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una pista rápida?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo rápido?", 
+        respuesta: "¡Hola! Más rápido que una gallina escapando del perro. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un dato útil sobre pollitos?", 
+        respuesta: "¡Claro! Más datos que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas felices?", 
+        respuesta: "¡Hey! Más sobre gallinas felices que un gallo en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una solución rápida?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un truco útil para mí?", 
+        respuesta: "¡Claro! Más trucos que plumas en un gallinero. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una idea útil para gallinas?", 
+        respuesta: "¡Hey! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato útil sobre gallinas?", 
+        respuesta: "¡Hola! Más datos que huevos en un nido. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con una recomendación?", 
+        respuesta: "¡Claro! Más recomendaciones que plumas en un gallinero. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las gallinas de traspatio?", 
+        respuesta: "¡Hey! Más fan de las gallinas que un gallo en su corral. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea interesante?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una solución útil para mí?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un consejo rápido sobre aves?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una pista interesante?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un truco para pollitos?", 
+        respuesta: "¡Claro! Más trucos que plumas en un gallinero. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas y huevos?", 
+        respuesta: "¡Hey! Más sobre gallinas y huevos que un gallo en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una recomendación interesante?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una idea rápida para mí?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un dato rápido sobre gallinas?", 
+        respuesta: "¡Hey! Más datos que huevos en un nido. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo útil para gallinas?", 
+        respuesta: "¡Hola! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con una solución para pollitos?", 
+        respuesta: "¡Claro! Más soluciones que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las gallinas felices?", 
+        respuesta: "¡Hey! Más fan de las gallinas felices que un gallo en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea útil para pollitos?", 
+        respuesta: "¡Hola! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un dato rápido para mí?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una recomendación para gallinas?", 
+        respuesta: "¡Hey! Más recomendaciones que plumas en un gallinero. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un truco interesante?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una solución rápida para gallinas?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas ponedoras felices?", 
+        respuesta: "¡Hey! Más sobre ponedoras felices que un gallo en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una pista rápida para pollitos?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un consejo rápido para mí?", 
+        respuesta: "¡Claro! Más rápido que una gallina escapando del perro. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una idea rápida para traspatio?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato útil para traspatio?", 
+        respuesta: "¡Hola! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con una recomendación rápida?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las gallinas de corral?", 
+        respuesta: "¡Hey! Más fan de las gallinas que un gallo en su corral. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una solución interesante?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una idea útil para gallineros?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un truco rápido para pollitos?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo interesante?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme un dato rápido sobre aves?", 
+        respuesta: "¡Claro! Más datos que huevos en un nido. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas y pollitos?", 
+        respuesta: "¡Hey! Más sobre gallinas y pollitos que un gallo en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una recomendación útil?", 
+        respuesta: "¡Hola! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una solución rápida para traspatio?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una idea interesante para gallinas?", 
+        respuesta: "¡Hey! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato rápido para pollitos?", 
+        respuesta: "¡Hola! Más datos que huevos en un nido. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con un consejo útil?", 
+        respuesta: "¡Claro! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las gallinas ponedoras?", 
+        respuesta: "¡Hey! Más fan de las ponedoras que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea rápida para pollitos?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un truco interesante para mí?", 
+        respuesta: "¡Claro! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una solución rápida para gallineros?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato interesante para traspatio?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una recomendación rápida para pollitos?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas de traspatio felices?", 
+        respuesta: "¡Hey! Más sobre gallinas felices que un gallo en su corral. ¿En qué te ayudo con tus aves?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo rápido para traspatio?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una idea interesante para traspatio?", 
+        respuesta: "¡Claro! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un dato rápido para gallineros?", 
+        respuesta: "¡Hey! Más datos que huevos en un nido. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una solución útil para pollitos?", 
+        respuesta: "¡Hola! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con un truco rápido?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las gallinas y sus huevos?", 
+        respuesta: "¡Hey! Más fan de las gallinas que un gallo en su corral. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea útil para gallineros?", 
+        respuesta: "¡Hola! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una recomendación interesante para mí?", 
+        respuesta: "¡Claro! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un consejo rápido para pollitos?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato útil para gallinas?", 
+        respuesta: "¡Hola! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una solución interesante para traspatio?", 
+        respuesta: "¡Claro! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas ponedoras de traspatio?", 
+        respuesta: "¡Hey! Más sobre ponedoras que un gallo en su corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una pista interesante para gallinas?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un truco rápido para traspatio?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una idea rápida para pollitos?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo útil para traspatio?", 
+        respuesta: "¡Hola! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con una recomendación útil?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las gallinas ponedoras felices?", 
+        respuesta: "¡Hey! Más fan de las ponedoras que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una solución rápida para traspatio?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una idea útil para gallinas ponedoras?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un dato interesante para pollitos?", 
+        respuesta: "¡Hey! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un truco útil para gallineros?", 
+        respuesta: "¡Hola! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una recomendación rápida para traspatio?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas ponedoras de corral?", 
+        respuesta: "¡Hey! Más sobre ponedoras que un gallo en su corral. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una idea interesante para traspatio?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una solución útil para gallinas ponedoras?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un consejo rápido para gallineros?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato rápido para traspatio?", 
+        respuesta: "¡Hola! Más datos que huevos en un nido. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes ayudarme con una idea rápida para gallinas?", 
+        respuesta: "¡Claro! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué opinas de las gallinas ponedoras de traspatio?", 
+        respuesta: "¡Hey! Más fan de las ponedoras que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una recomendación interesante?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes un truco útil para pollitos?", 
+        respuesta: "¡Claro! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das una solución rápida para pollitos?", 
+        respuesta: "¡Hey! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un dato interesante para gallinas?", 
+        respuesta: "¡Hola! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Puedes darme una idea útil para traspatio?", 
+        respuesta: "¡Claro! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus pollitas?" 
+    },
+    { 
+        interaccion: "¿Qué sabes de gallinas felices de traspatio?", 
+        respuesta: "¡Hey! Más sobre gallinas felices que un gallo en su corral. ¿En qué te ayudo con tus gallinas?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das un consejo rápido para pollitos?", 
+        respuesta: "¡Hola! Más rápido que una gallina al maíz. ¿En qué te ayudo con tus aves hoy?" 
+    },
+    { 
+        interaccion: "¿Tienes una recomendación útil para gallineros?", 
+        respuesta: "¡Claro! Más útil que un gallo despertando al alba. ¿En qué te ayudo con tus pollitas hoy?" 
+    },
+    { 
+        interaccion: "¿Qué tal si me das un truco interesante para traspatio?", 
+        respuesta: "¡Hey! Más interesante que un huevo con doble yema. ¿En qué te ayudo con tus gallinas hoy?" 
+    },
+    { 
+        interaccion: "Hola, ¿qué tal si me das una solución útil para gallineros?", 
+        respuesta: "¡Hola! Más útil que una gallina con huevos frescos. ¿En qué te ayudo con tus aves hoy?" 
+    }
+        
+    ];
+
+    const chatbox = document.getElementById("chatbox");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const autocompleteSuggestions = document.getElementById("autocomplete-suggestions");
+
+        function showMessage(message, sender, isBold = false) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: ${message}`;
+            if (isBold) {
+                messageElement.style.fontWeight = "bold"; // Aplica negritas si es necesario
+            }
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight; // Desplaza hacia abajo automáticamente
+        }
+
+
+        function typingEffect(message, sender) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: `; // La respuesta se mantiene en una sola línea.
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            let i = 0;
+            let interval = setInterval(() => {
+                messageElement.textContent = `${sender}: ${message.slice(0, i++)}`; // Agregar letra por letra en la misma línea.
+                if (i > message.length) clearInterval(interval);
+            }, 40); // 40ms para cada letra
+        }
+
+        function getBestAnswer(userQuestion) {
+            // Buscar coincidencias exactas en preguntasRespuestas
+            for (let item of preguntasRespuestas) {
+                if (userQuestion.toLowerCase() === item.pregunta.toLowerCase()) {
+                    return item.respuesta; // Coincidencia exacta
+                }
+            }
+
+            // Buscar coincidencias con al menos un 70% de similitud en respuestasDivertidas
+            for (let item of respuestasDivertidas) {
+                let similarity = calculateSimilarity(userQuestion, item.interaccion);
+                if (similarity >= 0.7) { // Umbral de similitud del 70%
+                    return item.respuesta;
+                }
+            }
+
+            // Si no hay coincidencias, devolver la respuesta general
+            return "Lo siento, no tengo una respuesta para esa pregunta. Estamos trabajando para mejorar nuestras respuestas y ampliar el contenido. ¿Hay algo más en lo que pueda ayudarte?";
+        }
+
+        function calculateSimilarity(str1, str2) {
+            str1 = str1.toLowerCase();
+            str2 = str2.toLowerCase();
+
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+
+            const longerLength = longer.length;
+            if (longerLength === 0) return 1.0;
+
+            const editDistance = getEditDistance(longer, shorter);
+            return (longerLength - editDistance) / longerLength;
+        }
+
+        function getEditDistance(str1, str2) {
+            const matrix = Array.from({ length: str2.length + 1 }, () => Array(str1.length + 1).fill(0));
+
+            for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+            for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+            for (let j = 1; j <= str2.length; j++) {
+                for (let i = 1; i <= str1.length; i++) {
+                    const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                    matrix[j][i] = Math.min(
+                        matrix[j - 1][i] + 1, // Eliminación
+                        matrix[j][i - 1] + 1, // Inserción
+                        matrix[j - 1][i - 1] + cost // Sustitución
+                    );
+                }
+            }
+
+            return matrix[str2.length][str1.length];
+        }
+
+        /*Nueva funcion para mostrar posibles preguntas al chat, se reemplazo el div por un detalist con sus opciones*/
+        function updateDatalist(userQuestion) {
+            const datalist = document.getElementById("autocomplete-suggestions");
+            datalist.innerHTML = ""; // Limpiar opciones previas
+            if (userQuestion.trim() === "") return;
+        
+            // Dividir la pregunta en palabras y obtener la última
+            const words = userQuestion.split(" ");
+            const lastWord = words[words.length - 1].toLowerCase();
+        
+            // Filtrar las sugerencias basadas en la última palabra
+            const suggestions = preguntasRespuestas.filter(item =>
+                item.pregunta.toLowerCase().includes(lastWord)
+            );
+        
+            // Agregar hasta 5 opciones al datalist
+            suggestions.slice(0, 5).forEach(item => {
+                const option = document.createElement("option");
+                option.value = item.pregunta;
+                datalist.appendChild(option);
+            });
+        }        
+
+        sendBtn.addEventListener("click", () => {
+            const userQuestion = userInput.value.trim();
+            if (userQuestion) {
+                // Mostrar la pregunta del usuario primero
+                showMessage(userQuestion, "Usuario", true); // Pregunta en negritas
+
+                // Procesar la respuesta después de un breve retraso
+                setTimeout(() => {
+                    const response = getBestAnswer(userQuestion);
+                    typingEffect(response, "AgroAsistec"); // Mostrar la respuesta con efecto de escritura
+                }, 500); // Espera breve antes de mostrar la respuesta
+
+                // Limpiar el campo de entrada y sugerencias
+                userInput.value = "";
+                autocompleteSuggestions.innerHTML = "";
+            }
+        });
+
+        userInput.addEventListener("input", () => {
+            updateDatalist(userInput.value);
+        });        
+
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendBtn.click();
+            }
+        });
+
+        // Mensaje de bienvenida
+        showMessage("Hola, bienvenido a AgroAsistec tu asistente inteligente. ¿Cómo puedo ayudarte hoy?", "AgroAsistec");
+    </script>
 </body>
 </html>

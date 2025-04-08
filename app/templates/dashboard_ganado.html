@@ -388,15 +388,18 @@
             <div class="chat-container">
                 <h2> AI Chat Ganadero AgroAsistec</h2>
                 <div class="chat-box" id="chat-box">
-                    <!-- Mensajes del chat aparecerán aquí -->
+                     Mensajes del chat aparecerán aquí 
                 </div>
                 <div class="chat-input">
                     <div id="chatbox"></div>
                         <div class="welcome-message">Bienvenido a AgroAsistec Ganado Bovino</div>
-                        <input type="text" id="userInput" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <input type="text" id="userInput" list="autocomplete-suggestions" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <!--Se agrego este datalist reemplazando el div de sugerencias-->
+                        <datalist id="autocomplete-suggestions">
+                            
+                        </datalist>
                         <button id="sendBtn">Enviar</button>
                     </div>
-                    <div id="autocomplete-suggestions"></div>
                 </div>
             </div>
         </div>
@@ -1198,7 +1201,7 @@
         },
         { 
             interaccion: "¿Cómo te llamas?", 
-            respuesta: "¡Soy Grok, el vaquero digital! Aquí para ayudarte con todo lo del ganado bovino. ¿Y tú?" 
+            respuesta: "¡Soy AgroAsistec, el vaquero digital! Aquí para ayudarte con todo lo del ganado bovino. ¿Y tú?" 
         },
         { 
             interaccion: "Eres gracioso", 
@@ -2336,28 +2339,28 @@
             return matrix[str2.length][str1.length];
         }
 
-        function showSuggestions(userQuestion) {
-            autocompleteSuggestions.innerHTML = ""; // Clear previous suggestions
+        /*Nueva funcion para mostrar posibles preguntas al chat, se reemplazo el div por un detalist con sus opciones*/
+        function updateDatalist(userQuestion) {
+            const datalist = document.getElementById("autocomplete-suggestions");
+            datalist.innerHTML = ""; // Limpiar opciones previas
             if (userQuestion.trim() === "") return;
-
-            const words = userQuestion.split("");
+        
+            // Dividir la pregunta en palabras y obtener la última
+            const words = userQuestion.split(" ");
             const lastWord = words[words.length - 1].toLowerCase();
-
-            const suggestions = preguntasRespuestas.filter(item => 
+        
+            // Filtrar las sugerencias basadas en la última palabra
+            const suggestions = preguntasRespuestas.filter(item =>
                 item.pregunta.toLowerCase().includes(lastWord)
             );
-
+        
+            // Agregar hasta 5 opciones al datalist
             suggestions.slice(0, 5).forEach(item => {
-                const suggestionItem = document.createElement("div");
-                suggestionItem.classList.add("suggestion");
-                suggestionItem.textContent = item.pregunta;
-                suggestionItem.onclick = () => {
-                    userInput.value = item.pregunta;
-                    autocompleteSuggestions.innerHTML = ""; // Clear suggestions
-                };
-                autocompleteSuggestions.appendChild(suggestionItem);
+                const option = document.createElement("option");
+                option.value = item.pregunta;
+                datalist.appendChild(option);
             });
-        }
+        }        
 
         sendBtn.addEventListener("click", () => {
             const userQuestion = userInput.value.trim();
@@ -2378,9 +2381,8 @@
         });
 
         userInput.addEventListener("input", () => {
-            const userQuestion = userInput.value.trim();
-            showSuggestions(userQuestion); // Show suggestions based on user input
-        });
+            updateDatalist(userInput.value);
+        });        
 
         userInput.addEventListener("keypress", (e) => {
             if (e.key === "Enter") {
