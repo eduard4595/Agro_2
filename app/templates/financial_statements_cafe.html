@@ -1,76 +1,79 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Estados Financieros - Café</title>
-        <style>
-          body {
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estados Financieros - Café</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <style>
+        body {
             font-family: Garamond, serif;
             margin: 20px;
             padding: 0;
             background-color: #FFFFFF;
-          }
-          .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          }
-          h1, h2, h3 {
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        h1,
+        h2,
+        h3 {
             text-align: center;
             color: #000000;
-          }
-          .row {
-            display: flex;
-            justify-content: space-between;
-            margin: 20px 0;
-          }
-          .column {
-            width: 48%;
-          }
-          table {
+            font-weight: bold;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
             width: 100%;
             border-collapse: collapse;
             margin: 10px 0;
-          }
-          table th, table td {
+        }
+
+        table th,
+        table td {
             padding: 8px;
             text-align: left;
-          }
-          table th {
+        }
+
+        table th {
             background-color: #F0F0F0;
             color: black;
             border-top: 2px solid black;
             border-bottom: 2px solid black;
-          }
-          table tr:first-child th {
+        }
+
+        table tr:first-child th {
             border-top: 2px solid black;
-          }
-          table tr:last-child td {
+        }
+
+        table tr:last-child td {
             border-bottom: 2px solid black;
-          }
-          .negative {
+        }
+
+        .interpretation-box {
+            margin-top: 30px;
+            padding: 15px;
+            border: 2px solid #003366;
+            background-color: #F9F9F9;
+            border-radius: 5px;
+        }
+
+        .negative {
             color: black;
-          }
-          .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px 5px;
-            background: white;
-            border: 2px solid black;
-            color: black;
-            text-decoration: none;
-            text-align: center;
-            cursor: pointer;
-            font-weight: bold;
-          }
-          .btn:hover {
-            background: #F0F0F0;
-          }
-          .btn-back {
+        }
+
+        .btn-back {
             display: inline-block;
             padding: 10px 20px;
             background-color: #FFA500;
@@ -82,185 +85,261 @@
             font-size: 16px;
             border: none;
             cursor: pointer;
-          }
-          .btn-back:hover {
+        }
+
+        .btn-back:hover {
             background-color: #FF8C00;
-          }
-          .interpretation-box {
-            margin-top: 30px;
-            padding: 15px;
-            border: 2px solid #003366;
-            background-color: #F9F9F9;
-            border-radius: 5px;
-          }
-          @media print {
-            .btn, .btn-back, .producer-input, form {
-              display: none;
-            }
-            h2 {  
-              font-size: 14px;
-            }
-            table {
-              font-size: 12px;
-            }
-          }
-        </style>
-      </head>
+        }
+    </style>
+</head>
+
 <body>
-  <div class="container">
-    <h1>Estados Financieros - Café</h1>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h1>Estados Financieros - Café</h1>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="producer_name" class="form-label">Favor de colocar tu nombre como productor o el
+                                de tu empresa:</label>
+                            <input type="text" id="producer_name" class="form-control"
+                                placeholder="Nombre del productor o empresa" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="POST">
+                            <label for="fecha_captura" class="form-label">Selecciona una fecha de captura:</label>
+                            <div class="input-group mb-3">
+                                <select id="fecha_captura" name="fecha_captura" class="form-control" required>
+                                    <option value="">Selecciona una fecha</option>
+                                    {% for fecha in fechas %}
+                                    <option value="{{ fecha }}" {% if data and data.fecha_captura == fecha %}selected{% endif %}>{{ fecha }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-outline-secondary" type="submit">Filtrar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% if data %}
+                <h2 id="financial-header">Estados financieros de "{{ producer_name }}" a la fecha {{ data.fecha_captura }}</h2>
 
-    <div class="producer-input">
-      <label for="producer_name">Favor de colocar tu nombre como productor o el de tu empresa:</label><br>
-      <input type="text" id="producer_name" placeholder="Nombre del productor o empresa" required>
-    </div>
+                <h2>Balance General</h2>
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <h3>Activos</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Monto</th>
+                                </tr>
+                                <tr>
+                                    <td>Maquinaria y equipo</td>
+                                    <td data-value="{{ data.activos.maquinaria_equipo }}"></td>
+                                </tr>
+                                <tr>
+                                    <td>Dinero disponible</td>
+                                    <td data-value="{{ data.activos.dinero_disponible }}"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Activos</strong></td>
+                                    <td data-value="{{ data.activos.total_activos }}"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <h3>Pasivos y Capital</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Monto</th>
+                                </tr>
+                                <tr>
+                                    <td>Deudas</td>
+                                    <td data-value="{{ data.pasivos.deudas }}"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Pasivos</strong></td>
+                                    <td data-value="{{ data.pasivos.total_pasivos }}"></td>
+                                </tr>
+                                <tr>
+                                    <td>Patrimonio</td>
+                                    <td data-value="{{ data.patrimonio }}"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pasivo más Capital</strong></td>
+                                    <td data-value="{{ data.capital_mas_pasivo }}"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-    <form method="POST">
-      <label for="fecha_captura">Selecciona una fecha de captura:</label>
-      <select id="fecha_captura" name="fecha_captura" required>
-        <option value="">Selecciona una fecha</option>
-        {% for fecha in fechas %}
-        <option value="{{ fecha }}" {% if data and data.fecha_captura == fecha %}selected{% endif %}>{{ fecha }}</option>
-        {% endfor %}
-      </select>
-      <button type="submit" class="btn">Filtrar</button>
-    </form>
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <h2>Estado de Resultados</h2>
+                        <div class="table-responsive">
+                            <table>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Monto</th>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ingresos por café</strong></td>
+                                    <td data-value="{{ data.ingresos.venta_cafe }}"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 20px; font-size: 12px;"> Ingestas (Insumos)</td>
+                                    <td style="font-size: 12px;" data-value="{{ data.gastos.insumos }}"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 20px; font-size: 12px;"> Jornales</td>
+                                    <td style="font-size: 12px;" data-value="{{ data.gastos.jornales }}"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 20px; font-size: 12px;"> Servicios</td>
+                                    <td style="font-size: 12px;" data-value="{{ data.gastos.servicios }}"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 20px; font-size: 12px;"> Imprevistos</td>
+                                    <td style="font-size: 12px;" data-value="{{ data.gastos.imprevistos }}"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Gastos</strong></td>
+                                    <td class="negative" data-value="{{ data.gastos.total_gastos }}"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Utilidad Neta</strong></td>
+                                    <td data-value="{{ data.utilidad_neta }}"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <h2>Razones Financieras</h2>
+                        <div class="table-responsive">
+                            <table>
+                                <tr>
+                                    <th>Razón</th>
+                                    <th>Valor</th>
+                                </tr>
+                                <tr>
+                                    <td>Margen de Ganancia</td>
+                                    <td>{{ data.razones_financieras.margen_ganancia|round(4) }}%</td>
+                                </tr>
+                                <tr>
+                                    <td>Razón de Endeudamiento</td>
+                                    <td>{{ data.razones_financieras.razon_endeudamiento|round(4) }}%</td>
+                                </tr>
+                                <tr>
+                                    <td>Productividad por Hectárea</td>
+                                    <td>{{ data.razones_financieras.productividad_por_hectarea|round(4) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Costo por Unidad</td>
+                                    <td>{{ data.razones_financieras.costo_por_unidad|round(4) }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-    {% if data %}
-    <h2 id="financial-header">
-      Estados financieros de "{{ producer_name }}" a la fecha {{ data.fecha_captura }}
-    </h2>
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <h2>Datos de Referencia</h2>
+                        <div class="table-responsive">
+                            <table>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Valor</th>
+                                </tr>
+                                <tr>
+                                    <td>Producción total</td>
+                                    <td>{{ data.datos_referencia.produccion_total }} {{ data.datos_referencia.unidad_produccion }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Hectáreas cultivadas</td>
+                                    <td>{{ data.datos_referencia.hectareas }} ha</td>
+                                </tr>
+                                <tr>
+                                    <td>Trabajadores</td>
+                                    <td>{{ data.datos_referencia.trabajadores }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Lugar de comercialización</td>
+                                    <td>{{ data.datos_referencia.lugar_comercializacion }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <h2>Interpretación AI</h2>
+                        <div class="interpretation-box">
+                            <p id="ai-analysis">{{ data.interpretacion_ai }}</p>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 14px; color: #555;">
+                            Nota: Esta interpretación generada por la inteligencia artificial es solo de referencia y puede
+                            contener errores.
+                            Si necesita más apoyo, no dude en contactar a nuestros expertos.
+                        </p>
+                    </div>
+                </div>
 
-    <h2>Balance General</h2>
-    <div class="row">
-      <div class="column">
-        <h3>Activos</h3>
-        <table>
-          <tr><th>Concepto</th><th>Monto</th></tr>
-          <tr><td>Maquinaria y equipo</td><td data-value="{{ data.activos.maquinaria_equipo }}"></td></tr>
-          <tr><td>Dinero disponible</td><td data-value="{{ data.activos.dinero_disponible }}"></td></tr>
-          <tr><td><strong>Total Activos</strong></td><td data-value="{{ data.activos.total_activos }}"></td></tr>
-        </table>
-      </div>
-      <div class="column">
-        <h3>Pasivos y Capital</h3>
-        <table>
-          <tr><th>Concepto</th><th>Monto</th></tr>
-          <tr><td>Deudas</td><td data-value="{{ data.pasivos.deudas }}"></td></tr>
-          <tr><td><strong>Total Pasivos</strong></td><td data-value="{{ data.pasivos.total_pasivos }}"></td></tr>
-          <tr><td>Patrimonio</td><td data-value="{{ data.patrimonio }}"></td></tr>
-          <tr><td><strong>Pasivo más Capital</strong></td><td data-value="{{ data.capital_mas_pasivo }}"></td></tr>
-        </table>
-      </div>
-    </div>
+                <div class="row">
+                    <div class="col-4 d-flex justify-content-center align-items-center p-2 gap-3">
+                        <button onclick="printPDF()" class="btn btn-outline-dark">Descargar en PDF</button>
+                        <a href="{{ url_for('dashboard_cafe') }}" class="btn-back">
+                            ← Volver al Panel de Café</a>
+                    </div>
+                </div>
 
-    <div class="row">
-      <div class="column">
-        <h2>Estado de Resultados</h2>
-        <table>
-          <tr><th>Concepto</th><th>Monto</th></tr>
-          <tr><td><strong>Ingresos por café</strong></td><td data-value="{{ data.ingresos.venta_cafe }}"></td></tr>
-          <tr><td style="padding-left: 20px; font-size: 12px;"> Insumos</td><td style="font-size: 12px;" data-value="{{ data.gastos.insumos }}"></td></tr>
-          <tr><td style="padding-left: 20px; font-size: 12px;"> Jornales</td><td style="font-size: 12px;" data-value="{{ data.gastos.jornales }}"></td></tr>
-          <tr><td style="padding-left: 20px; font-size: 12px;"> Servicios</td><td style="font-size: 12px;" data-value="{{ data.gastos.servicios }}"></td></tr>
-          <tr><td style="padding-left: 20px; font-size: 12px;"> Imprevistos</td><td style="font-size: 12px;" data-value="{{ data.gastos.imprevistos }}"></td></tr>
-          <tr><td><strong>Total Gastos</strong></td><td class="negative" data-value="{{ data.gastos.total_gastos }}"></td></tr>
-          <tr><td><strong>Utilidad Neta</strong></td><td data-value="{{ data.utilidad_neta }}"></td></tr>
-        </table>
-      </div>
-      <div class="column">
-        <h2>Razones Financieras</h2>
-        <table>
-          <tr><th>Razón</th><th>Valor</th></tr>
-          <tr><td>Margen de Ganancia</td><td>{{ data.razones_financieras.margen_ganancia|round(4) }}%</td></tr>
-          <tr><td>Razón de Endeudamiento</td><td>{{ data.razones_financieras.razon_endeudamiento|round(4) }}%</td></tr>
-          <tr><td>Productividad por Hectárea</td><td>{{ data.razones_financieras.productividad_por_hectarea|round(4) }}</td></tr>
-          <tr><td>Costo por Unidad</td><td>{{ data.razones_financieras.costo_por_unidad|round(4) }}</td></tr>
-        </table>
-      </div>
-    </div>
-    <div class="row">
-        <div class="column">
-          </table><h2>Datos de Referencia</h2>
-          <table>
-              <tr><th>Concepto</th><th>Valor</th></tr>
-              <tr><td>Producción total<td>{{ data.datos_referencia.produccion_total }} {{ data.datos_referencia.unidad_produccion }}</td>
-              <tr><td>Hectáreas cultivadas</td><td>{{ data.datos_referencia.hectareas }} ha</td></tr>
-              <tr><td>Trabajadores</td><td>{{ data.datos_referencia.trabajadores }}</td></tr>
-              <tr><td>Lugar de comercialización</td><td>{{ data.datos_referencia.lugar_comercializacion }}</td></tr>
-          </table>
+                <div class="note" style="text-align: center; margin-top: 20px;">
+                    <p>Estados financieros en pesos creados el {{ data.fecha_captura }}.</p>
+                    <p>Estos estados financieros no están dictaminados por un contador público certificado y son
+                        únicamente para fines informativos.</p>
+                    <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
+                </div>
+                {% else %}
+                <p>No se encontraron datos para la fecha seleccionada.</p>
+                {% endif %}
+            </div>
         </div>
-        <div class="column">
-          <h2>Interpretación AI</h2>
-          <div class="interpretation-box">
-              <p id="ai-analysis">{{ data.interpretacion_ai }}</p>
-          </div>
-          <p style="margin-top: 10px; font-size: 14px; color: #555;">
-            Nota: Esta interpretación generada por la inteligencia artificial es solo de referencia y puede contener errores. 
-            Si necesita más apoyo, no dude en contactar a nuestros expertos.
-        </p>
-        </div>
-     
     </div>
 
-    <button onclick="printPDF()" class="btn">Descargar en PDF</button>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-value]').forEach(cell => {
+                const value = parseFloat(cell.getAttribute('data-value'));
+                if (!isNaN(value)) {
+                    cell.textContent = value.toLocaleString('es-MX');
+                }
+            });
 
-    <!-- Botón para redirigir al panel de café -->
-    <a href="{{ url_for('dashboard_cafe') }}" class="btn-back">
-      ← Volver al Panel de Café
-    </a>
+            const producerInput = document.getElementById('producer_name');
+            const financialHeader = document.getElementById('financial-header');
 
-    <div class="note" style="text-align: center; margin-top: 20px;">
-      <p>Estados financieros en pesos creados el {{ data.fecha_captura }}.</p>
-      <p>Estos estados financieros no están dictaminados por un contador público certificado y son únicamente para fines informativos.</p>
-      <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
-    </div>
-    {% else %}
-    <p>No se encontraron datos para la fecha seleccionada.</p>
-    {% endif %}
-  </div>
+            producerInput.addEventListener('input', () => {
+                const producerName = producerInput.value.trim();
+                financialHeader.textContent = `Estados financieros de "${producerName}" a la fecha {{ data.fecha_captura }}`;
+            });
+        });
 
-  <script>
-    // Formatear números en el cliente
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('[data-value]').forEach(cell => {
-        const value = parseFloat(cell.getAttribute('data-value'));
-        if (!isNaN(value)) {
-          cell.textContent = value.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+        function printPDF() {
+            const producerName = document.getElementById('producer_name').value;
+            if (!producerName) {
+                alert('Por favor, ingresa el nombre del productor o empresa antes de descargar el PDF.');
+                return;
+            }
+            window.print();
         }
-      });
-
-      const producerInput = document.getElementById('producer_name');
-      const financialHeader = document.getElementById('financial-header');
-
-      producerInput.addEventListener('input', () => {
-        const producerName = producerInput.value.trim();
-        financialHeader.textContent = `Estados financieros de "${producerName}" a la fecha {{ data.fecha_captura }}`;
-      });
-    });
-
-    function printPDF() {
-        const producerName = document.getElementById('producer_name').value;
-        if (!producerName) {
-            alert('Por favor, ingresa el nombre del productor o empresa antes de descargar el PDF.');
-            return;
-        }
-        window.print();
-        }
-  </script>
-
-  <!-- Estilo para impresión -->
-  <style>
-    @media print {
-      .producer-input, form {
-        display: none; /* Oculta el filtro y el campo de entrada en la impresión */
-      }
-      h2 {
-        font-size: 14px; /* Reduce el tamaño de los encabezados */
-      }
-      table {
-        font-size: 12px; /* Reduce el tamaño de las tablas */
-      }
-    }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous">
+    </script>
 </body>
+
 </html>
