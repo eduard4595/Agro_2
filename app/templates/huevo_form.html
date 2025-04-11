@@ -143,9 +143,9 @@
     <div class="container">
       <h1>Cuestionario para Producción de Huevo con Aves de Traspatio</h1>
       <p><strong>Instrucciones:</strong> Completa este cuestionario una vez al mes. Usa solo números en tus respuestas (por ejemplo, pesos, horas, días). Es un proceso rápido y te proporcionará una visión clara y útil de tu producción, ayudándote a tomar decisiones más informadas. 🥚🐔</p>
-      <button onclick="location.href='/dashboard_huevos'" class="btn-back">
+      <a href="{{url_for('dashboard_huevos')}}" class="btn-back">
         ← Volver al Panel de Aves de Traspatio
-      </button>
+      </a>
   
         <form id="huevoForm" action="{{ url_for('submit_eggs_form') }}" method="POST">
             <h2>Sección 1: Ingresos y Gastos</h2>

@@ -144,9 +144,9 @@
     <h1>Cuestionario para Producción de Maíz</h1>
     <p><strong>Instrucciones:</strong> Llena este cuestionario una vez al mes. Usa números en todas tus respuestas (por ejemplo, pesos, horas, días).</p>
     <!-- Botón para redirigir al panel de café -->
-    <button onclick="location.href='/dashboard_maiz'" class="btn-back">
+    <a href="{{url_for(dashboard_maiz)}}" class="btn-back">
       ← Volver al Panel de Maíz
-    </button>
+    </a>
 
     <form id="maizForm" action="{{ url_for('submit_corn_form') }}" method="POST">
       <h2>Sección 1: Ingresos y Gastos</h2>

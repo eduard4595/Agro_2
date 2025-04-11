@@ -146,9 +146,9 @@
 
             <strong>Nota:</strong> Es posible generar tu análisis desde uno, dos o más animales.</p>
         <!-- Botón para redirigir al panel de ganado -->
-        <button onclick="location.href='/dashboard_ganado'" class="btn-back">
+        <a href="{{ url_for('dashboard_ganado')}}" class="btn-back">
         ← Volver al Panel de Ganado Bovino
-      </button>
+      </a>
     
         <form id="bovinoForm" action="{{ url_for('submit_bovine_form') }}" method="POST">
             <h2>Sección 1: Ingresos y Gastos</h2>

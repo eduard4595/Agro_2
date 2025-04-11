@@ -148,9 +148,9 @@
         <p><strong>Instrucciones:</strong> Llena este cuestionario una vez al mes. Usa números en todas tus respuestas (por ejemplo, pesos, horas, días).</p>
 
         <!-- Botón para volver al dashboard -->
-        <button onclick="location.href='/dashboard_citricos'" class="btn-back">
+        <a href="{{ url_for('dashboard_citricos') }}" class="btn-back">
             ← Volver al Panel de Cítricos
-        </button>
+        </a>
 
         <form id="citricosForm" action="{{ url_for('submit_citrus_form') }}" method="POST" onsubmit="return validateForm()">
             <h2>Sección 1: Ingresos y Gastos</h2>

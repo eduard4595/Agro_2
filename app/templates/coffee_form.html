@@ -145,9 +145,9 @@
     <p><strong>Instrucciones:</strong> Llena este cuestionario una vez al terminar tu ciclo de cultivo. Usa números en todas tus respuestas (por ejemplo, pesos, horas, días). Es rápido y te dará una visión útil de tu producción.</p>
 
     <!-- Botón para redirigir al panel de café -->
-    <button onclick="location.href='/dashboard_cafe'" class="btn-back">
+    <a href="{{ url_for('dashboard_cafe')}}" class="btn-back">
       ← Volver al Panel de Café
-    </button>
+    </a>
 
     <form id="coffeeForm" action="{{ url_for('submit_coffee_form') }}" method="POST" onsubmit="return validateForm()">
       <h2>Sección 1: Ingresos y Gastos</h2>
