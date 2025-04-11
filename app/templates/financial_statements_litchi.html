@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estados Financieros - Maíz</title>
+    <title>Estados Financieros - Litchi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <style>
@@ -97,7 +97,7 @@
     <div class="container">
         <div class="card">
             <div class="card-body">
-                <h1>Estados Financieros - Maíz</h1>
+                <h1>Estados Financieros - Litchi</h1>
                 <div class="row g-4">
                     <div class="col-md-6">
                         <div class="mb-3">
@@ -196,8 +196,8 @@
                                     <th>Monto</th>
                                 </tr>
                                 <tr>
-                                    <td><strong>Ingresos por maíz</strong></td>
-                                    <td data-value="{{ data.ingresos.venta_maiz }}"></td>
+                                    <td><strong>Ingresos por litchi</strong></td>
+                                    <td data-value="{{ data.ingresos.venta_litchi }}"></td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 20px; font-size: 12px;"> Insumos</td>
@@ -265,23 +265,19 @@
                                     <th>Valor</th>
                                 </tr>
                                 <tr>
-                                    <td>Variedad de maíz</td>
-                                    <td>{{ data.datos_referencia.variedad_maiz }}</td>
+                                    <td>Toneladas cosechadas</td>
+                                    <td>{{ data.datos_referencia.toneladas_cosechadas }} t</td>
                                 </tr>
                                 <tr>
                                     <td>Hectáreas cultivadas</td>
-                                    <td>{{ data.datos_referencia.hectareas }} ha</td>
+                                    <td>{{ data.datos_referencia.hectareas_sembradas }} ha</td>
                                 </tr>
                                 <tr>
-                                    <td>Días de preparación del terreno</td>
-                                    <td>{{ data.datos_referencia.dias_preparacion_terreno }}</td>
+                                    <td>Trabajadores necesarios</td>
+                                    <td>{{ data.datos_referencia.trabajadores_necesarios }}</td>
                                 </tr>
                                 <tr>
-                                    <td>Días de aplicación de fertilizantes</td>
-                                    <td>{{ data.datos_referencia.dias_aplicacion_fertilizantes }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Lugar de comercialización</td>
+                                    <td>Lugares de comercialización</td>
                                     <td>{{ data.datos_referencia.lugar_comercializacion }}</td>
                                 </tr>
                             </table>
@@ -302,8 +298,8 @@
                 <div class="row">
                     <div class="col-12 col-md-4 d-flex justify-content-center align-items-center p-2 gap-3">
                         <button onclick="printPDF()" class="btn btn-outline-dark">Descargar en PDF</button>
-                        <a href="{{ url_for('dashboard_maiz') }}" class="btn-back">
-                            ← Volver al Panel de Maíz
+                        <a href="{{ url_for('dashboard_litchi') }}" class="btn-back">
+                            ← Volver al Panel de Litchi
                         </a>
                     </div>
                 </div>
