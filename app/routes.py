@@ -213,8 +213,8 @@ def register_routes(app):
             return redirect(url_for('login'))
 
         return render_template('coffee_form.html')
-    
-   
+
+
     # Ruta para guardar datos de café
     @app.route('/submit_coffee_form', methods=['POST'])
     def submit_coffee_form():
@@ -232,7 +232,7 @@ def register_routes(app):
             lugar_comercializacion = request.form.get('q13', '')
             if lugar_comercializacion == 'Other':
                 lugar_comercializacion = f"Otro: {request.form.get('q13_other', '').strip()}"
-                
+
             # Datos específicos del formulario de café
             data = {
                 # Datos financieros
@@ -343,7 +343,7 @@ def register_routes(app):
                 'peso_promedio': parse_float(request.form.get('q1_2', '0')),
                 'ciclos_anuales': parse_float(request.form.get('q1_3', '0')),
                 'duracion_ciclo': parse_float(request.form.get('q1_4', '0')),
-                'animales_actuales': parse_float(request.form.get('q1_5', '0')),  
+                'animales_actuales': parse_float(request.form.get('q1_5', '0')),
                 'peso_promedio_actual': parse_float(request.form.get('q1_6', '0')),
                 'valor_maquinaria': parse_float(request.form.get('q1_7', '0')),
                 'gastos_alimento': parse_float(request.form.get('q2', '0')),
@@ -678,8 +678,8 @@ def register_routes(app):
                 general_data = next(reader, {})
 
         return render_template('dashboard_maiz.html', data=general_data)
-  
-    
+
+
     # Ruta para guardar datos de maíz
     @app.route('/submit_corn_form', methods=['POST'])
     def submit_corn_form():
@@ -779,7 +779,7 @@ def register_routes(app):
             flash(f'Ocurrió un error inesperado: {e}', 'danger')
             return redirect(url_for('maiz_form'))
 
-    
+
      # Ruta para el dashboard de café
     @app.route('/dashboard_cafe')
     def dashboard_cafe():
@@ -853,8 +853,8 @@ def register_routes(app):
                 general_data = next(reader, {})
 
         return render_template('dashboard_huevos.html', data=general_data)
-   
-    
+
+
 
     # Ruta para acceder a los datos financieros de café
     @app.route('/database_access_cafe', methods=['GET'])
@@ -1103,7 +1103,7 @@ def register_routes(app):
                 fechas = sorted({row['fecha_captura'] for row in data}, reverse=True)
 
         return render_template('database_access_huevos.html', data=data, fechas=fechas, rubros=rubros)
-   
+
         # Ruta para generar estados financieros de café
     @app.route('/financial_statements_cafe', methods=['GET', 'POST'])
     def financial_statements_cafe():
@@ -1143,7 +1143,7 @@ def register_routes(app):
             # Calcular costos directos
             costos_directos = float(data['gastos_insumos']) + float(data['pago_jornales']) + float(data['gastos_servicios']) + float(data['gastos_imprevistos'])
             utilidad_bruta = float(data['total_ingresos']) - costos_directos
-            utilidad_neta = utilidad_bruta 
+            utilidad_neta = utilidad_bruta
             activos_totales = float(data['dinero_disponible']) + float(data['valor_maquinaria'])
             patrimonio_neto = activos_totales - float(data['total_deudas'])
             total_gastos = costos_directos
@@ -1170,7 +1170,7 @@ def register_routes(app):
                 'produccion_total': float(data['produccion_total']),
                 'unidad_produccion': data['unidad_produccion'],
                 'hectareas': float(data['hectareas']),
-                'trabajadores': int(data['trabajadores']),
+                'trabajadores': float(data['trabajadores']),
                 'lugar_comercializacion': data['lugar_comercializacion']
             }
 
@@ -1282,8 +1282,8 @@ def register_routes(app):
                 float(data['gastos_imprevistos'])
             )
             utilidad_bruta = float(data['total_ingresos']) - costos_directos
-            utilidad_neta = utilidad_bruta 
-            activos_totales = float(data['dinero_disponible']) + float(data['valor_maquinaria']) 
+            utilidad_neta = utilidad_bruta
+            activos_totales = float(data['dinero_disponible']) + float(data['valor_maquinaria'])
             patrimonio_neto = activos_totales - float(data['total_deudas'])
             total_gastos = costos_directos
             margen_ganancia = (utilidad_bruta / float(data['total_ingresos'])) * 100 if float(data['total_ingresos']) else 0
@@ -1435,7 +1435,7 @@ def register_routes(app):
                 float(data['gastos_imprevistos'])
             )
             utilidad_bruta = float(data['total_ingresos']) - costos_directos
-            utilidad_neta = utilidad_bruta 
+            utilidad_neta = utilidad_bruta
             activos_totales = float(data['dinero_disponible']) + float(data['valor_maquinaria'])
             patrimonio_neto = activos_totales - float(data['total_deudas'])
             total_gastos = costos_directos
@@ -1831,7 +1831,7 @@ def register_routes(app):
             financial_summary = None
 
         return render_template('financial_statements_maiz.html', data=financial_summary, fechas=fechas_disponibles)
-    
+
     @app.route('/submit_registro_cliente', methods=['POST'])
     def submit_registro_cliente():
         nombre = request.form['nombre']
@@ -2892,7 +2892,7 @@ def register_routes(app):
             return redirect(url_for('login'))
 
         return render_template('litchi_form.html')
-    
+
 
     # Ruta para guardar datos de litchi
     @app.route('/submit_litchi_form', methods=['POST'])
@@ -2984,7 +2984,7 @@ def register_routes(app):
         except Exception as e:
             flash(f'Ocurrió un error inesperado: {e}', 'danger')
             return redirect(url_for('litchi_form'))
-        
+
         # Ruta para el dashboard de litchi
     @app.route('/dashboard_litchi')
     def dashboard_litchi():
@@ -3003,7 +3003,7 @@ def register_routes(app):
                 general_data = next(reader, {})
 
         return render_template('dashboard_litchi.html', data=general_data)
-    
+
 
 
     # Ruta para generar estados financieros de litchi
@@ -3050,7 +3050,7 @@ def register_routes(app):
                 float(data['gastos_imprevistos'])
             )
             utilidad_bruta = float(data['total_ingresos']) - costos_directos
-            utilidad_neta = utilidad_bruta 
+            utilidad_neta = utilidad_bruta
             activos_totales = float(data['dinero_disponible']) + float(data['valor_maquinaria'])
             patrimonio_neto = activos_totales - float(data['total_deudas'])
             total_gastos = costos_directos
@@ -3143,7 +3143,7 @@ def register_routes(app):
             financial_summary = None
 
         return render_template('financial_statements_litchi.html', data=financial_summary, fechas=fechas_disponibles)
-    
+
     @app.route('/database_access_litchi', methods=['GET'])
     def database_access_litchi():
         user_id = session.get('user_id')
@@ -3189,7 +3189,7 @@ def register_routes(app):
                 fechas = sorted({row['fecha_captura'] for row in data}, reverse=True)
 
         return render_template('database_access_litchi.html', data=data, rubros=rubros, fechas=fechas)
-    
+
 
 
     @app.route('/my_analysis_litchi', methods=['GET', 'POST'])
@@ -3337,7 +3337,7 @@ def register_routes(app):
             return render_template('my_analysis_litchi.html')
 
 
-    
+
     @app.route('/dashboard_citricos')
     def dashboard_citricos():
             user_id = session.get('user_id')
@@ -3455,7 +3455,7 @@ def register_routes(app):
         except Exception as e:
             flash(f'Ocurrió un error inesperado: {e}', 'danger')
             return redirect(url_for('citricos_form'))
-    
+
     # Ruta para acceder a los datos financieros de cítricos
     # @app.route('/database_access_citricos')
     @app.route('/database_access_citricos', methods=['GET'])
@@ -3646,7 +3646,7 @@ def register_routes(app):
             financial_summary = None
 
         return render_template('financial_statements_citricos.html', data=financial_summary, fechas=fechas_disponibles)
-    
+
     @app.route('/citricos_form', methods=['GET'])
     def citricos_form():
         user_id = session.get('user_id')
