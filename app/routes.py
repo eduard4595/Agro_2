@@ -3806,7 +3806,10 @@ def register_routes(app):
             flash('No se encontraron datos para generar el análisis.', 'danger')
             return render_template('my_analysis_citricos.html')
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
         
     @app.route('/dashboard_coffee')
     def dashboard_coffee():
@@ -3933,4 +3936,7 @@ def register_routes(app):
             "session_data": resultado["session_data"]
         })
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
