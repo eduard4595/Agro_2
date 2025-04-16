@@ -70,3 +70,8 @@ src/testTestingRootWkspc/coverageWorkspace/.coverage
 cache/
 *.log
 
+*.wsgi
+*.conf
+Pipfile*
+flask_session/
+uploads*/
