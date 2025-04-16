@@ -1,6 +1,6 @@
 import os
 import csv
-from flask import render_template, request, redirect, url_for, flash, session, make_response, jsonify
+from flask import render_template, request, redirect, url_for, flash, session, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from .views.financial_info import financial_info_bp
@@ -15,12 +15,6 @@ from email.mime.multipart import MIMEMultipart
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import requests
-import time
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-import json
 
 def register_routes(app):
     """
@@ -3805,132 +3799,3 @@ def register_routes(app):
         except FileNotFoundError:
             flash('No se encontraron datos para generar el análisis.', 'danger')
             return render_template('my_analysis_citricos.html')
-<<<<<<< Updated upstream
-=======
-        
-    @app.route('/dashboard_coffee')
-    def dashboard_coffee():
-            user_id = session.get('user_id')
-            if not user_id:
-                flash('Por favor, inicia sesión para acceder al dashboard.', 'danger')
-                return redirect(url_for('login'))
-
-            # Leer datos generales desde el archivo CSV
-            user_folder = os.path.join('data', user_id)
-            file_path = os.path.join(user_folder, 'datos_generales.csv')
-            general_data = {}
-            if os.path.isfile(file_path):
-                with open(file_path, mode='r', encoding='utf-8') as file:
-                    reader = csv.DictReader(file)
-                    general_data = next(reader, {})
-
-            return render_template('dashboard_coffee.html', data=general_data)
-
-
-    @app.route('/climatico', methods=['GET'])
-    def climatico():
-        
-        return render_template('climatico.html')
-
-    
-    # Carga de modelo de embeddings
-    embedder = SentenceTransformer('all-MiniLM-L6-v2')
-
-    # Cargar base de datos de preguntas y respuestas desde JSON
-    with open("faq_ganado.json", "r", encoding="utf-8") as f:
-        faq_data = json.load(f)
-
-    # Precalcular embeddings de las preguntas
-    faq_embeddings = embedder.encode([item["pregunta"] for item in faq_data])
-
-    # Lista de respuestas afirmativas
-    AFFIRMATIVE_RESPONSES = {"sí", "si", "así es", "correcto", "exacto", "sí, eso es", "afirmativo", "claro", "claro que sí"}
-
-    # Lista de saludos
-    GREETINGS = {"hola", "buenos días", "buenas tardes", "buenas noches", "qué tal", "hey"}
-
-    def buscar_respuesta(pregunta_usuario, session_data=None):
-        embedding_usuario = embedder.encode([pregunta_usuario])
-        similitudes = cosine_similarity(embedding_usuario, faq_embeddings)[0]
-
-        idx_max = np.argmax(similitudes)
-        similitud_max = similitudes[idx_max]
-        pregunta_cercana = faq_data[idx_max]["pregunta"]
-
-        if similitud_max >= 0.95:  # Umbral para respuesta directa
-            return {
-                "respuesta": faq_data[idx_max]["respuesta"],
-                "session_data": None
-            }
-        elif similitud_max >= 0.5:  # Umbral para sugerir pregunta cercana
-            return {
-                "respuesta": f"¿Te refieres a '{pregunta_cercana}'?",
-                "session_data": {
-                    "pending_question": pregunta_usuario,
-                    "suggested_question": pregunta_cercana,
-                    "suggested_index": int(idx_max),
-                    "similitud": float(similitud_max)
-                }
-            }
-        else:
-            return {
-                "respuesta": "Disculpa, esa información no está en mi base de datos. ¿Algo más en lo que pueda ayudarte?",
-                "session_data": None
-            }
-
-    # Función para manejar interacciones generales como saludos
-    def manejar_interaccion_general(pregunta_usuario):
-        if pregunta_usuario.lower() in GREETINGS:
-            return "¡Hola! ¿Cómo estás? Entusiasta de la ganadería, ¿en qué puedo ayudarte hoy?"
-        return None
-
-    @app.route('/preguntar', methods=['POST'])
-    def preguntar():
-        data = request.get_json()
-        pregunta = data.get("pregunta")
-        session_data = data.get("session_data")
-
-        if not pregunta:
-            return jsonify({"respuesta": "Por favor, escribe una pregunta válida."}), 400
-
-        # Manejar interacciones generales
-        respuesta_general = manejar_interaccion_general(pregunta)
-        if respuesta_general:
-            return jsonify({"respuesta": respuesta_general, "session_data": None})
-
-        if session_data:
-            print("Session data recibida:", session_data)  # Depuración
-            print("Respuesta usuario:", pregunta)  # Depuración
-
-            respuesta_usuario = pregunta.lower().strip()
-            respuesta_usuario = respuesta_usuario.replace("¿", "").replace("?", "")  # Limpieza extra
-
-            # ✅ CASO 2.1: El usuario acepta la sugerencia
-            if respuesta_usuario in AFFIRMATIVE_RESPONSES:
-                idx = session_data.get("suggested_index")
-                if idx is not None and 0 <= idx < len(faq_data):
-                    return jsonify({
-                        "respuesta": faq_data[idx]["respuesta"],
-                        "session_data": None
-                    })
-                else:
-                    return jsonify({
-                        "respuesta": "Error: No se encontró la respuesta sugerida. ¿Algo más en lo que pueda ayudarte?",
-                        "session_data": None
-                    })
-            else:
-                # ❌ CASO 2.2: El usuario rechaza o no confirma
-                return jsonify({
-                    "respuesta": "Entiendo. ¿Podés reformular tu pregunta?",
-                    "session_data": None
-                })
-
-        # 🟢 CASO 1, 2 o 3: Primera vez que hace la pregunta
-        resultado = buscar_respuesta(pregunta)
-        print("Resultado enviado:", resultado)  # Depuración
-        return jsonify({
-            "respuesta": resultado["respuesta"],
-            "session_data": resultado["session_data"]
-        })
-
->>>>>>> Stashed changes
