@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Climático-Agrícola</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff; /* Fondo blanco */
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      color: #ffffff; /* Azul oscuro */
+    }
+
+    h2 {
+      color: #3b82f6; /* Azul medio */
+    }
+
+    h3 {
+      color: #60a5fa; /* Azul claro */
+    }
+
+    .container {
+      width: 95%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .left-column, .right-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .average {
+      width: 150px;
+      height: 150px;
+      background: conic-gradient(#4caf50 0%, #ffc107 0%, #f44336 0%);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      align-self: center;
+    }
+
+    .thresholds {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .threshold {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+
+    .measures-carousel {
+      display: flex;
+      overflow: hidden;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .measures {
+      display: flex;
+      animation: scroll-left 60s linear infinite;
+    }
+
+
+    .measure {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 15px 30px; /* Aumentado 50% desde 10px 20px */
+      border-radius: 7.5px; /* Aumentado 50% desde 5px */
+      margin-right: 30px; /* Aumentado 50% desde 20px */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      font-size: 21px; /* Aumentado 50% desde 14px */
+      white-space: nowrap;
+    }
+
+    @keyframes scroll-left {
+      0% {
+        transform: translateX(10%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    .indices {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .index {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .index-title {
+      font-weight: bold;
+    }
+
+    .index-value {
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 5px;
+      color: white;
+    }
+
+    .color-guide {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .color-guide div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin: 5px 0;
+    }
+
+    .color-guide .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .ai-dialog {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .highlight {
+      color: #f44336;
+      font-weight: bold;
+    }
+
+    .location-info, .date-filter {
+      background: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 40px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 15px;
+      width: 100%;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+    header {
+            background-color: #004F73;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+    .header-container {
+        max-width: 1200px; /* Limita el ancho del header */
+        margin: 0 auto; /* Centra el contenido */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 0 20px; /* Espaciado interno */
+    }    
+    footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #004F73;
+            color: white;
+        }
+        @media screen and (max-width: 1024px) {
+          .header-text {
+              font-size: 16px;
+          }
+        }
+
+        @media screen and (max-width: 768px) {
+            .header-text {
+                font-size: 14px;
+            }
+        }  
+
+        .forecast-buttons {
+        margin-top: 10px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .forecast-btn {
+        background-color: #0741ff; /* Color amarillo */
+        color: rgb(255, 255, 255);
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .forecast-btn:hover {
+        background-color: #e0a800; /* Amarillo más oscuro */
+        transform: scale(1.05);
+    }
+
+    h2 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+  </style>
+</head>
+<body>
+    <header>
+      <!-- Botón para Ir al Panel General -->
+      <a href="{{ url_for('main.index') }}" class="btn:header-text" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em; display: flex; align-items: center;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px; margin-right: 5px;">
+              <path d="M15 19l-7-7 7-7"/>
+          </svg>
+          Ir al Panel General
+      </a>
+      <h1 style="text-align: center;">Centro de Alerta Clímatica AgroAsistec AI</h1>
+      <img src="{{ url_for('static', filename='logo_Asistec.png') }}" alt="Logo Asistec" style="height: 90px;"> <!-- Ajuste del tamaño -->
+      <!-- Botón para Sign Out -->
+      <a href="{{ url_for('logout') }}" class="btn" style="background-color: #004F73; color: white; text-decoration: none; font-size: 1em;">
+        Salir
+    </a> 
+    </header>
+    <div class="measures-carousel">
+      <div class="measures" id="measuresContainer"></div>
+    </div>
+  <div class="location-info">
+    <strong>Ubicación:</strong> Granja Huasteca, Matlapa, San Luis Potosí
+  </div>
+  <div class="date-filter">
+    
+    <strong>Fecha:</strong> 
+    <input type="date" id="dateInput" value="2025-03-15" min="2025-03-01" max="2025-03-31" />
+    <h2>Pronóstico Climático</h2>
+    <div class="forecast-buttons">
+        <button class="forecast-btn">1 Semana</button>
+        <button class="forecast-btn">2 Semanas</button>
+        <button class="forecast-btn">1 Mes</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="right-column">
+      <div class="average" id="averageDisplay">--</div>
+      <div class="thresholds">
+        <div class="threshold" style="background: #4caf50" title="Verde: Bueno (70-100)"></div>
+        <div class="threshold" style="background: #ffc107" title="Amarillo: Moderado (40-69)"></div>
+        <div class="threshold" style="background: #f44336" title="Rojo: Riesgoso (0-39)"></div>
+      </div>
+      <h2>ÍNDICES CLIMÁTICOS</h2>
+      <div class="indices" id="indicesContainer"></div>
+      <div class="color-guide">
+        <div><span class="dot" style="background: #4caf50"></span> Verde: Bueno (70-100)</div>
+        <div><span class="dot" style="background: #ffc107"></span> Amarillo: Moderado (40-69)</div>
+        <div><span class="dot" style="background: #f44336"></span> Rojo: Riesgoso (0-39)</div>
+      </div>
+    </div>
+
+    <div class="left-column">
+      <h2>Análisis AgroAsistec AI</h2>
+      <div class="ai-dialog" id="aiDialog">
+          <h3>RECOMENDACIONES</h3>
+          <div id="recommendations"></div>
+      </div>
+      <!-- Imagen del mapa -->
+      <h2>Seguimiento Satelital</h2>
+      <div class="map-container">
+          <img src="{{ url_for('static', filename='mapa.png') }}" alt="Mapa Climático" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); margin-top: 20px;">
+      </div>
+  </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-container">
+      <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Datos embebidos como spans ocultos -->
+  <span style="display:none;" id="data-fechas">["2025-03-01","2025-03-02","2025-03-03","2025-03-04","2025-03-05","2025-03-06","2025-03-07","2025-03-08","2025-03-09","2025-03-10","2025-03-11","2025-03-12","2025-03-13","2025-03-14","2025-03-15","2025-03-16","2025-03-17","2025-03-18","2025-03-19","2025-03-20","2025-03-21","2025-03-22","2025-03-23","2025-03-24","2025-03-25","2025-03-26","2025-03-27","2025-03-28","2025-03-29","2025-03-30","2025-03-31"]</span>
+  <span style="display:none;" id="data-precipitacion">[1.2,0.8,0.0,2.5,0.0,3.0,1.5,0.0,0.5,2.0,0.0,0.0,1.8,0.0,0.0,4.0,2.2,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]</span>
+  <span style="display:none;" id="data-temperatura">[21.8,22.0,23.2,21.5,22.8,21.0,21.2,22.5,22.0,21.8,23.0,23.5,22.2,22.8,23.0,21.5,21.0,22.5,23.2,23.5,22.0,22.8,23.0,22.5,22.0,22.2,22.8,23.0,22.5,22.0,21.8]</span>
+  <span style="display:none;" id="data-vientos">[14,16,15,13,17,12,14,15,16,13,15,17,14,16,15,13,12,14,16,15,14,16,15,14,13,15,16,15,14,13,12]</span>
+  <span style="display:none;" id="data-humedad">[68,66,62,70,64,72,69,65,67,70,63,60,68,64,62,71,70,66,63,61,68,64,62,65,66,64,63,62,64,65,66]</span>
+  <span style="display:none;" id="data-radiacion">[17.5,18.0,18.5,17.0,18.2,16.8,17.2,18.0,17.8,17.5,18.5,18.8,17.6,18.2,18.5,17.0,16.8,18.0,18.5,18.8,17.5,18.2,18.5,18.0,17.8,18.0,18.2,18.5,18.0,17.8,17.5]</span>
+  <span style="display:none;" id="data-heladas">[6,5,4,6,5,7,6,5,5,6,4,3,5,4,4,6,7,5,4,3,5,4,4,5,5,5,4,4,5,5,6]</span>
+  <span style="display:none;" id="data-sequia">[28,29,32,27,30,25,28,30,29,27,31,33,28,30,32,26,27,30,32,33,29,30,32,31,30,31,32,33,32,31,30]</span>
+  <span style="display:none;" id="data-suelo">[76,75,74,77,75,78,76,75,76,77,74,73,76,75,74,78,77,75,74,73,76,75,74,75,75,75,74,74,75,75,76]</span>
+  <span style="display:none;" id="data-evaporacion">[38,40,42,36,41,35,37,40,39,37,42,44,38,41,42,36,35,40,42,43,38,41,42,40,39,40,41,42,40,39,38]</span>
+  <span style="display:none;" id="data-indice-heladas">[12,10,8,12,10,14,12,10,10,12,8,6,10,8,8,12,14,10,8,6,10,8,8,10,10,10,8,8,10,10,12]</span>
+  <span style="display:none;" id="data-promedio">[62,61,59,63,60,64,62,61,62,63,60,58,62,61,60,64,63,61,60,59,62,61,60,61,61,61,60,60,61,61,62]</span>
+
+  <script>
+    // Cargar datos desde spans ocultos
+    const fechas = JSON.parse(document.getElementById("data-fechas").textContent);
+    const precipitacion = JSON.parse(document.getElementById("data-precipitacion").textContent);
+    const temperatura = JSON.parse(document.getElementById("data-temperatura").textContent);
+    const vientos = JSON.parse(document.getElementById("data-vientos").textContent);
+    const humedad = JSON.parse(document.getElementById("data-humedad").textContent);
+    const radiacion = JSON.parse(document.getElementById("data-radiacion").textContent);
+    const heladas = JSON.parse(document.getElementById("data-heladas").textContent);
+    const sequia = JSON.parse(document.getElementById("data-sequia").textContent);
+    const suelo = JSON.parse(document.getElementById("data-suelo").textContent);
+    const evaporacion = JSON.parse(document.getElementById("data-evaporacion").textContent);
+    const indiceHeladas = JSON.parse(document.getElementById("data-indice-heladas").textContent);
+    const promedio = JSON.parse(document.getElementById("data-promedio").textContent);
+
+    // Función para actualizar el dashboard según la fecha seleccionada
+    function updateDashboard(selectedDate) {
+      const index = fechas.indexOf(selectedDate);
+      if (index === -1) return;
+
+      // Actualizar carrusel de medidas
+      const measuresContainer = document.getElementById("measuresContainer");
+      measuresContainer.innerHTML = `
+        <div class="measure">Precipitación acumulada = ${precipitacion[index]} mm/día</div>
+        <div class="measure">Temperatura promedio = ${temperatura[index]}°C</div>
+        <div class="measure">Vientos = ${vientos[index]} km/h</div>
+        <div class="measure">Humedad relativa = ${humedad[index]}%</div>
+        <div class="measure">Radiación solar = ${radiacion[index]} MJ/m²/día</div>
+        <div class="measure">Períodos de heladas = ${heladas[index]}°C</div>
+      `;
+
+      // Actualizar promedio general
+      const averageDisplay = document.getElementById("averageDisplay");
+      averageDisplay.textContent = `${promedio[index]}/100`;
+      averageDisplay.style.background = promedio[index] >= 70 ? "#4caf50" : promedio[index] >= 40 ? "#ffc107" : "#f44336";
+
+      // Actualizar índices climáticos
+      const indices = [
+        { nombre: "Índice de Sequía", valor: sequia[index] },
+        { nombre: "Índice de Calidad del Suelo", valor: suelo[index] },
+        { nombre: "Índice de Evaporación", valor: evaporacion[index] },
+        { nombre: "Períodos de Heladas", valor: indiceHeladas[index] }
+      ];
+
+      const indicesContainer = document.getElementById("indicesContainer");
+      indicesContainer.innerHTML = "";
+      indices.forEach(indice => {
+        const color = indice.valor >= 70 ? "#4caf50" : indice.valor >= 40 ? "#ffc107" : "#f44336";
+        const div = document.createElement("div");
+        div.className = "index";
+        div.innerHTML = `
+          <span class="index-title">${indice.nombre}</span>
+          <span class="index-value" style="background:${color}">${indice.valor}</span>
+        `;
+        indicesContainer.appendChild(div);
+      });
+
+      // Generar recomendaciones dinámicas
+      const recommendations = [];
+      if (precipitacion[index] < 1.0) {
+        recommendations.push(`<p><span class="highlight">RIESGO ALTO:</span> Activar riego por goteo desde presa cercana debido a baja precipitación (${precipitacion[index]} mm/día).</p>`);
+      } else if (precipitacion[index] < 2.0) {
+        recommendations.push(`<p><span class="highlight">RIESGO MODERADO:</span> Monitorear cultivos y considerar riego suplementario debido a precipitación moderada (${precipitacion[index]} mm/día).</p>`);
+      }
+      if (sequia[index] > 30) {
+        recommendations.push(`<p><span class="highlight">RIESGO ALTO:</span> Suplementar con fertilizantes y agua debido a índice de sequía elevado (${sequia[index]}).</p>`);
+      } else if (sequia[index] > 25) {
+        recommendations.push(`<p><span class="highlight">RIESGO MODERADO:</span> Planificar riego adicional debido a condiciones secas moderadas (${sequia[index]}).</p>`);
+      }
+      if (indiceHeladas[index] > 10) {
+        recommendations.push(`<p><span class="highlight">PRECAUCIÓN:</span> Proteger cultivos sensibles debido a riesgo de heladas (${indiceHeladas[index]}).</p>`);
+      }
+      if (suelo[index] < 75) {
+        recommendations.push(`<p><span class="highlight">ATENCIÓN:</span> Evaluar calidad del suelo y considerar enmiendas orgánicas (${suelo[index]}).</p>`);
+      }
+
+      const recommendationsContainer = document.getElementById("recommendations");
+      recommendationsContainer.innerHTML = recommendations.length > 0 ? recommendations.join("") : "<p>Condiciones estables, continuar con prácticas agrícolas habituales.</p>";
+
+      // Interpretación de índices
+      const interpretacion = indices.map(i => {
+        if (i.valor < 40) return `${i.nombre}: Riesgo Alto`;
+        if (i.valor < 70) return `${i.nombre}: Riesgo Moderado`;
+        return `${i.nombre}: Condición Favorable`;
+      }).join("<br>");
+      recommendationsContainer.innerHTML += `<div style='margin-top:15px; text-align:left;'>${interpretacion}</div>`;
+    }
+
+    // Inicializar con la fecha por defecto
+    updateDashboard(document.getElementById("dateInput").value);
+
+    // Actualizar al cambiar la fecha
+    document.getElementById("dateInput").addEventListener("change", (e) => {
+      updateDashboard(e.target.value);
+    });
+  </script>
+</body>
+</html>
