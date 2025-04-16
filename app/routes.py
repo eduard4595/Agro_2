@@ -3805,8 +3805,6 @@ def register_routes(app):
         except FileNotFoundError:
             flash('No se encontraron datos para generar el análisis.', 'danger')
             return render_template('my_analysis_citricos.html')
-<<<<<<< Updated upstream
-=======
         
     @app.route('/dashboard_coffee')
     def dashboard_coffee():
@@ -3932,5 +3930,3 @@ def register_routes(app):
             "respuesta": resultado["respuesta"],
             "session_data": resultado["session_data"]
         })
-
->>>>>>> Stashed changes
