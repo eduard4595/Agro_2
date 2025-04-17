@@ -1,6 +1,6 @@
 import os
 import csv
-from flask import render_template, request, redirect, url_for, flash, session, make_response, jsonify
+from flask import render_template, request, redirect, url_for, flash, session, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from .views.financial_info import financial_info_bp
@@ -15,12 +15,6 @@ from email.mime.multipart import MIMEMultipart
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import requests
-import time
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-import json
 
 def register_routes(app):
     """
@@ -3805,14 +3799,7 @@ def register_routes(app):
         except FileNotFoundError:
             flash('No se encontraron datos para generar el análisis.', 'danger')
             return render_template('my_analysis_citricos.html')
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
         
     @app.route('/dashboard_coffee')
     def dashboard_coffee():
@@ -3939,10 +3926,3 @@ def register_routes(app):
             "session_data": resultado["session_data"]
         })
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes

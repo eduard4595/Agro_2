@@ -312,21 +312,6 @@
             66% { content: "..."; }
             100% { content: "."; }
         }
-        ul {
-        list-style-type: disc;
-        margin: 0;
-        padding-left: 20px;
-        }
-
-        li {
-            margin: 0;         /* Quita espacio entre bullets */
-            padding: 0;        /* Sin padding adicional */
-            line-height: 1.4;  /* Coincide con el resto del texto */
-        }
-
-        p {
-            margin: 0 0 10px 0; /* Margen entre párrafos */
-        }
     </style>
 </head>
 <body>
@@ -402,12 +387,19 @@
             
             <div class="chat-container">
                 <h2> AI Chat Ganadero AgroAsistec</h2>
-                <div id="chat-box">
-                    <p><strong>AgroAsistec:</strong> Hola 👋 ¿En qué puedo ayudarte hoy sobre ganado bovino?</p>
+                <div class="chat-box" id="chat-box">
+                     Mensajes del chat aparecerán aquí 
                 </div>
                 <div class="chat-input">
-                    <input type="text" id="userInput" placeholder="Escribe tu pregunta aquí..." size="50">
-                    <button onclick="sendQuestion()">Enviar</button>
+                    <div id="chatbox"></div>
+                        <div class="welcome-message">Bienvenido a AgroAsistec Ganado Bovino</div>
+                        <input type="text" id="userInput" list="autocomplete-suggestions" placeholder="Escribe tu pregunta..." autocomplete="off">
+                        <!--Se agrego este datalist reemplazando el div de sugerencias-->
+                        <datalist id="autocomplete-suggestions">
+                            
+                        </datalist>
+                        <button id="sendBtn">Enviar</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -415,94 +407,1991 @@
     <footer>
         <p>Desarrollado por Ciencia de Datos México. Todos los derechos reservados.</p>
     </footer>
+
+    
+    
     <script>
-        const chatbox = document.getElementById("chat-box");
+        const preguntasRespuestas = [
+        { 
+            pregunta: "¿Por qué es importante la ganadería bovina en México?", 
+            respuesta: "¡Qué gusto que estés interesado en esto! La ganadería bovina es un pilar clave en México, tanto para la economía como para la alimentación. En 2023, el país produjo 2,214,928 toneladas de carne, posicionándose como el 5° productor mundial, gracias a un hato de 36.6 millones de cabezas. Además, es una fuente vital de proteínas en la dieta mexicana, genera empleo y aprovecha recursos como el forraje que los humanos no consumimos. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Qué características tienen los bovinos que producen carne?", 
+            respuesta: "¡Hola, qué bueno que preguntes! Los bovinos productores de carne son rumiantes y ungulados, capaces de adaptarse a diversos climas. Su sistema digestivo les permite transformar forrajes en proteínas de alto valor, y su resistencia los hace ideales para diferentes regiones. Esto los convierte en una fuente esencial de alimento y riqueza. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Qué nutrientes aporta la carne de bovino?", 
+            respuesta: "¡Me encanta que quieras saber esto! La carne de bovino es rica en vitamina B12, zinc, proteínas, aminoácidos esenciales, minerales como hierro, grasas saludables y ácidos grasos. Es un alimento clave en la dieta mexicana por su valor nutricional y su aporte energético. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué factores influyen en el aumento de peso de los bovinos?", 
+            respuesta: "¡Qué buena pregunta! El aumento de peso en bovinos depende de factores genéticos, como la raza; ambientales, como el clima y la calidad del pasto; y hormonales, como el uso de implantes. Estos elementos determinan la velocidad de crecimiento y la eficiencia, impactando directamente los costos y los ingresos en la producción. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Por qué es importante medir el crecimiento del ganado?", 
+            respuesta: "¡Hola, qué alegría verte por aquí! Medir el crecimiento del ganado es esencial porque permite evaluar la productividad y eficiencia de un sistema de engorda. Con registros sistemáticos, se pueden crear modelos para optimizar manejo, sanidad, alimentación y genética, reduciendo costos y mejorando la rentabilidad. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Qué sucede con los becerros desde el nacimiento hasta los 7 meses?", 
+            respuesta: "¡Qué curioso eres, nos encanta apoyar! Desde el nacimiento hasta los 7 meses, los becerros alcanzan unos 180-200 kg. Es una etapa de crecimiento moderado donde se forman tejidos, huesos y músculos, dependiendo principalmente de la leche materna. Aunque es costosa, es crucial para su desarrollo. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cómo se realiza la transición al destete en los becerros?", 
+            respuesta: "¡Hola, un placer ayudarte! El destete implica un cambio gradual de la leche materna a una dieta sólida con forrajes y concentrados. Es una fase estresante, por lo que debe hacerse poco a poco, en un ambiente tranquilo, para evitar problemas de salud. ¿Qué más te gustaría aprender?" 
+        },
+        { 
+            pregunta: "¿Qué pasa en la etapa de crecimiento de los bovinos?", 
+            respuesta: "¡Qué gusto charlar contigo! Entre los 200 y 360 kg, los becerros experimentan un crecimiento acelerado, ganando masa muscular y ósea rápidamente. Con una dieta rica en nutrientes, como concentrados con 16% de proteína y pastoreo, se obtienen los mejores rendimientos. ¿Cómo puedo ayudarte más hoy?" 
+        },
+        { 
+            pregunta: "¿En qué consiste la etapa de engorda de los bovinos?", 
+            respuesta: "¡Hola, qué bueno verte de nuevo! En la etapa de engorda, de 350 a 550 kg, se busca maximizar el peso y la grasa corporal con una dieta alta en energía y proteínas, como granos de maíz, cebada y forrajes. El objetivo es producir más carne en menos tiempo, optimizando la superficie utilizada. ¿En qué más puedo asistirte?" 
+        },
+        { 
+            pregunta: "¿Qué granos se utilizan en la dieta de engorda?", 
+            respuesta: "¡Qué interesante tu pregunta! En la engorda se usan granos ricos en almidón y azúcar, como maíz, cebada, avena y trigo. Estos aportan la energía necesaria para que los bovinos ganen peso rápidamente, complementados con pastos y forrajes para fibra. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Qué cuidados se deben tener con los insumos de la dieta?", 
+            respuesta: "¡Hola, me alegra tu interés! Es crucial monitorear la calidad nutricional de los insumos, evitando aquellos con hongos o largos periodos de almacenamiento, ya que pueden afectar la salud del ganado y la eficiencia de la engorda. La frescura y la higiene son clave. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Cómo funcionan los implantes hormonales en la engorda?", 
+            respuesta: "¡Qué gusto ayudarte con esto! Los implantes hormonales aceleran el aumento de peso y mejoran la calidad de la canal al liberar hormonas que estimulan el crecimiento muscular. Son una práctica común que eleva el valor de mercado del bovino. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Cuáles son las características de la raza Gyr?", 
+            respuesta: "¡Hola, qué bueno que te interese esto! La raza Gyr, originaria de la India, es de doble propósito (carne y leche). Tiene cabeza alargada, orejas grandes y colgantes, cuernos curvados hacia atrás y una giba pequeña. Su pelaje varía del rojo al blanco, con hembras de 385 kg y machos de más de 600 kg. ¿Cómo puedo seguir ayudándote?" 
+        },
+        { 
+            pregunta: "¿Qué distingue a la raza Brahman?", 
+            respuesta: "¡Qué alegría tu curiosidad! El Brahman destaca por su resistencia a insectos y climas cálidos (soporta 40 °C). Tiene una giba prominente, piel suelta, cuernos cortos y un pelaje que va de gris claro a casi negro. Los machos pesan entre 750 y 1000 kg. ¿En qué más puedo apoyarte hoy?" 
+        },
+        { 
+            pregunta: "¿Qué es la raza Indubrasil y cuál es su ventaja?", 
+            respuesta: "¡Hola, un placer explicarte! La Indubrasil, originaria de Brasil, surge del cruce de Guzerát y Gyr. Combina el porte del primero con la cabeza del segundo, destacando por su rápida velocidad de crecimiento, ideal para carne y leche. ¿Qué más te gustaría descubrir?" 
+        },
+        { 
+            pregunta: "¿Qué hace especial a la raza Girolando?", 
+            respuesta: "¡Qué buena elección de tema! La Girolando, cruce de Gir y Holstein, es famosa por su rusticidad y alta producción de leche (80% en Brasil). Es longeva, fértil y precoz, con becerros naciendo a 35 kg promedio. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cuáles son las cualidades del Sardo Negro?", 
+            respuesta: "¡Hola, me encanta tu interés! El Sardo Negro tiene un pelaje blanco con manchas negras y cabeza oscura. Es rústico, adaptable y produce carne y leche de calidad, con buen rendimiento en canal y alta natalidad. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué beneficios tiene la raza Jersey?", 
+            respuesta: "¡Qué gusto verte por aquí! La Jersey, de origen inglés, produce leche rica en proteínas y calcio, con un peso de 350 kg en hembras y 500 kg en machos. Su menor tamaño reduce el uso de recursos y las emisiones de carbono. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿En qué consiste el sistema de engorda extensivo?", 
+            respuesta: "¡Hola, qué bueno que preguntes! El sistema extensivo, o pastoreo, aprovecha pastizales naturales en grandes extensiones. Requiere poca mano de obra y no usa concentrados, solo sales minerales, aunque las ganancias de peso son menores y más lentas. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Qué pastos forrajeros se usan en el sistema extensivo?", 
+            respuesta: "¡Qué alegría ayudarte! En el sistema extensivo se usan pastos como Brachiaria brizantha, Pennisetum Purpurium, Mulato y Tobiatá. Las gramíneas aportan fibra y energía, mientras que las leguminosas ofrecen proteína. ¿Qué más te interesa saber?" 
+        },
+        { 
+            pregunta: "¿Cómo funciona el sistema de engorda mixto?", 
+            respuesta: "¡Hola, un placer explicarlo! El sistema mixto combina pastoreo (6-15 horas) con encierro parcial, usando pastizales, esquilmos agrícolas y suplementos proteicos. Es de bajo costo y agrega valor a la producción local. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Qué ventajas tiene el sistema de engorda intensivo?", 
+            respuesta: "¡Qué curioso eres, me encanta! El intensivo engorda muchos animales en poco espacio y tiempo (90-120 días por ciclo), con dietas concentradas y menos ejercicio. Esto maximiza las ganancias de peso y aprovecha subproductos agrícolas. ¿Cómo puedo seguir apoyándote?" 
+        },
+        { 
+            pregunta: "¿Dónde es mejor instalar un centro de engorda intensivo?", 
+            respuesta: "¡Hola, qué bueno verte! Los terrenos áridos en climas secos son ideales para un centro intensivo, ya que el costo de la tierra es bajo y el clima favorece el confinamiento. En el trópico, la sanidad es clave por la incidencia de enfermedades. ¿Qué más te gustaría aprender?" 
+        },
+        { 
+            pregunta: "¿Qué se hace cuando los animales llegan al corral de engorda?", 
+            respuesta: "¡Qué gusto charlar contigo! Las primeras 24 horas, los animales solo reciben agua con electrolitos para rehidratarse, sin alimento sólido, evitando problemas digestivos tras el traslado. Luego se pesan y desparasitan. ¿En qué más puedo asistirte?" 
+        },
+        { 
+            pregunta: "¿Cómo se desparasita el ganado al llegar al corral?", 
+            respuesta: "¡Hola, me alegra tu interés! Se usan bencimidazoles como albendazol o ivermectinas contra nematodos, aplicados subcutáneamente con agujas cortas a 45°. También se bañan contra garrapatas con amitraz. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Qué vitaminas se aplican al ingreso al corral?", 
+            respuesta: "¡Qué buena pregunta! Se inyectan 5 ml de vitamina ADE intramuscular, con 300,000-500,000 UI de vitamina A, 50,000-80,000 UI de D3 y 50-100 UI de E, para evitar deficiencias en dietas secas. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Cuáles son las principales vacunas para el ganado de engorda?", 
+            respuesta: "¡Hola, un placer ayudarte! Se aplican vacunas contra el complejo clostridial, pasteurelosis, IBR, DVB, parainfluenza 3 y rabia paralítica, protegiendo contra enfermedades clave. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Qué cuidados se deben tener al vacunar al ganado?", 
+            respuesta: "¡Qué alegría tu curiosidad! Hay que mantener la cadena de frío (4-8 °C), usar agujas limpias, vacunar en horas frescas y solo a animales sanos, revisando fechas de vencimiento. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Qué son los implantes hormonales y cómo se usan?", 
+            respuesta: "¡Hola, qué bueno que preguntes! Los implantes son gránulos que liberan hormonas bajo la piel, aumentando el peso y la calidad de la canal. Se usan en los últimos 80-140 días, como Revalor G o H. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué es el rumen y cómo funciona en los bovinos?", 
+            respuesta: "¡Qué gusto explicarlo! El rumen es el primer estómago de los rumiantes, un tanque de fermentación donde bacterias descomponen celulosa y sintetizan nutrientes. La rumia recicla alimentos y elimina gases. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cuáles son las necesidades nutricionales de los bovinos?", 
+            respuesta: "¡Hola, me encanta tu interés! Los bovinos necesitan energía (carbohidratos), proteínas, minerales, vitaminas y agua. Consumen un 3.5% de su peso en materia seca diaria, ajustada a su estado fisiológico. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Cuánta agua consumen los becerros en engorda?", 
+            respuesta: "¡Qué buena elección de tema! Los becerros en engorda consumen del 8-10% de su peso en agua, unos 40-50 litros diarios, que debe ser limpia y fresca para su salud y crecimiento. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿De dónde obtienen energía los bovinos?", 
+            respuesta: "¡Hola, qué alegría verte! La energía viene de carbohidratos y grasas, expresada como Nutrientes Digestibles Totales (NDT). Pueden aprovechar celulosa y subproductos agrícolas, cubriendo sus altas demandas para carne. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Cómo obtienen proteínas los bovinos?", 
+            respuesta: "¡Qué gusto ayudarte! Las proteínas se sintetizan en el rumen a partir de aminoácidos y compuestos como urea. Esto permite producir carne eficiente incluso con dietas bajas en proteína natural. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Qué insumos proteicos se usan en las dietas?", 
+            respuesta: "¡Hola, un placer explicarlo! Se usan harina de pescado (hasta 66% de proteína), pasta de algodón (41%) y cama de aves, ricos en proteína y nitrógeno. Son clave para el crecimiento muscular. ¿Cómo puedo seguir apoyándote?" 
+        },
+        { 
+            pregunta: "¿Cuáles son los insumos energéticos más comunes?", 
+            respuesta: "¡Qué curioso eres, me encanta! La melaza de caña, con alto contenido de azúcares, y la grasa hidrogenada, con 240% de NDT, son energéticos clave. Estimulan el apetito y el aumento de peso. ¿Qué más te gustaría aprender?" 
+        },
+        { 
+            pregunta: "¿Por qué es importante la sanidad en la engorda?", 
+            respuesta: "¡Hola, qué bueno que preguntes! La sanidad evita pérdidas por enfermedades, especialmente con animales de distintos orígenes y el estrés del traslado. Un buen manejo sanitario mejora la rentabilidad. ¿En qué más puedo asistirte?" 
+        },
+        { 
+            pregunta: "¿Cuáles son los síntomas de enfermedad en los bovinos?", 
+            respuesta: "¡Qué alegría tu interés! Síntomas como cabeza gacha, falta de apetito, piel tirante, ojos húmedos o diarrea indican problemas. Observarlos a tiempo salva vidas y producción. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si un becerro pierde peso?", 
+            respuesta: "¡Hola, un placer ayudarte! La pérdida de peso puede ser por diarrea o infecciones respiratorias. Se trata con gentamicinas para diarreas o enrofloxacinas para problemas respiratorios. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Cómo tratar la fiebre en los bovinos?", 
+            respuesta: "¡Qué gusto charlar contigo! La fiebre se trata con dexametasona, y si hay resfriado, con enrofloxacinas. Es vital actuar rápido para evitar complicaciones. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Qué hacer ante una intoxicación en el ganado?", 
+            respuesta: "¡Hola, qué bueno verte! Las intoxicaciones se manejan con antihistamínicos y dexametasona para reducir inflamación y síntomas. Identificar la causa es clave. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cómo corregir un apetito viciado en los bovinos?", 
+            respuesta: "¡Qué interesante tu pregunta! Un apetito viciado puede deberse a deficiencia de minerales o dieta poco palatable. Se corrige con minerales en el alimento o inyecciones de ADE y complejo B. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si un bovino tiene temperatura anormal?", 
+            respuesta: "¡Hola, me alegra ayudarte! Una temperatura alta puede indicar neumonía, tratada con florfenicol y tilosinas, o mastitis, con dipirona y penicilina. Hay que diagnosticar bien. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cómo tratar la deshidratación en los becerros?", 
+            respuesta: "¡Qué gusto explicarlo! La deshidratación se corrige con electrolitos orales y dipirona para estabilizar al animal. Es común tras traslados largos. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si la piel está tirante o adherente?", 
+            respuesta: "¡Hola, qué bueno que preguntes! Una piel tirante suele indicar molestias digestivas, tratadas con gentamicinas y oxitetraciclinas. Es un signo de atención inmediata. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Cómo tratar excrementos duros en los bovinos?", 
+            respuesta: "¡Qué alegría tu curiosidad! Los excrementos duros indican estreñimiento, que se alivia aumentando el zacate en la dieta para mejorar la fibra. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Qué hacer con excrementos sueltos o con burbujas?", 
+            respuesta: "¡Hola, un placer ayudarte! Esto puede ser enteritis infecciosa, tratada con oxitetraciclinas y dipirona, o parásitos, con fenbendazol. Hay que observar bien. ¿En qué más puedo echarte unaA mano?" 
+        },
+        { 
+            pregunta: "¿Cómo tratar descargas de la vulva con pus?", 
+            respuesta: "¡Qué gusto verte por aquí! Si hay pus y olor fétido, podría ser retención placentaria o infección, tratada con dexametasona y penicilina. Es urgente actuar. ¿Cómo puedo seguir apoyándote?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si un bovino tiene ceguera o inflamación ocular?", 
+            respuesta: "¡Hola, qué bueno ayudarte! La ceguera o inflamación ocular por alimento seco se trata con vitamina A inyectada. Es común en dietas pobres en forraje verde. ¿Qué más te gustaría aprender?" 
+        },
+        { 
+            pregunta: "¿Cómo tratar la pérdida de rumia y salivación abundante?", 
+            respuesta: "¡Qué interesante tu duda! Esto puede ser parálisis del rumen, tratada con microflora ruminal y laxantes inyectados para reactivar la digestión. ¿En qué más puedo asistirte?" 
+        },
+        { 
+            pregunta: "¿Qué importancia tiene la producción de carne en la dieta mexicana?", 
+            respuesta: "¡Hola, qué alegría verte interesado en esto! La carne de bovino es la segunda fuente ganadera más consumida en México, solo detrás de las aves, y aporta proteínas esenciales, vitamina B12 y minerales como el zinc. Su versatilidad y valor nutricional la hacen clave en la alimentación nacional. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Cómo transforma el ganado bovino el forraje en alimento?", 
+            respuesta: "¡Qué gusto que preguntes! Los bovinos, como rumiantes, digieren forrajes que los humanos no podemos consumir gracias a su rumen, donde microorganismos descomponen la celulosa en proteínas y energía. Este proceso los convierte en un recurso alimentario único. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Por qué la velocidad de crecimiento afecta los costos de producción?", 
+            respuesta: "¡Hola, un placer explicarlo! Una mayor velocidad de crecimiento y eficiencia en la ganancia de peso reducen el tiempo y los recursos necesarios para engordar al ganado, bajando costos de alimentación y manejo. Esto también aumenta los ingresos al llevar más peso al mercado rápidamente. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué beneficios tienen los registros de producción sistemáticos?", 
+            respuesta: "¡Qué buena curiosidad! Los registros permiten evaluar la productividad de razas, zonas o sistemas, optimizando decisiones en alimentación, sanidad y genética. Con modelos de simulación, se reducen costos y se mejora la eficiencia general. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Por qué la etapa inicial del becerro es la más costosa?", 
+            respuesta: "¡Hola, qué gusto charlar contigo! Desde el nacimiento hasta los 7 meses, los becerros dependen de la leche materna, lo que implica mayores gastos en el cuidado de las vacas y en la salud de los recién nacidos, mientras se forman sus tejidos y músculos. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Qué riesgos enfrenta un becerro al destetarse?", 
+            respuesta: "¡Qué alegría ayudarte! El destete es estresante porque cambia la dieta de leche a sólidos, pudiendo causar problemas digestivos o baja de peso si no se hace gradualmente. Un ambiente tranquilo y una transición cuidadosa son clave. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Por qué la etapa de crecimiento tiene los mayores rendimientos?", 
+            respuesta: "¡Hola, qué bueno verte por aquí! Entre los 200 y 360 kg, los becerros crecen rápidamente, aprovechando mejor los nutrientes para desarrollar músculo y hueso. Esto maximiza las ganancias de peso con menos esfuerzo, siendo muy rentable. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Qué objetivo tiene la etapa de engorda en los bovinos?", 
+            respuesta: "¡Qué interesante tu duda! La engorda, de 350 a 550 kg, busca producir la mayor cantidad de carne por unidad de superficie en el menor tiempo, aumentando peso y grasa con dietas energéticas. Es la fase final antes del sacrificio. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Por qué se usan cereales en la dieta de engorda?", 
+            respuesta: "¡Hola, me encanta tu curiosidad! Cereales como maíz, cebada y trigo son ricos en almidón y azúcar, proporcionando energía rápida para que los bovinos ganen peso y grasa eficientemente en la engorda. Se combinan con fibra de forrajes. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Qué problemas causan los insumos de mala calidad?", 
+            respuesta: "¡Qué gusto explicarlo! Insumos con hongos o mal almacenados pueden intoxicar al ganado, reducir la ganancia de peso o afectar la calidad de la carne, elevando costos y riesgos sanitarios. Monitorear su calidad es esencial. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Cómo mejoran los implantes hormonales la canal?", 
+            respuesta: "¡Hola, qué alegría tu interés! Los implantes, como los de trembolona y estradiol, aceleran el crecimiento muscular y mejoran la proporción de carne magra, elevando el valor de la canal en el mercado. Son seguros y eficientes. ¿Cómo puedo seguir apoyándote?" 
+        },
+        { 
+            pregunta: "¿Qué ventajas tiene la raza Gyr en climas tropicales?", 
+            respuesta: "¡Qué buena pregunta! La Gyr, originaria de India, se adapta bien a climas cálidos y húmedos gracias a su piel suelta y resistencia natural, siendo ideal para doble propósito en regiones tropicales como México. ¿En qué más puedo asistirte?" 
+        },
+        { 
+            pregunta: "¿Por qué el Brahman es resistente a insectos?", 
+            respuesta: "¡Hola, un placer ayudarte! El Brahman tiene piel abundante y suelta que dificulta el ataque de insectos, además de tolerar altas temperaturas, lo que lo hace perfecto para zonas cálidas y ganadería extensiva. ¿Qué más te gustaría aprender?" 
+        },
+        { 
+            pregunta: "¿Qué hace al Indubrasil una raza de rápido crecimiento?", 
+            respuesta: "¡Qué gusto charlar contigo! El Indubrasil hereda la velocidad de crecimiento del Guzerát y Gyr, superándolos gracias a su genética optimizada para carne y leche, siendo muy eficiente en sistemas mixtos. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Por qué la Girolando es líder en producción de leche?", 
+            respuesta: "¡Hola, qué bueno verte! La Girolando combina la rusticidad del Gir con la alta lechería del Holstein, produciendo el 80% de la leche en Brasil. Su longevidad y fecundidad la hacen ideal para ganaderos. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Qué cualidades cárnicas tiene el Sardo Negro?", 
+            respuesta: "¡Qué alegría tu curiosidad! El Sardo Negro ofrece un excelente rendimiento en canal gracias a su estructura ósea estilizada y rusticidad, además de ser adaptable y productor de carne magra de calidad. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cómo beneficia al medio ambiente la raza Jersey?", 
+            respuesta: "¡Hola, me encanta tu interés! La Jersey, por su menor tamaño y leche densa en nutrientes, usa menos agua, alimento y tierra, reduciendo emisiones de carbono y siendo más sostenible. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Por qué el sistema extensivo tiene costos bajos?", 
+            respuesta: "¡Qué gusto explicarlo! El sistema extensivo usa pastizales naturales, requiere poca mano de obra y no necesita concentrados ni instalaciones, solo sales minerales, lo que lo hace económico, aunque más lento. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Qué diferencia a las gramíneas de las leguminosas?", 
+            respuesta: "¡Hola, qué bueno que preguntes! Las gramíneas, como Brachiaria, aportan fibra y energía, pero poca proteína; las leguminosas, en cambio, son ricas en proteína, pero bajas en energía y fibra. Juntas balancean la dieta. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Qué suplementos se usan en el sistema mixto?", 
+            respuesta: "¡Qué alegría ayudarte! En el sistema mixto se usan pastizales con suplementos proteicos como pasta de algodón y minerales, además de esquilmos agrícolas, para mejorar el peso sin altos costos. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Por qué el sistema intensivo es más rápido?", 
+            respuesta: "¡Hola, un placer explicarlo! El intensivo usa dietas concentradas y confinamiento, reduciendo el ejercicio y el desgaste energético, logrando ciclos de 90-120 días con mayores ganancias de peso. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Cómo se aprovechan los subproductos agrícolas en el intensivo?", 
+            respuesta: "¡Qué buena curiosidad! Subproductos como paja de trigo, cáscara de algodón y pollinaza se integran en las dietas intensivas, aportando fibra, energía y proteína a bajo costo, optimizando recursos. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Por qué se usan terrenos áridos para el sistema intensivo?", 
+            respuesta: "¡Hola, qué gusto charlar! Los terrenos áridos son baratos y el clima seco favorece el confinamiento al reducir enfermedades relacionadas con la humedad, siendo ideales para engorda rápida. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Qué electrolitos se dan al llegar al corral?", 
+            respuesta: "¡Qué alegría tu interés! Se usan soluciones con sodio, cloro y potasio en el agua para rehidratar al ganado tras el traslado, evitando deshidratación y problemas digestivos. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Por qué no se da alimento sólido al llegar al corral?", 
+            respuesta: "¡Hola, me encanta tu duda! Si los animales llegan deshidratados, el alimento sólido puede causar impactación del rumen o trastornos digestivos fatales. Por eso, solo agua las primeras 24 horas. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué se mide al pesar el ganado al inicio de la engorda?", 
+            respuesta: "¡Qué gusto ayudarte! El peso inicial se compara con el final para calcular la ganancia real y la conversión alimenticia, claves para evaluar la eficiencia del sistema. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Qué parásitos internos se tratan al llegar al corral?", 
+            respuesta: "¡Hola, qué bueno verte! Se combaten nematodos gastrointestinales y pulmonares con bencimidazoles o ivermectinas, aplicados subcutáneamente para proteger la salud del ganado. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Cómo se aplica el baño contra parásitos externos?", 
+            respuesta: "¡Qué alegría explicarlo! Se usan soluciones con amitraz o coumafos para bañar al ganado, eliminando moscas, garrapatas y sarna, asegurando un inicio sano en la engorda. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Por qué se aplican vitaminas ADE al ingreso?", 
+            respuesta: "¡Hola, un placer ayudarte! Las vitaminas ADE compensan deficiencias en dietas secas, fortaleciendo huesos, visión y defensas con una inyección intramuscular al llegar. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Qué protege la vacuna contra el complejo clostridial?", 
+            respuesta: "¡Qué buena pregunta! Esta vacuna previene enfermedades como carbón sintomático y hepatitis necrótica, causadas por clostridios, que pueden ser fatales en el ganado de engorda. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Qué cubre la vacuna contra el complejo respiratorio?", 
+            respuesta: "¡Hola, qué gusto charlar! Protege contra virus como IBR, DVB, parainfluenza 3 y el sincitial respiratorio, comunes en corrales por el estrés y el confinamiento. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Por qué es clave la cadena de frío en las vacunas?", 
+            respuesta: "¡Qué alegría tu curiosidad! Las vacunas deben mantenerse entre 4-8 °C para conservar su eficacia; si se congelan o calientan, pierden potencia, dejando al ganado vulnerable. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Qué hacer después de vacunar al ganado?", 
+            respuesta: "¡Hola, me encanta ayudarte! Se regresa al ganado a potreros con agua y alimento en calma, vigilando cambios de comportamiento para detectar reacciones adversas. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Son seguros los implantes hormonales para humanos?", 
+            respuesta: "¡Qué gusto explicarlo! Sí, las hormonas son naturales en los bovinos y su uso está aprobado por la FDA, sin necesidad de retiro antes del sacrificio, siendo seguro para el consumo. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Qué es el implante Ralgro y cuándo se usa?", 
+            respuesta: "¡Hola, qué bueno verte! Ralgro es un implante estrogénico para bovinos de cualquier edad o sistema, con acción de hasta 90 días, ideal para impulsar el crecimiento temprano. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Para qué sirve el implante Revalor G?", 
+            respuesta: "¡Qué alegría tu interés! Revalor G es un implante combinado para bovinos jóvenes en la fase final de engorda, en corral o pastoreo, con efecto de 120-140 días, mejorando peso y canal. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿En qué se diferencia Revalor H de otros implantes?", 
+            respuesta: "¡Hola, un placer explicarlo! Revalor H es para hembras, machos enteros y castrados en corral, con una combinación de trembolona y estradiol que actúa 120-140 días, optimizando la carne. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Qué hace único el estómago de los rumiantes?", 
+            respuesta: "¡Qué buena curiosidad! Los rumiantes tienen cuatro compartimientos (rumen, retículo, omaso, abomaso), permitiéndoles digerir celulosa y sintetizar nutrientes con ayuda de microorganismos. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Qué pasa con los gases en el rumen?", 
+            respuesta: "¡Hola, qué gusto ayudarte! Durante la rumia, los bovinos eructan gases de la fermentación; si no lo hacen, se acumulan causando timpanismo, un problema peligroso. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Qué función tiene el omaso en la digestión?", 
+            respuesta: "¡Qué alegría explicarlo! El omaso, o librillo, absorbe agua y nutrientes de los alimentos fermentados en el rumen, preparándolos para el abomaso, el estómago verdadero. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Qué regula la ingesta de alimento en los bovinos?", 
+            respuesta: "¡Hola, me encanta tu duda! Factores como palatabilidad, calidad del forraje, energía en la dieta, estado del animal y diseño de comederos regulan cuánto comen los bovinos. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Por qué el agua es vital en la engorda?", 
+            respuesta: "¡Qué gusto charlar contigo! El agua (40-50 litros diarios) mantiene la hidratación, la digestión y el metabolismo, siendo esencial para la salud y el aumento de peso en la engorda. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Qué son los Nutrientes Digestibles Totales (NDT)?", 
+            respuesta: "¡Hola, qué bueno verte! Los NDT miden la energía disponible de carbohidratos y grasas en la dieta, clave para la producción de carne, especialmente en bovinos que aprovechan celulosa. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Cómo sintetizan proteínas los microorganismos del rumen?", 
+            respuesta: "¡Qué alegría tu interés! Los microorganismos usan aminoácidos y nitrógeno no proteico (como urea) para crear proteínas, que el bovino absorbe, optimizando dietas bajas en proteína. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Qué aporta la harina de pescado a la dieta?", 
+            respuesta: "¡Hola, un placer explicarlo! La harina de pescado ofrece hasta 66% de proteína de alta calidad, ideal para el crecimiento muscular en la engorda, obtenida del procesamiento de pescado. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Por qué la melaza de caña es un buen energético?", 
+            respuesta: "¡Qué buena pregunta! La melaza, rica en azúcares, es altamente digestible, estimula el apetito y ayuda a los microorganismos del rumen a descomponer celulosa, además de reducir polvo. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Qué beneficios tiene la cáscara de algodón?", 
+            respuesta: "¡Hola, qué gusto ayudarte! La cáscara de algodón aporta 3.8% de proteína, 40% de NDT y mucha celulosa, siendo una fuente económica de fibra y energía en la engorda. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Para qué sirve la grasa hidrogenada en la dieta?", 
+            respuesta: "¡Qué alegría tu curiosidad! La grasa hidrogenada, con 240% de NDT, triplica la energía del maíz, siendo ideal para engorda intensiva, aunque no aporta proteína y es costosa. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Qué aporta la paja de trigo a la alimentación?", 
+            respuesta: "¡Hola, me encanta tu interés! La paja de trigo tiene 3.6% de proteína, 48% de NDT y 41% de fibra, siendo un subproducto útil para balancear dietas con fibra y energía. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Cómo funciona la urea en la dieta bovina?", 
+            respuesta: "¡Qué gusto explicarlo! La urea no tiene proteína, pero aporta nitrógeno que los microorganismos del rumen convierten en proteínas, siendo un suplemento económico y efectivo. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Qué factores sanitarios afectan la engorda?", 
+            respuesta: "¡Hola, qué bueno verte! El estrés del traslado, cambios de dieta y mezcla de animales de distintos orígenes pueden propagar enfermedades, afectando la productividad si no se controla la sanidad. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Cómo detectar si un bovino está enfermo por su postura?", 
+            respuesta: "¡Qué alegría ayudarte! Si tiene la cabeza gacha, se aísla o muestra cansancio injustificado, puede estar enfermo. Observar estos signos a tiempo es clave para intervenir. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Qué indica una falta de apetito en el ganado?", 
+            respuesta: "¡Hola, un placer explicarlo! Puede ser por comida inadecuada, comederos sucios o enfermedad. Revisar la dieta y la salud del animal es el primer paso para corregirlo. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Qué significa una piel tirante al tacto?", 
+            respuesta: "¡Qué buena curiosidad! Una piel tirante, palpada cerca de la última costilla, suele indicar molestias digestivas o fiebre, requiriendo atención inmediata. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cómo deben verse las ventanas de la nariz de un bovino sano?", 
+            respuesta: "¡Hola, qué gusto charlar! Deben estar húmedas y sin moco; si hay secreciones o sequedad, podría ser signo de infección respiratoria o deshidratación. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué indican unos ojos humedecidos en el ganado?", 
+            respuesta: "¡Qué alegría tu interés! Ojos húmedos o con mirada fija pueden señalar fiebre o dolor, siendo un síntoma a vigilar tras la vacunación o en enfermedades. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Cómo deben ser los excrementos de un bovino sano?", 
+            respuesta: "¡Hola, me encanta tu duda! Deben ser consistentes y sin burbujas; diarreas o dureza extrema indican problemas digestivos o parasitarios. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Qué significa una descarga con pus en la vulva?", 
+            respuesta: "¡Qué gusto ayudarte! Una descarga con pus y olor fétido puede ser infección genital o retención placentaria, necesitando tratamiento urgente con antibióticos. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Qué indica una orina oscura o con sangre?", 
+            respuesta: "¡Hola, qué bueno verte! Orina oscura o sanguinolenta puede señalar infección urinaria o intoxicación, requiriendo diagnóstico rápido para evitar complicaciones. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Cómo tratar diarreas en terneros?", 
+            respuesta: "¡Qué alegría explicarlo! Las diarreas se tratan con gentamicinas u oxitetraciclinas, rehidratando al animal con electrolitos para evitar pérdidas graves. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Qué hacer ante infecciones respiratorias en becerros?", 
+            respuesta: "¡Hola, un placer ayudarte! Se usan enrofloxacinas o tilosina para tratarlas, vigilando la respiración y la temperatura para evitar neumonía. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Cómo manejar un resfriado en el ganado?", 
+            respuesta: "¡Qué gusto charlar contigo! Los resfriados se tratan con enrofloxacinas y, si hay fiebre, dexametasona, manteniendo al animal en un lugar seco y tranquilo. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si sospecho de intoxicación en un bovino?", 
+            respuesta: "¡Hola, qué bueno verte! Se aplican antihistamínicos y dexametasona, identificando y retirando la fuente tóxica para evitar daños mayores. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Cómo corregir una deficiencia de minerales?", 
+            respuesta: "¡Qué alegría tu curiosidad! Se añaden minerales directos al alimento o se inyectan vitaminas ADE y complejo B, mejorando el apetito y la salud general. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si la dieta es poco palatable?", 
+            respuesta: "¡Hola, me encanta tu duda! Revisar el exceso de soya o pollinaza y ajustar la ración con melaza o forraje fresco puede hacerla más atractiva. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Cómo tratar la neumonía en los bovinos?", 
+            respuesta: "¡Qué gusto explicarlo! La neumonía se trata con florfenicol, tilosinas y dexametasona, controlando la fiebre y la respiración para una recuperación rápida. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Qué hacer ante una mastitis en vacas de engorda?", 
+            respuesta: "¡Hola, un placer ayudarte! Se usan desinflamatorios como dipirona y antibióticos como penicilina o doxiciclina, revisando la ubre para evitar complicaciones. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Cómo tratar la infestación por lombrices?", 
+            respuesta: "¡Qué alegría tu interés! Se aplica fenbendazol o ivermectina para eliminar lombrices gastrointestinales o pulmonares, mejorando la salud y el peso del animal. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Qué hacer con excrementos sueltos por enteritis?", 
+            respuesta: "¡Hola, qué bueno verte! La enteritis infecciosa se trata con oxitetraciclinas y dipirona, vigilando la hidratación para evitar descompensación. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Cómo tratar la sarna o tiña en el ganado?", 
+            respuesta: "¡Qué gusto ayudarte! Se usa ivermectina inyectada y baños con asuntol o alfadex para eliminar parásitos externos, restaurando la piel afectada. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si el bovino deja de rumiar?", 
+            respuesta: "¡Hola, me encanta tu curiosidad! Si hay parálisis del rumen, se aplica microflora ruminal y laxantes inyectados para reactivar la digestión y reducir la salivación. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Cómo afecta el estrés del traslado a los bovinos?", 
+            respuesta: "¡Qué alegría explicarlo! El traslado causa deshidratación y estrés, debilitando al animal y haciéndolo propenso a enfermedades, por eso se rehidrata al llegar. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Por qué es importante la calidad del pasto en el extensivo?", 
+            respuesta: "¡Hola, un placer explicarlo! Pastos de calidad aseguran suficiente energía y fibra, mejorando las ganancias de peso en el sistema extensivo, aunque sean menores que en el intensivo. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Cómo se calcula la conversión alimenticia?", 
+            respuesta: "¡Qué buena pregunta! Se divide el alimento consumido entre la ganancia de peso, midiendo cuántos kilos de dieta producen un kilo de carne, clave para la eficiencia. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Qué ventajas tiene el confinamiento en el intensivo?", 
+            respuesta: "¡Hola, qué gusto charlar! El confinamiento reduce el desgaste energético por ejercicio, mejora el manejo y permite dietas precisas, acelerando la engorda. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Cómo se evita el timpanismo en los bovinos?", 
+            respuesta: "¡Qué alegría tu interés! Se previene con dietas balanceadas, evitando exceso de granos fermentables, y asegurando rumia adecuada para liberar gases. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Qué minerales son esenciales en la dieta bovina?", 
+            respuesta: "¡Hola, me encanta tu duda! Calcio, fósforo, sodio, cloro, magnesio, zinc y hierro son clave para huesos, músculos y metabolismo, suplementados según el suelo. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Cómo se almacena la vitamina D en los bovinos?", 
+            respuesta: "¡Qué gusto explicarlo! Los bovinos obtienen vitamina D del sol o alimentos expuestos, almacenándola como reserva para fortalecer huesos y defensas. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Qué aporta la pasta de algodón a la dieta?", 
+            respuesta: "¡Hola, qué bueno verte! Con 41% de proteína y 72% de NDT, la pasta de algodón es un suplemento proteico y energético valioso, además de fósforo y calcio. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Por qué la cama de aves es un buen suplemento?", 
+            respuesta: "¡Qué alegría ayudarte! La cama de aves aporta proteína natural y nitrógeno no proteico, estimulando la síntesis ruminal y siendo económica en la engorda. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Cómo se usa la paja del frijol en la dieta?", 
+            respuesta: "¡Hola, un placer explicarlo! Con 5% de proteína y 50% de NDT, la paja del frijol ofrece fibra y energía como subproducto, ideal para dietas mixtas o intensivas. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Qué riesgos tiene una dieta desbalanceada?", 
+            respuesta: "¡Qué buena curiosidad! Una dieta desbalanceada puede causar deficiencias, menor ganancia de peso o problemas digestivos como timpanismo, afectando la salud y rentabilidad. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cómo afecta la temperatura ambiental a la ingesta?", 
+            respuesta: "¡Hola, me encanta tu interés! En calor extremo, los bovinos comen menos para evitar estrés térmico, mientras que en frío moderado pueden aumentar la ingesta. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Por qué es importante la palatabilidad del alimento?", 
+            respuesta: "¡Qué gusto ayudarte! Un alimento palatable estimula el consumo voluntario, asegurando que los bovinos ingieran los nutrientes necesarios para crecer eficientemente. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cómo se diseña un comedero eficiente?", 
+            respuesta: "¡Hola, qué alegría explicarlo! Debe ser accesible, evitar desperdicios y mantener el alimento fresco, con espacio suficiente para todos los animales. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si el ganado no bebe suficiente agua?", 
+            respuesta: "¡Qué buena pregunta! Revisar la limpieza y temperatura del agua, y añadir electrolitos o melaza puede estimular el consumo, evitando deshidratación. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Cómo se evalúa la calidad del forraje?", 
+            respuesta: "¡Hola, un placer ayudarte! Se mide su contenido de proteína, energía (NDT), fibra y humedad, asegurando que cubra las necesidades del ganado según su etapa. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si el becerro no gana peso esperado?", 
+            respuesta: "¡Qué gusto charlar contigo! Revisar dieta, sanidad y estrés, ajustando raciones o tratando parásitos y enfermedades, puede corregir el problema. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cómo se prepara una ración para la etapa de engorda?", 
+            respuesta: "¡Hola, qué bueno verte! Se mezcla granos (maíz, trigo) para energía, forrajes para fibra y suplementos proteicos, ajustando al 3.5% del peso vivo en materia seca. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Por qué varía el consumo de materia seca?", 
+            respuesta: "¡Qué alegría tu curiosidad! Depende del estado fisiológico, la calidad del alimento y el clima; becerros en crecimiento o engorda consumen más para sostener su desarrollo. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cómo se asegura la frescura del agua en corrales?", 
+            respuesta: "¡Hola, me encanta tu duda! Se limpian bebederos regularmente, se evita la exposición al sol directo y se revisa que no haya patógenos, garantizando hidratación óptima. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si el ganado rechaza el concentrado?", 
+            respuesta: "¡Qué gusto explicarlo! Puede ser por mala calidad, exceso de polvo o sabor; añadir melaza o ajustar la mezcla mejora su aceptación. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Cómo afecta el manejo al éxito de la engorda?", 
+            respuesta: "¡Hola, qué bueno verte! Un buen manejo reduce estrés, optimiza alimentación y sanidad, aumentando la eficiencia y las ganancias de peso en cualquier sistema. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Qué ventajas tiene el pastoreo rotacional?", 
+            respuesta: "¡Qué alegría ayudarte! El pastoreo rotacional mejora la calidad del pasto, evita sobrepastoreo y distribuye nutrientes, siendo ideal en sistemas extensivos o mixtos. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Cómo se controla la calidad de los granos en la dieta?", 
+            respuesta: "¡Hola, un placer explicarlo! Se revisa que no tengan hongos, humedad excesiva o mal olor, almacenándolos en lugares secos y ventilados para mantener su valor nutricional. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Por qué es importante la rusticidad en las razas bovinas?", 
+            respuesta: "¡Qué buena curiosidad! La rusticidad permite a razas como Gyr o Brahman adaptarse a climas duros y resistir enfermedades, reduciendo costos de manejo en regiones difíciles. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cómo se mide la eficiencia de un sistema de engorda?", 
+            respuesta: "¡Hola, me encanta tu interés! Se evalúa por la ganancia diaria de peso, conversión alimenticia y costos por kilo producido, comparando resultados con metas establecidas. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si el ganado muestra signos de estrés?", 
+            respuesta: "¡Qué gusto ayudarte! Reducir el ruido, ajustar el manejo y dar un ambiente tranquilo con agua y sombra ayuda a calmarlos, mejorando su salud y peso. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cómo se previene la pasteurelosis neumónica?", 
+            respuesta: "¡Hola, qué alegría explicarlo! Se aplica una vacuna específica al ingreso y se evita el hacinamiento o estrés, reduciendo riesgos en el corral. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué indica una respiración anormal en el ganado?", 
+            respuesta: "¡Qué buena pregunta! Puede ser signo de neumonía o pasteurelosis, necesitando revisión de temperatura y tratamiento con antibióticos si es infección. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Cómo se maneja el ganado en climas cálidos?", 
+            respuesta: "¡Hola, un placer ayudarte! Se provee sombra, agua fresca abundante y se ajusta la dieta para reducir el estrés térmico, usando razas adaptadas como Brahman. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Cómo afecta el cambio climático a la engorda de becerros?", 
+            respuesta: "¡Hola, qué gusto que te interese esto! El cambio climático trae temperaturas extremas y sequías que reducen la disponibilidad de pasto y agua, afectando el crecimiento de los becerros. Adaptarse con sombra, sistemas de riego y razas resistentes como Brahman es clave para mantener la productividad. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Qué tecnologías modernas se usan en la ganadería de becerros?", 
+            respuesta: "¡Qué alegría ayudarte con esto! Hoy se usan drones para monitorear pastizales, sensores de peso en tiempo real y software de gestión para rastrear salud y alimentación. Estas herramientas optimizan la eficiencia y reducen pérdidas. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Cómo prevenir el estrés por calor en los becerros?", 
+            respuesta: "¡Hola, un placer explicarlo! El estrés por calor se evita con sombra natural o artificial, ventilación en corrales y agua fresca constante, especialmente en razas menos tolerantes al calor. Esto mantiene su apetito y ganancia de peso. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué impacto tiene el bienestar animal en la engorda?", 
+            respuesta: "¡Qué buena curiosidad! Un buen bienestar, con espacio, manejo gentil y dieta adecuada, reduce el estrés, mejora la salud y acelera la ganancia de peso, además de responder a demandas éticas del mercado. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cómo influye la calidad del semen en la genética de los becerros?", 
+            respuesta: "¡Hola, qué gusto charlar contigo! Un semen de alta calidad de toros seleccionados mejora rasgos como crecimiento rápido y resistencia, impactando la productividad de futuras generaciones. La inseminación artificial es una herramienta clave aquí. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Qué riesgos trae la sobrepoblación en los corrales?", 
+            respuesta: "¡Qué alegría tu interés! La sobrepoblación aumenta el estrés, las peleas y las enfermedades como neumonía, reduciendo la ganancia de peso y elevando costos sanitarios. Un espacio adecuado por animal es esencial. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cómo manejar el estiércol en sistemas intensivos?", 
+            respuesta: "¡Hola, me encanta tu duda! El estiércol se recolecta para composta o biogas, reduciendo contaminación y generando ingresos extras. Un buen drenaje y limpieza diaria en corrales son fundamentales. ¿Qué más te interesa descubrir?" 
+        },
+        {
+            pregunta: "¿Qué certificaciones son útiles en la ganadería de becerros?",
+            respuesta: "¡Qué gusto explicarlo! Certificaciones como \"Carne Sostenible\" o \"Bienestar Animal\" abren mercados premium y garantizan prácticas responsables, elevando el valor de la carne. Cumplir normas sanitarias también es clave. ¿En qué más puedo ayudarte?"
+        },
+        { 
+            pregunta: "¿Cómo afecta el precio del maíz a la engorda?", 
+            respuesta: "¡Hola, qué bueno verte por aquí! El maíz, base de dietas intensivas, sube los costos cuando escasea o encarece, empujando a buscar alternativas como sorgo o subproductos. Planificar compras ayuda a mitigar esto. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Qué papel juega la capacitación del personal en la engorda?", 
+            respuesta: "¡Qué alegría tu curiosidad! Un personal capacitado detecta enfermedades temprano, aplica vacunas correctamente y optimiza la alimentación, mejorando la eficiencia y reduciendo errores costosos. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cómo prevenir la contaminación del agua en los corrales?", 
+            respuesta: "¡Hola, un placer ayudarte! Se usan bebederos elevados, se evita el escurrimiento de estiércol y se revisa la calidad del agua regularmente para prevenir enfermedades y mantener la hidratación. ¿Qué más te interesa explorar?" 
+        },
+        { 
+            pregunta: "¿Qué hacer ante un brote de enfermedad en el hato?", 
+            respuesta: "¡Qué gusto charlar contigo! Se aísla a los enfermos, se notifica a un veterinario y se aplican cuarentenas y tratamientos masivos si es necesario, evitando pérdidas mayores. La rapidez es clave. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cómo influye el mercado internacional en la engorda?", 
+            respuesta: "¡Hola, qué buena pregunta! La demanda de exportación, como a EUA o Asia, puede subir los precios y exigir estándares altos, incentivando sistemas intensivos y razas de alta calidad. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué beneficios tiene la rotación de cultivos forrajeros?", 
+            respuesta: "¡Qué alegría explicarlo! Rotar cultivos como maíz y leguminosas mejora el suelo, aumenta la calidad del forraje y reduce plagas, beneficiando la nutrición del ganado extensivo. ¿En qué más puedo ayudarte hoy?" 
+        },
+        { 
+            pregunta: "¿Cómo afecta la edad de la madre al peso del becerro?", 
+            respuesta: "¡Hola, me encanta tu interés! Vacas jóvenes o muy viejas suelen parir becerros más pequeños, mientras que las de edad media (4-8 años) dan crías más pesadas y sanas, influyendo en su desarrollo inicial. ¿Qué más te gustaría saber?" 
+        },
+        { 
+            pregunta: "¿Qué riesgos tiene el uso excesivo de antibióticos?", 
+            respuesta: "¡Qué gusto ayudarte! El abuso de antibióticos genera resistencia bacteriana, complica tratamientos futuros y puede afectar la exportación por regulaciones estrictas. Usarlos solo bajo prescripción es vital. ¿En qué más puedo echarte una mano?" 
+        },
+        { 
+            pregunta: "¿Cómo se evalúa la sostenibilidad de un sistema de engorda?", 
+            respuesta: "¡Hola, qué bueno verte! Se mide por el uso eficiente de recursos (agua, tierra, alimento), emisiones de carbono y rentabilidad a largo plazo, buscando balance entre producción y ambiente. ¿Qué más te interesa conocer?" 
+        },
+        { 
+            pregunta: "¿Qué hacer si hay un ataque de depredadores al hato?", 
+            respuesta: "¡Qué alegría tu curiosidad! Se refuerzan cercas, se usan perros guardianes y se monitorea el perímetro, especialmente en sistemas extensivos, para proteger a los becerros jóvenes. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cómo influye la luna en el manejo del ganado?", 
+            respuesta: "¡Hola, un placer explicarlo! Algunos ganaderos creen que la luna llena aumenta el estrés o facilita partos, aunque no hay evidencia científica sólida. Puede guiar el calendario de manejo por tradición. ¿Qué más te gustaría explorar?" 
+        },
+        { 
+            pregunta: "¿Qué beneficios trae la integración con cultivos agrícolas?", 
+            respuesta: "¡Qué gusto charlar contigo! Integrar ganado con cultivos usa estiércol como fertilizante y aprovecha residuos agrícolas como alimento, reduciendo costos y mejorando suelos. ¿En qué más puedo apoyarte?" 
+        },
+        { 
+            pregunta: "¿Cómo prevenir lesiones en becerros durante el transporte?", 
+            respuesta: "¡Hola, qué buena pregunta! Se usan camiones con pisos antideslizantes, se evita el hacinamiento y se manejan con suavidad, reduciendo fracturas o estrés que afectan el peso. ¿Cómo puedo asistirte más?" 
+        },
+        { 
+            pregunta: "¿Qué impacto tiene la trazabilidad en la ganadería?", 
+            respuesta: "¡Qué alegría explicarlo! La trazabilidad, con registros de origen y manejo, asegura calidad, abre mercados exigentes y facilita rastrear problemas sanitarios, elevando el valor del producto. ¿En qué más puedo ayudarte?" 
+        },
+        { 
+            pregunta: "¿Cómo afecta la contaminación del aire a los becerros?", 
+            respuesta: "¡Hola, me encanta tu duda! El polvo o gases en corrales cerca de zonas industriales irritan las vías respiratorias, aumentando infecciones como neumonía. Buena ventilación y ubicación son clave. ¿Qué más te interesa descubrir?" 
+        },
+        { 
+            pregunta: "¿Qué hacer ante la escasez de forraje por sequía?", 
+            respuesta: "¡Qué gusto ayudarte! Se recurre a silos, heno almacenado o subproductos como cáscara de algodón, ajustando la dieta para mantener el peso sin disparar costos. ¿En qué más puedo colaborar contigo?" 
+        },
+        { 
+            pregunta: "¿Cómo influye la educación del ganadero en el éxito?", 
+            respuesta: "¡Hola, qué alegría verte! Un ganadero educado adopta mejores prácticas, usa tecnología y toma decisiones informadas, elevando la productividad y adaptándose a retos como el clima o el mercado. ¿Qué más te gustaría saber?" 
+        }
+        ];       
+
+        const respuestasDivertidas = [
+        { 
+            interaccion: "Hola", 
+            respuesta: "¡Hola, qué tal! Estoy más contento que un becerro con pasto fresco. ¿En qué puedo ayudarte con el ganado bovino hoy?" 
+        },
+        { 
+            interaccion: "¿Qué tal?", 
+            respuesta: "¡Hey, qué tal! Estoy más sano que un toro en el corral. ¿Quieres charlar sobre engorda o algo más bovino?" 
+        },
+        { 
+            interaccion: "¿Cómo estás?", 
+            respuesta: "¡Bien, gracias! Más fuerte que un Brahman en el pastizal. ¿Cómo te ayudo con las vacas hoy?" 
+        },
+        { 
+            interaccion: "Buenos días", 
+            respuesta: "¡Buenos días! Listo para pastorear como si fuera el amanecer en el rancho. ¿Qué necesitas saber del ganado?" 
+        },
+        { 
+            interaccion: "Buenas tardes", 
+            respuesta: "¡Buenas tardes! Más relajado que una vaca rumiando al atardecer. ¿En qué te echo una pata con los bovinos?" 
+        },
+        { 
+            interaccion: "Buenas noches", 
+            respuesta: "¡Buenas noches! Más tranquilo que un becerro dormido bajo la luna. ¿Qué te traes con el ganado a estas horas?" 
+        },
+        { 
+            interaccion: "¿Qué haces?", 
+            respuesta: "¡Aquí, pastando ideas! Bueno, ayudando con temas de ganado bovino. ¿Y tú, qué tienes en mente?" 
+        },
+        { 
+            interaccion: "Gracias", 
+            respuesta: "¡De nada! Ayudar con vacas es mi especialidad, más fácil que arrear un hato. ¿Algo más en que te ayude?" 
+        },
+        { 
+            interaccion: "Adiós", 
+            respuesta: "¡Adiós, vaquero! Que tus vacas engorden y tus pastos crezcan. ¡Vuelve cuando quieras!" 
+        },
+        { 
+            interaccion: "¿Estás ahí?", 
+            respuesta: "¡Claro que sí! Más presente que una vaca en el comedero. ¿Qué necesitas del mundo bovino?" 
+        },
+        { 
+            interaccion: "¿Me ayudas?", 
+            respuesta: "¡Por supuesto! Estoy listo como un toro para el rodeo. ¿Qué quieres saber sobre el ganado?" 
+        },
+        { 
+            interaccion: "¿Qué sabes de vacas?", 
+            respuesta: "¡Todo un corral de cosas! Desde la rumia hasta la engorda, soy tu experto bovino. ¿Por dónde empezamos?" 
+        },
+        { 
+            interaccion: "¿Eres experto?", 
+            respuesta: "¡Claro, soy más experto que un vaquero contando cabezas! El ganado bovino es mi terreno. ¿Qué dudas tienes?" 
+        },
+        { 
+            interaccion: "¡Qué calor!", 
+            respuesta: "¡Sí, está para que las vacas pidan sombra! Hablando de eso, ¿te ayudo con algo del ganado en este clima?" 
+        },
+        { 
+            interaccion: "¡Qué frío!", 
+            respuesta: "¡Brrr, más frío que un corral en invierno! Las vacas seguro quieren heno extra. ¿En qué te ayudo?" 
+        },
+        { 
+            interaccion: "¿Cómo va todo?", 
+            respuesta: "¡Va de maravilla, como vaca con pasto tierno! ¿Y contigo? ¿Algo del ganado que quieras charlar?" 
+        },
+        { 
+            interaccion: "Estoy cansado", 
+            respuesta: "¡Te entiendo, arrear vacas no es fácil! Descansa como becerro al sol y dime, ¿en qué te ayudo hoy?" 
+        },
+        { 
+            interaccion: "Tengo hambre", 
+            respuesta: "¡Uy, más hambre que un toro tras el pastoreo! ¿Te doy tips para engordar ganado o algo más?" 
+        },
+        { 
+            interaccion: "¿Qué hora es?", 
+            respuesta: "¡Hora de engordar vacas, siempre! Bueno, no sé la exacta, pero aquí estoy para ayudarte con el ganado." 
+        },
+        { 
+            interaccion: "¡Qué bonito día!", 
+            respuesta: "¡Sí, perfecto para sacar el ganado a pastar! ¿Qué tal si hablamos de algo bovino para hacerlo mejor?" 
+        },
+        { 
+            interaccion: "¿Cómo te llamas?", 
+            respuesta: "¡Soy AgroAsistec, el vaquero digital! Aquí para ayudarte con todo lo del ganado bovino. ¿Y tú?" 
+        },
+        { 
+            interaccion: "Eres gracioso", 
+            respuesta: "¡Gracias! Más divertido que un becerro saltando en el potrero. ¿Qué te saco una sonrisa con el ganado?" 
+        },
+        { 
+            interaccion: "¿Qué opinas?", 
+            respuesta: "¡Opino que las vacas son lo mejor desde el pasto! ¿De qué quieres mi opinión bovina?" 
+        },
+        { 
+            interaccion: "Estoy aburrido", 
+            respuesta: "¡Nada que un buen tema de vacas no cure! ¿Te cuento de razas o engorda para animarte?" 
+        },
+        { 
+            interaccion: "¿Me cuentas algo?", 
+            respuesta: "¡Claro! ¿Sabías que una vaca puede comer hasta 50 kg de pasto al día? El ganado es fascinante, ¿qué más te cuento?" 
+        },
+        { 
+            interaccion: "¡Qué sorpresa!", 
+            respuesta: "¡Como encontrar un toro perdido! Hablando de ganado, ¿te ayudo con algo inesperado hoy?" 
+        },
+        { 
+            interaccion: "¿Estás ocupado?", 
+            respuesta: "¡Nunca para ti! Más libre que una vaca en campo abierto. ¿Qué necesitas del mundo bovino?" 
+        },
+        { 
+            interaccion: "¡Qué rápido!", 
+            respuesta: "¡Más rápido que un toro en estampida! Aquí estoy para ayudarte con el ganado a toda velocidad. ¿Qué sigue?" 
+        },
+        { 
+            interaccion: "¡Qué lento!", 
+            respuesta: "¡Uy, más lento que una vaca rumiando! Pero aquí estoy, listo para acelerar con temas de ganado. ¿En qué te ayudo?" 
+        },
+        { 
+            interaccion: "¿Te gusta el ganado?", 
+            respuesta: "¡Me encanta! Más que a un becerro le gusta la leche. ¿Y a ti? ¿Hablamos de vacas?" 
+        },
+        { 
+            interaccion: "¿Qué prefieres?", 
+            respuesta: "¡Prefiero un buen corral lleno de vacas sanas! ¿Y tú, qué prefieres del mundo bovino?" 
+        },
+        { 
+            interaccion: "¡Salud!", 
+            respuesta: "¡Salud, como vaca con buena ración! Espero no estornudes como toro. ¿En qué te ayudo?" 
+        },
+        { 
+            interaccion: "¿Cómo te sientes?", 
+            respuesta: "¡Más feliz que un becerro con su madre! Listo para charlar de ganado bovino. ¿Y tú?" 
+        },
+        { 
+            interaccion: "¿Qué tienes?", 
+            respuesta: "¡Un montón de datos bovinos más frescos que el heno! ¿Qué quieres que saque del corral para ti?" 
+        },
+        { 
+            interaccion: "¡Qué bien!", 
+            respuesta: "¡Sí, mejor que encontrar agua en el pastizal! ¿Qué hacemos con el ganado para que siga así?" 
+        },
+        { 
+            interaccion: "¡Qué mal!", 
+            respuesta: "¡Uy, peor que un toro con garrapatas! ¿Te ayudo con algo del ganado para mejorarlo?" 
+        },
+        { 
+            interaccion: "¿Me escuchas?", 
+            respuesta: "¡Claro, más atento que una vaca al silbido del vaquero! ¿Qué me dices del ganado?" 
+        },
+        { 
+            interaccion: "¡Vamos!", 
+            respuesta: "¡Arre, como toro en el rodeo! ¿A dónde vamos con el tema del ganado bovino?" 
+        },
+        { 
+            interaccion: "¿Estás listo?", 
+            respuesta: "¡Más listo que un becerro para el destete! ¿Qué necesitas del mundo de las vacas?" 
+        },
+        { 
+            interaccion: "¡Corre!", 
+            respuesta: "¡Más rápido que un toro escapando del corral! Aquí estoy para ayudarte con el ganado. ¿Qué pasa?" 
+        },
+        { 
+            interaccion: "¿Qué pasa?", 
+            respuesta: "¡Nada grave, espero! Solo aquí pastando ideas bovinas. ¿Qué pasa contigo y el ganado?" 
+        },
+        { 
+            interaccion: "¡Cuidado!", 
+            respuesta: "¡Tranquilo, no quiero espantar al hato! ¿En qué te ayudo con las vacas hoy?" 
+        },
+        { 
+            interaccion: "¿Estás seguro?", 
+            respuesta: "¡Más seguro que un toro marcando su terreno! ¿Qué dudas bovinas quieres que aclare?" 
+        },
+        { 
+            interaccion: "¡Qué divertido!", 
+            respuesta: "¡Más divertido que ver becerros jugar en el potrero! ¿Qué más hacemos con el ganado?" 
+        },
+        { 
+            interaccion: "¿Me explicas?", 
+            respuesta: "¡Claro, más claro que agua para las vacas! ¿Qué del ganado bovino quieres que te cuente?" 
+        },
+        { 
+            interaccion: "¡Qué interesante!", 
+            respuesta: "¡Sí, como descubrir un nuevo pasto para el hato! ¿Qué más del ganado te intriga?" 
+        },
+        { 
+            interaccion: "¿Qué recomiendas?", 
+            respuesta: "¡Un buen corral y pasto fresco, como todo vaquero sabe! ¿Qué necesitas para tu ganado?" 
+        },
+        { 
+            interaccion: "¡Qué raro!", 
+            respuesta: "¡Más raro que una vaca sin cola! ¿Qué te parece extraño del ganado? Te ayudo." 
+        },
+        { 
+            interaccion: "¿Me hablas?", 
+            respuesta: "¡Claro, más charlatán que un vaquero en el mercado! ¿De qué quieres que hablemos del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué fuerte!", 
+            respuesta: "¡Más fuerte que un toro levantando polvo! ¿En qué te ayudo con las vacas hoy?" 
+        },
+        { 
+            interaccion: "¿Qué tal el clima?", 
+            respuesta: "¡Perfecto para pastar, si no llueve en el corral! ¿Cómo afecta el clima a tu ganado?" 
+        },
+        { 
+            interaccion: "¡Qué hambre!", 
+            respuesta: "¡Más hambre que un becerro tras el destete! ¿Te ayudo con la dieta del ganado?" 
+        },
+        { 
+            interaccion: "¡Hasta luego!", 
+            respuesta: "¡Nos vemos, como vacas al atardecer! Que tu ganado prospere, ¡vuelve pronto!" 
+        },
+        { 
+            interaccion: "¿Qué tal el día?", 
+            respuesta: "¡Mejor que un pastizal en primavera! ¿Cómo va tu día con el ganado?" 
+        },
+        { 
+            interaccion: "Estoy feliz", 
+            respuesta: "¡Qué bueno, más feliz que un toro en el potrero! ¿Qué del ganado te tiene así?" 
+        },
+        { 
+            interaccion: "¡Qué sueño!", 
+            respuesta: "¡Uy, más sueño que una vaca después de rumiar! ¿Te ayudo con algo para despertarte?" 
+        },
+        { 
+            interaccion: "¿Qué tal las vacas?", 
+            respuesta: "¡Están de lujo, como siempre! ¿Qué quieres saber de tus amigas bovinas?" 
+        },
+        { 
+            interaccion: "¡Qué lindo!", 
+            respuesta: "¡Más lindo que un becerro recién nacido! ¿Qué del ganado te parece tan bonito?" 
+        },
+        { 
+            interaccion: "¿Me das un dato?", 
+            respuesta: "¡Claro! Una vaca produce hasta 30 litros de saliva al día rumiando. ¿Otro dato bovino?" 
+        },
+        { 
+            interaccion: "¡Qué susto!", 
+            respuesta: "¡Tranquilo, no es un toro bravo! ¿Qué te asustó? ¿Algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Estás bien?", 
+            respuesta: "¡Más que bien, como vaca con heno fresco! ¿Y tú? ¿Algo del ganado te preocupa?" 
+        },
+        { 
+            interaccion: "¡Qué ruido!", 
+            respuesta: "¡Más ruido que un corral en estampida! ¿Te ayudo con algo bovino hoy?" 
+        },
+        { 
+            interaccion: "¿Qué piensas?", 
+            respuesta: "¡Pienso en vacas todo el día! ¿Y tú, qué tienes en mente sobre el ganado?" 
+        },
+        { 
+            interaccion: "¡Qué alegría!", 
+            respuesta: "¡Más alegre que un becerro con su mamá! ¿Qué del ganado te pone así?" 
+        },
+        { 
+            interaccion: "¿Me acompañas?", 
+            respuesta: "¡Claro, como vaquero al hato! ¿A dónde vamos con el tema del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué curioso!", 
+            respuesta: "¡Más curioso que una vaca mirando al tren! ¿Qué del ganado te intriga?" 
+        },
+        { 
+            interaccion: "¿Qué tal el trabajo?", 
+            respuesta: "¡Bien, como arrear vacas en día soleado! ¿Y el tuyo con el ganado?" 
+        },
+        { 
+            interaccion: "¡Qué flojera!", 
+            respuesta: "¡Uy, más flojera que un toro en la sombra! ¿Te animo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me saludas?", 
+            respuesta: "¡Hola, vaquero! Desde el corral con amor. ¿Qué tal tu día con las vacas?" 
+        },
+        { 
+            interaccion: "¡Qué chiste!", 
+            respuesta: "¡Más chistoso que un becerro corriendo en círculos! ¿Te cuento otro del ganado?" 
+        },
+        { 
+            interaccion: "¿Qué tal la comida?", 
+            respuesta: "¡Deliciosa, pero no tan buena como el pasto para las vacas! ¿Hablamos de raciones?" 
+        },
+        { 
+            interaccion: "¡Qué suerte!", 
+            respuesta: "¡Más suerte que encontrar un toro manso! ¿Qué del ganado te trae buena vibra?" 
+        },
+        { 
+            interaccion: "¿Me esperas?", 
+            respuesta: "¡Claro, más paciente que una vaca en la fila del agua! ¿Qué necesitas del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué genial!", 
+            respuesta: "¡Más genial que un corral lleno de vacas gordas! ¿Qué te emociona del ganado?" 
+        },
+        { 
+            interaccion: "¿Qué tal el campo?", 
+            respuesta: "¡Perfecto para vacas, como siempre! ¿Cómo está tu campo bovino?" 
+        },
+        { 
+            interaccion: "¡Qué tranquilo!", 
+            respuesta: "¡Más tranquilo que un toro descansando! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me das una idea?", 
+            respuesta: "¡Claro! ¿Qué tal un corral con sombra para las vacas? ¿Otra idea bovina?" 
+        },
+        { 
+            interaccion: "¡Qué emoción!", 
+            respuesta: "¡Más emoción que ver crecer un becerro! ¿Qué del ganado te tiene así?" 
+        },
+        { 
+            interaccion: "¿Qué tal la vida?", 
+            respuesta: "¡Bien, como vaca con agua fresca! ¿Y la tuya con el ganado?" 
+        },
+        { 
+            interaccion: "¡Qué pesado!", 
+            respuesta: "¡Más pesado que un toro en el lodo! ¿Te aligero el día con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me animas?", 
+            respuesta: "¡Claro, como becerro saltando en el pasto! ¿Qué tal un dato divertido del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué bueno verte!", 
+            respuesta: "¡Igual, como ver al hato volver al corral! ¿Qué traes del ganado hoy?" 
+        },
+        { 
+            interaccion: "¿Qué tal el sol?", 
+            respuesta: "¡Brilla como para que las vacas pidan sombrero! ¿Cómo afecta a tu ganado?" 
+        },
+        { 
+            interaccion: "¡Qué sed!", 
+            respuesta: "¡Más sed que un toro en el desierto! ¿Te ayudo con el agua para el ganado?" 
+        },
+        { 
+            interaccion: "¿Me das un consejo?", 
+            respuesta: "¡Claro! Mantén el pasto fresco y las vacas felices. ¿Otro tip bovino?" 
+        },
+        { 
+            interaccion: "¡Qué maravilla!", 
+            respuesta: "¡Más maravilloso que un potrero verde! ¿Qué del ganado te maravilla?" 
+        },
+        { 
+            interaccion: "¿Qué tal el aire?", 
+            respuesta: "¡Fresco, ideal para que las vacas respiren felices! ¿Cómo está tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué relax!", 
+            respuesta: "¡Más relax que una vaca echada al sol! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me sorprendes?", 
+            respuesta: "¡Claro! ¿Sabías que las vacas tienen amigos en el hato? ¡Sorpresas bovinas! ¿Otra?" 
+        },
+        { 
+            interaccion: "¡Qué fresco!", 
+            respuesta: "¡Más fresco que un pastizal tras la lluvia! ¿Cómo está tu ganado hoy?" 
+        },
+        { 
+            interaccion: "¿Qué tal el rancho?", 
+            respuesta: "¡De lujo, como corral con vacas gordas! ¿Y el tuyo? ¿Algo bovino que contar?" 
+        },
+        { 
+            interaccion: "¡Qué energía!", 
+            respuesta: "¡Más energía que un toro en el rodeo! ¿Te ayudo con algo del ganado?" 
+        }, { 
+            interaccion: "¿Qué tal hoy?", 
+            respuesta: "¡Genial, como vaca con ración nueva! ¿Y tú día con el ganado cómo va?" 
+        },
+        { 
+            interaccion: "¡Qué ganas!", 
+            respuesta: "¡Más ganas que un becerro por leche! ¿Qué te motiva del ganado hoy?" 
+        },
+        { 
+            interaccion: "¿Me entretienes?", 
+            respuesta: "¡Claro, más entretenido que un toro en el potrero! ¿Qué del ganado te animo?" 
+        },
+        { 
+            interaccion: "¡Qué caos!", 
+            respuesta: "¡Más caos que un hato en estampida! ¿Te ayudo a ordenar algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Qué tal la luna?", 
+            respuesta: "¡Brilla como para guiar vacas al corral! ¿Cómo está tu noche bovina?" 
+        },
+        { 
+            interaccion: "¡Qué claro!", 
+            respuesta: "¡Más claro que el mugido de un toro! ¿En qué te ayudo con el ganado?" 
+        },
+        { 
+            interaccion: "¿Me cantas?", 
+            respuesta: "¡Muuu, muuu! Bueno, mejor te ayudo con vacas que cantar. ¿Qué necesitas?" 
+        },
+        { 
+            interaccion: "¡Qué dulce!", 
+            respuesta: "¡Más dulce que melaza para las vacas! ¿Qué del ganado te endulza el día?" 
+        },
+        { 
+            interaccion: "¿Qué tal el pasto?", 
+            respuesta: "¡Verde y jugoso, como sueñan las vacas! ¿Cómo está tu pasto para el ganado?" 
+        },
+        { 
+            interaccion: "¡Qué altura!", 
+            respuesta: "¡Más alto que la giba de un Brahman! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Qué opinas de las vacas?", 
+            respuesta: "¡Son lo máximo, reinas del rancho! ¿Y tú qué piensas del ganado bovino?" 
+        },
+        { 
+            interaccion: "¡Qué locura!", 
+            respuesta: "¡Más loca que una vaca persiguiendo su sombra! ¿Qué del ganado te enloquece?" 
+        },
+        { 
+            interaccion: "¿Me sigues?", 
+            respuesta: "¡Claro, como becerro a su madre! ¿A dónde vamos con el tema del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué brillante!", 
+            respuesta: "¡Más brillante que el sol en el pastizal! ¿Qué del ganado te ilumina?" 
+        },
+        { 
+            interaccion: "¿Qué tal el agua?", 
+            respuesta: "¡Fresca y lista para las vacas! ¿Cómo manejas el agua en tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué sabor!", 
+            respuesta: "¡Más sabroso que el pasto tierno para un toro! ¿Hablamos de comida bovina?" 
+        },
+        { 
+            interaccion: "¿Me motivas?", 
+            respuesta: "¡Claro, a pastorear como campeón! ¿Qué del ganado te doy ánimos?" 
+        },
+        { 
+            interaccion: "¡Qué increíble!", 
+            respuesta: "¡Más increíble que un hato bien engordado! ¿Qué del ganado te asombra?" 
+        },
+        { 
+            interaccion: "¿Qué tal la sombra?", 
+            respuesta: "¡Perfecta para que las vacas descansen! ¿Cómo está la sombra en tu corral?" 
+        },
+        { 
+            interaccion: "¡Qué fuerza!", 
+            respuesta: "¡Más fuerza que un toro arando! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me enseñas?", 
+            respuesta: "¡Claro, soy el profe del corral! ¿Qué del ganado bovino quieres aprender?" 
+        },
+        { 
+            interaccion: "¡Qué paz!", 
+            respuesta: "¡Más paz que una vaca echada rumiando! ¿Te ayudo con algo bovino?" 
+        },
+        { 
+            interaccion: "¿Qué tal el viento?", 
+            respuesta: "¡Sopla como para refrescar al hato! ¿Cómo está tu rancho con las vacas?" 
+        },
+        { 
+            interaccion: "¡Qué simple!", 
+            respuesta: "¡Más simple que dar agua a una vaca! ¿En qué te ayudo con el ganado?" 
+        },
+        { 
+            interaccion: "¿Me cuentas un secreto?", 
+            respuesta: "¡Claro! Las vacas felices engordan más rápido. ¿Otro secreto bovino?" 
+        },
+        { 
+            interaccion: "¡Qué aventura!", 
+            respuesta: "¡Más aventura que arrear vacas en tormenta! ¿Qué del ganado te emociona?" 
+        },
+        { 
+            interaccion: "¿Qué tal el suelo?", 
+            respuesta: "¡Firme para las pezuñas del ganado! ¿Cómo está tu terreno para las vacas?" 
+        },
+        { 
+            interaccion: "¡Qué rico!", 
+            respuesta: "¡Más rico que un silo para el hato! ¿Hablamos de comida bovina?" 
+        },
+        { 
+            interaccion: "¿Me despiertas?", 
+            respuesta: "¡Muuu! Como toro al amanecer. ¿Te ayudo con algo del ganado para activarte?" 
+        },
+        { 
+            interaccion: "¡Qué grande!", 
+            respuesta: "¡Más grande que un toro campeón! ¿Qué del ganado te impresiona?" 
+        },
+        { 
+            interaccion: "¿Qué tal las nubes?", 
+            respuesta: "¡Flotan como vacas en un sueño! ¿Cómo está el cielo sobre tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué suave!", 
+            respuesta: "¡Más suave que el pelo de un becerro! ¿Qué del ganado te relaja?" 
+        },
+        { 
+            interaccion: "¿Me das un ejemplo?", 
+            respuesta: "¡Claro! Una vaca feliz da más carne. ¿Otro ejemplo bovino?" 
+        },
+        { 
+            interaccion: "¡Qué calor hace!", 
+            respuesta: "¡Más calor que en un corral sin sombra! ¿Te ayudo con las vacas en este clima?" 
+        },
+        { 
+            interaccion: "¿Qué tal el corral?", 
+            respuesta: "¡Perfecto para engordar vacas! ¿Cómo está tu corral bovino?" 
+        },
+        { 
+            interaccion: "¡Qué sueño tengo!", 
+            respuesta: "¡Más sueño que un toro tras pastar! ¿Te animo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me dices algo?", 
+            respuesta: "¡Claro! Las vacas son las reinas del rancho. ¿Qué más te digo del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué maravilla!", 
+            respuesta: "¡Más maravilloso que un hato sano! ¿Qué del ganado te encanta?" 
+        },
+        { 
+            interaccion: "¿Qué tal la lluvia?", 
+            respuesta: "¡Refresca como agua para el hato! ¿Cómo está tu rancho con las vacas?" 
+        },
+        { 
+            interaccion: "¡Qué rápido pasa!", 
+            respuesta: "¡Más rápido que un toro en el potrero! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me ayudas hoy?", 
+            respuesta: "¡Claro, como vaquero al amanecer! ¿Qué necesitas del ganado bovino?" 
+        },
+        { 
+            interaccion: "¡Qué cansado estoy!", 
+            respuesta: "¡Más cansado que tras arrear el hato! ¿Te ayudo con las vacas para relajarte?" 
+        },
+        { 
+            interaccion: "¿Qué tal el heno?", 
+            respuesta: "¡Fresco y listo para las vacas! ¿Cómo manejas el heno en tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué bonito!", 
+            respuesta: "¡Más bonito que un potrero lleno de becerros! ¿Qué del ganado te gusta?" 
+        },
+        { 
+            interaccion: "¿Me das un tip?", 
+            respuesta: "¡Claro! Da agua limpia y las vacas te lo agradecerán. ¿Otro consejo bovino?" 
+        },
+        { 
+            interaccion: "¡Qué frío hace!", 
+            respuesta: "¡Más frío que un corral en la sierra! ¿Te ayudo con el ganado en este clima?" 
+        },
+        { 
+            interaccion: "¿Qué tal el toro?", 
+            respuesta: "¡Fuerte y listo para el hato! ¿Cómo están tus toros en el rancho?" 
+        },
+        { 
+            interaccion: "¡Qué hambre tengo!", 
+            respuesta: "¡Más hambre que un toro tras el pastoreo! ¿Hablamos de raciones para el ganado?" 
+        },
+        { 
+            interaccion: "¿Me hablas de vacas?", 
+            respuesta: "¡Claro, son mi tema favorito! Las vacas son máquinas de carne y leche. ¿Qué más te cuento?" 
+        },
+        { 
+            interaccion: "¡Qué genial eres!", 
+            respuesta: "¡Gracias, más genial que un vaquero con su hato! ¿En qué te ayudo con el ganado?" 
+        },
+        { 
+            interaccion: "¿Qué tal el cielo?", 
+            respuesta: "¡Claro, ideal para pastar vacas! ¿Cómo está el cielo sobre tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué relajado!", 
+            respuesta: "¡Más relajado que una vaca al sol! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me das una pista?", 
+            respuesta: "¡Claro! Las vacas felices engordan mejor. ¿Otra pista bovina?" 
+        },
+        { 
+            interaccion: "¡Qué energía tienes!", 
+            respuesta: "¡Más energía que un becerro saltando! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Qué tal la tierra?", 
+            respuesta: "¡Firme para las vacas, como debe ser! ¿Cómo está tu tierra para el ganado?" 
+        },
+        { 
+            interaccion: "¡Qué divertido eres!", 
+            respuesta: "¡Gracias, más divertido que un toro en el rodeo! ¿Qué del ganado te animo?" 
+        },
+        { 
+            interaccion: "¿Me cuentas más?", 
+            respuesta: "¡Claro! Las vacas tienen cuatro estómagos, ¡son unas campeonas! ¿Qué más del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué fresco está!", 
+            respuesta: "¡Más fresco que un pastizal al amanecer! ¿Te ayudo con el ganado hoy?" 
+        },
+        { 
+            interaccion: "¿Qué tal el camino?", 
+            respuesta: "¡Listo para arrear vacas! ¿Cómo están los caminos en tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué suave es!", 
+            respuesta: "¡Más suave que la lana de un becerro! ¿Qué del ganado te gusta?" 
+        },
+        { 
+            interaccion: "¿Me das un dato curioso?", 
+            respuesta: "¡Claro! Las vacas pueden oler a 10 km. ¿Otro dato bovino?" 
+        },
+        { 
+            interaccion: "¡Qué brillante eres!", 
+            respuesta: "¡Gracias, más brillante que el sol en el corral! ¿En qué te ayudo con las vacas?" 
+        },
+        { 
+            interaccion: "¿Qué tal el tiempo?", 
+            respuesta: "¡Perfecto para el ganado, si no hay tormenta! ¿Cómo está tu clima bovino?" 
+        },
+        { 
+            interaccion: "¡Qué tranquilo estás!", 
+            respuesta: "¡Más tranquilo que un toro descansando! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me haces reír?", 
+            respuesta: "¡Claro! ¿Por qué la vaca cruzó el camino? ¡Para rumiar del otro lado! ¿Otro chiste bovino?" 
+        },
+        { 
+            interaccion: "¡Qué increíble eres!", 
+            respuesta: "¡Gracias, más increíble que un hato bien engordado! ¿En qué te ayudo con el ganado?" 
+        },
+        { 
+            interaccion: "¿Qué tal las estrellas?", 
+            respuesta: "¡Brillan como para guiar al hato! ¿Cómo está tu noche con las vacas?" 
+        },
+        { 
+            interaccion: "¡Qué sed tengo!", 
+            respuesta: "¡Más sed que un toro en el desierto! ¿Te ayudo con el agua para el ganado?" 
+        },
+        { 
+            interaccion: "¿Me das un truco?", 
+            respuesta: "¡Claro! Mezcla melaza al concentrado y las vacas lo amarán. ¿Otro truco bovino?" 
+        },
+        { 
+            interaccion: "¡Qué maravilla eres!", 
+            respuesta: "¡Gracias, más maravilloso que un potrero verde! ¿En qué te ayudo con las vacas?" 
+        },
+        { 
+            interaccion: "¿Qué tal el silencio?", 
+            respuesta: "¡Perfecto, como vacas rumiando en paz! ¿Cómo está tu rancho hoy?" 
+        },
+        { 
+            interaccion: "¡Qué rápido eres!", 
+            respuesta: "¡Más rápido que un toro en estampida! ¿En qué te ayudo con el ganado?" 
+        },
+        { 
+            interaccion: "¿Me ayudas ahora?", 
+            respuesta: "¡Claro, como vaquero al rescate! ¿Qué necesitas del ganado bovino?" 
+        },
+        { 
+            interaccion: "¡Qué cansado!", 
+            respuesta: "¡Más cansado que tras contar el hato! ¿Te ayudo con las vacas para relajarte?" 
+        },
+        { 
+            interaccion: "¿Qué tal la comida bovina?", 
+            respuesta: "¡Sabrosa para las vacas, como debe ser! ¿Hablamos de raciones?" 
+        },
+        { 
+            interaccion: "¡Qué bonito día!", 
+            respuesta: "¡Más bonito que un corral con becerros! ¿Qué del ganado te alegra?" 
+        },
+        { 
+            interaccion: "¿Me das un consejo rápido?", 
+            respuesta: "¡Claro! Revisa el agua diario y las vacas te lo agradecerán. ¿Otro tip?" 
+        },
+        { 
+            interaccion: "¡Qué frío está!", 
+            respuesta: "¡Más frío que un toro en la nieve! ¿Te ayudo con el ganado en este clima?" 
+        },
+        { 
+            interaccion: "¿Qué tal los becerros?", 
+            respuesta: "¡Saltando y creciendo como campeones! ¿Cómo están tus becerros?" 
+        },
+        { 
+            interaccion: "¡Qué hambre!", 
+            respuesta: "¡Más hambre que un toro tras el pastizal! ¿Te ayudo con la dieta bovina?" 
+        },
+        { 
+            interaccion: "¿Me hablas del rancho?", 
+            respuesta: "¡Claro! Un rancho con vacas es un paraíso. ¿Qué del tuyo quieres charlar?" 
+        },
+        { 
+            interaccion: "¡Qué genial!", 
+            respuesta: "¡Más genial que un toro ganador! ¿Qué del ganado te emociona?" 
+        },
+        { 
+            interaccion: "¿Qué tal el horizonte?", 
+            respuesta: "¡Claro y listo para pastar vacas! ¿Cómo ves tu horizonte bovino?" 
+        },
+        { 
+            interaccion: "¡Qué relajante!", 
+            respuesta: "¡Más relajante que ver vacas al atardecer! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me das una idea rápida?", 
+            respuesta: "¡Claro! Usa sombra en el corral y las vacas te lo agradecerán. ¿Otra idea?" 
+        },
+        { 
+            interaccion: "¡Qué emoción tengo!", 
+            respuesta: "¡Más emoción que un vaquero en el rodeo! ¿Qué del ganado te anima?" 
+        },
+        { 
+            interaccion: "¿Qué tal la naturaleza?", 
+            respuesta: "¡Perfecta para el ganado, como siempre! ¿Cómo está tu entorno bovino?" 
+        },
+        { 
+            interaccion: "¡Qué pesado estoy!", 
+            respuesta: "¡Más pesado que un toro en el lodo! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me animas hoy?", 
+            respuesta: "¡Claro, como becerro en el pasto! ¿Qué tal un dato divertido del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué bueno estar aquí!", 
+            respuesta: "¡Igual, como vaca en su corral! ¿Qué traes del ganado hoy?" 
+        },
+        { 
+            interaccion: "¿Qué tal el calor?", 
+            respuesta: "¡Arde como para que las vacas busquen sombra! ¿Cómo está tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué sed me dio!", 
+            respuesta: "¡Más sed que un toro en el verano! ¿Te ayudo con el agua para el ganado?" 
+        },
+        { 
+            interaccion: "¿Me das un buen consejo?", 
+            respuesta: "¡Claro! Mantén el hato sano y el pasto verde. ¿Otro tip bovino?" 
+        },
+        { 
+            interaccion: "¡Qué maravilla hoy!", 
+            respuesta: "¡Más maravilloso que un hato feliz! ¿Qué del ganado te alegra?" 
+        },
+        { 
+            interaccion: "¿Qué tal la mañana?", 
+            respuesta: "¡Fresca como pasto al amanecer! ¿Cómo va tu mañana con el ganado?" 
+        },
+        { 
+            interaccion: "¡Qué ganas tengo!", 
+            respuesta: "¡Más ganas que un toro por pastar! ¿Qué del ganado te motiva?" 
+        },
+        { 
+            interaccion: "¿Me entretienes hoy?", 
+            respuesta: "¡Claro, más entretenido que un becerro saltando! ¿Qué del ganado te animo?" 
+        },
+        { 
+            interaccion: "¡Qué desorden!", 
+            respuesta: "¡Más desorden que un corral en tormenta! ¿Te ayudo con algo bovino?" 
+        },
+        { 
+            interaccion: "¿Qué tal la noche?", 
+            respuesta: "¡Tranquila como vacas bajo la luna! ¿Cómo está tu noche con el ganado?" 
+        },
+        { 
+            interaccion: "¡Qué claridad!", 
+            respuesta: "¡Más claro que el mugido de una vaca! ¿En qué te ayudo con el hato?" 
+        },
+        { 
+            interaccion: "¿Me cantas algo?", 
+            respuesta: "¡Muuu, muuu! Mejor te cuento del ganado, que cantar no es lo mío. ¿Qué necesitas?" 
+        },
+        { 
+            interaccion: "¡Qué dulzura!", 
+            respuesta: "¡Más dulce que la melaza para las vacas! ¿Qué del ganado te endulza?" 
+        },
+        { 
+            interaccion: "¿Qué tal los pastos?", 
+            respuesta: "¡Verdes y listos para el hato! ¿Cómo están tus pastos para las vacas?" 
+        },
+        { 
+            interaccion: "¡Qué alto!", 
+            respuesta: "¡Más alto que un toro con giba! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Qué piensas de las vacas?", 
+            respuesta: "¡Son las campeonas del rancho! ¿Y tú qué piensas del ganado bovino?" 
+        },
+        { 
+            interaccion: "¡Qué disparate!", 
+            respuesta: "¡Más disparatado que un toro bailando! ¿Qué del ganado te sorprende?" 
+        },
+        { 
+            interaccion: "¿Me acompañas hoy?", 
+            respuesta: "¡Claro, como becerro tras su madre! ¿A dónde vamos con el tema bovino?" 
+        },
+        { 
+            interaccion: "¡Qué brillo!", 
+            respuesta: "¡Más brillo que el sol en el corral! ¿Qué del ganado te ilumina?" 
+        },
+        { 
+            interaccion: "¿Qué tal el bebedero?", 
+            respuesta: "¡Fresco y lleno para las vacas! ¿Cómo manejas el agua en tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué gusto!", 
+            respuesta: "¡Más gusto que un toro con pasto nuevo! ¿Hablamos de comida bovina?" 
+        },
+        { 
+            interaccion: "¿Me inspiras?", 
+            respuesta: "¡Claro, como vaquero en el amanecer! ¿Qué del ganado te inspiro?" 
+        },
+        { 
+            interaccion: "¡Qué asombroso!", 
+            respuesta: "¡Más asombroso que un hato en plena engorda! ¿Qué del ganado te asombra?" 
+        },
+        { 
+            interaccion: "¿Qué tal los árboles?", 
+            respuesta: "¡Dan sombra perfecta para las vacas! ¿Cómo está tu rancho hoy?" 
+        },
+        { 
+            interaccion: "¡Qué poder!", 
+            respuesta: "¡Más poder que un toro en el rodeo! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me enseñas algo?", 
+            respuesta: "¡Claro, soy el maestro del corral! ¿Qué del ganado quieres aprender?" 
+        },
+        { 
+            interaccion: "¡Qué calma!", 
+            respuesta: "¡Más calma que una vaca rumiando! ¿Te ayudo con algo bovino?" 
+        },
+        { 
+            interaccion: "¿Qué tal el aire fresco?", 
+            respuesta: "¡Ideal para que el hato respire! ¿Cómo está tu rancho con las vacas?" 
+        },
+        { 
+            interaccion: "¡Qué fácil!", 
+            respuesta: "¡Más fácil que dar heno a un toro! ¿En qué te ayudo con el ganado?" 
+        },
+        { 
+            interaccion: "¿Me cuentas un truco?", 
+            respuesta: "¡Claro! Usa sal para animar a las vacas a comer. ¿Otro truco bovino?" 
+        },
+        { 
+            interaccion: "¡Qué emoción!", 
+            respuesta: "¡Más emoción que arrear vacas al amanecer! ¿Qué del ganado te emociona?" 
+        },
+        { 
+            interaccion: "¿Qué tal el terreno?", 
+            respuesta: "¡Firme y listo para el hato! ¿Cómo está tu terreno para las vacas?" 
+        },
+        { 
+            interaccion: "¡Qué delicioso!", 
+            respuesta: "¡Más delicioso que el pasto para un becerro! ¿Hablamos de raciones?" 
+        },
+        { 
+            interaccion: "¿Me levantas el ánimo?", 
+            respuesta: "¡Claro, como toro al alba! ¿Qué del ganado te animo hoy?" 
+        },
+        { 
+            interaccion: "¡Qué gigante!", 
+            respuesta: "¡Más gigante que un toro premiado! ¿Qué del ganado te impresiona?" 
+        },
+        { 
+            interaccion: "¿Qué tal el cielo azul?", 
+            respuesta: "¡Perfecto para pastar vacas! ¿Cómo está tu cielo bovino?" 
+        },
+        { 
+            interaccion: "¡Qué tierno!", 
+            respuesta: "¡Más tierno que un becerro recién nacido! ¿Qué del ganado te enternece?" 
+        },
+        { 
+            interaccion: "¿Me das una muestra?", 
+            respuesta: "¡Claro! Una vaca sana engorda rápido. ¿Otra muestra bovina?" 
+        },
+        { 
+            interaccion: "¡Qué calorazo!", 
+            respuesta: "¡Más calor que en un corral sin árboles! ¿Te ayudo con las vacas?" 
+        },
+        { 
+            interaccion: "¿Qué tal el encierro?", 
+            respuesta: "¡Perfecto para engordar el hato! ¿Cómo está tu encierro bovino?" 
+        },
+        { 
+            interaccion: "¡Qué sueño me da!", 
+            respuesta: "¡Más sueño que un toro tras rumiar! ¿Te animo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me dices algo nuevo?", 
+            respuesta: "¡Claro! Las vacas tienen memoria de caras. ¿Otro dato del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué espectacular!", 
+            respuesta: "¡Más espectacular que un hato en plena forma! ¿Qué del ganado te gusta?" 
+        },
+        { 
+            interaccion: "¿Qué tal el aguacero?", 
+            respuesta: "¡Moja como para alegrar al pasto! ¿Cómo está tu rancho con las vacas?" 
+        },
+        { 
+            interaccion: "¡Qué veloz!", 
+            respuesta: "¡Más veloz que un toro en el potrero! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me ayudas esta vez?", 
+            respuesta: "¡Claro, como vaquero al rescate del hato! ¿Qué necesitas del ganado?" 
+        },
+        { 
+            interaccion: "¡Qué agotado!", 
+            respuesta: "¡Más agotado que tras arrear vacas! ¿Te ayudo con algo para relajarte?" 
+        },
+        { 
+            interaccion: "¿Qué tal la alfalfa?", 
+            respuesta: "¡Rica y lista para las vacas! ¿Cómo manejas la alfalfa en tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué hermosa!", 
+            respuesta: "¡Más hermosa que una vaca premiada! ¿Qué del ganado te encanta?" 
+        },
+        { 
+            interaccion: "¿Me das un tip rápido?", 
+            respuesta: "¡Claro! Revisa las pezuñas y el hato te lo agradecerá. ¿Otro tip bovino?" 
+        },
+        { 
+            interaccion: "¡Qué helado!", 
+            respuesta: "¡Más helado que un corral en invierno! ¿Te ayudo con el ganado?" 
+        },
+        { 
+            interaccion: "¿Qué tal los toros?", 
+            respuesta: "¡Fuertes y listos para el hato! ¿Cómo están tus toros en el rancho?" 
+        },
+        { 
+            interaccion: "¡Qué apetito!", 
+            respuesta: "¡Más apetito que un toro tras pastar! ¿Te ayudo con la dieta bovina?" 
+        },
+        { 
+            interaccion: "¿Me hablas del hato?", 
+            respuesta: "¡Claro! Un hato sano es oro puro. ¿Qué del tuyo quieres charlar?" 
+        },
+        { 
+            interaccion: "¡Qué fantástico!", 
+            respuesta: "¡Más fantástico que un toro campeón! ¿Qué del ganado te emociona?" 
+        },
+        { 
+            interaccion: "¿Qué tal la vista?", 
+            respuesta: "¡Clara y perfecta para ver vacas! ¿Cómo está tu vista bovina?" 
+        },
+        { 
+            interaccion: "¡Qué apacible!", 
+            respuesta: "¡Más apacible que una vaca al atardecer! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me das una sugerencia?", 
+            respuesta: "¡Claro! Usa sombra y las vacas estarán felices. ¿Otra sugerencia bovina?" 
+        },
+        { 
+            interaccion: "¡Qué emocionado!", 
+            respuesta: "¡Más emocionado que un vaquero en el mercado! ¿Qué del ganado te anima?" 
+        },
+        { 
+            interaccion: "¿Qué tal el paisaje?", 
+            respuesta: "¡Perfecto para el ganado, como siempre! ¿Cómo está tu paisaje bovino?" 
+        },
+        { 
+            interaccion: "¡Qué carga!", 
+            respuesta: "¡Más carga que un toro en el lodo! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me das ánimo?", 
+            respuesta: "¡Claro, como becerro en el pasto! ¿Qué tal un dato del ganado para animarte?" 
+        },
+        { 
+            interaccion: "¡Qué bueno verte otra vez!", 
+            respuesta: "¡Igual, como ver al hato volver! ¿Qué traes del ganado hoy?" 
+        },
+        { 
+            interaccion: "¿Qué tal el sol hoy?", 
+            respuesta: "¡Brilla como para que las vacas pidan sombra! ¿Cómo está tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué sediento!", 
+            respuesta: "¡Más sediento que un toro en verano! ¿Te ayudo con el agua del ganado?" 
+        },
+        { 
+            interaccion: "¿Me das un buen tip?", 
+            respuesta: "¡Claro! Vigila el pasto y las vacas engordarán. ¿Otro tip bovino?" 
+        },
+        { 
+            interaccion: "¡Qué maravilla todo!", 
+            respuesta: "¡Más maravilloso que un hato feliz! ¿Qué del ganado te alegra?" 
+        },
+        { 
+            interaccion: "¿Qué tal el sonido?", 
+            respuesta: "¡Tranquilo como vacas rumiando! ¿Cómo está tu rancho hoy?" 
+        },
+        { 
+            interaccion: "¡Qué ágil!", 
+            respuesta: "¡Más ágil que un toro en el rodeo! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me ayudas siempre?", 
+            respuesta: "¡Claro, como vaquero fiel al hato! ¿Qué necesitas del ganado ahora?" 
+        },
+        { 
+            interaccion: "¡Qué fatiga!", 
+            respuesta: "¡Más fatiga que tras contar vacas! ¿Te ayudo con algo para relajarte?" 
+        },
+        { 
+            interaccion: "¿Qué tal el silo?", 
+            respuesta: "¡Lleno y listo para el hato! ¿Cómo manejas el silo en tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué precioso!", 
+            respuesta: "¡Más precioso que un becerro en el potrero! ¿Qué del ganado te gusta?" 
+        },
+        { 
+            interaccion: "¿Me das un dato rápido?", 
+            respuesta: "¡Claro! Las vacas caminan 8 km al día pastando. ¿Otro dato bovino?" 
+        },
+        { 
+            interaccion: "¡Qué congelado!", 
+            respuesta: "¡Más congelado que un toro en la nieve! ¿Te ayudo con el ganado?" 
+        },
+        { 
+            interaccion: "¿Qué tal las vacas hoy?", 
+            respuesta: "¡Rumiando y felices, como siempre! ¿Cómo están tus vacas?" 
+        },
+        { 
+            interaccion: "¡Qué hambre me dio!", 
+            respuesta: "¡Más hambre que un toro tras el pastizal! ¿Te ayudo con la dieta bovina?" 
+        },
+        { 
+            interaccion: "¿Me hablas del corral?", 
+            respuesta: "¡Claro! Un corral limpio es el sueño de toda vaca. ¿Qué del tuyo?" 
+        },
+        { 
+            interaccion: "¡Qué espectacular tú!", 
+            respuesta: "¡Gracias, más espectacular que un hato en forma! ¿En qué te ayudo?" 
+        },
+        { 
+            interaccion: "¿Qué tal el amanecer?", 
+            respuesta: "¡Hermoso, ideal para pastar vacas! ¿Cómo está tu amanecer bovino?" 
+        },
+        { 
+            interaccion: "¡Qué sereno!", 
+            respuesta: "¡Más sereno que una vaca al sol! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me das una recomendación?", 
+            respuesta: "¡Claro! Usa heno fresco y las vacas te lo agradecerán. ¿Otra idea?" 
+        },
+        { 
+            interaccion: "¡Qué entusiasmo!", 
+            respuesta: "¡Más entusiasmo que un vaquero en el rodeo! ¿Qué del ganado te anima?" 
+        },
+        { 
+            interaccion: "¿Qué tal el entorno?", 
+            respuesta: "¡Perfecto para el ganado, como siempre! ¿Cómo está tu entorno bovino?" 
+        },
+        { 
+            interaccion: "¡Qué esfuerzo!", 
+            respuesta: "¡Más esfuerzo que arrear vacas en lodo! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me das un empujón?", 
+            respuesta: "¡Claro, como toro al portón! ¿Qué del ganado te animo?" 
+        },
+        { 
+            interaccion: "¡Qué bueno charlar!", 
+            respuesta: "¡Igual, como vaquero en el corral! ¿Qué traes del ganado hoy?" 
+        },
+        { 
+            interaccion: "¿Qué tal el atardecer?", 
+            respuesta: "¡Bello, ideal para ver vacas! ¿Cómo está tu atardecer bovino?" 
+        },
+        { 
+            interaccion: "¡Qué sediento estoy!", 
+            respuesta: "¡Más sediento que un toro en el calor! ¿Te ayudo con el agua del hato?" 
+        },
+        { 
+            interaccion: "¿Me das un gran consejo?", 
+            respuesta: "¡Claro! Cuida el hato y el rancho prosperará. ¿Otro consejo bovino?" 
+        },
+        { 
+            interaccion: "¡Qué maravilla esto!", 
+            respuesta: "¡Más maravilloso que un potrero lleno! ¿Qué del ganado te alegra?" 
+        },
+        { 
+            interaccion: "¿Qué tal la paz?", 
+            respuesta: "¡Tranquila como vacas en el pasto! ¿Cómo está tu rancho hoy?" 
+        },
+        { 
+            interaccion: "¡Qué rápido todo!", 
+            respuesta: "¡Más rápido que un toro en estampida! ¿Te ayudo con algo del ganado?" 
+        },
+        { 
+            interaccion: "¿Me ayudas otra vez?", 
+            respuesta: "¡Claro, como vaquero al hato! ¿Qué necesitas del ganado ahora?" 
+        },
+        { 
+            interaccion: "¡Qué agotamiento!", 
+            respuesta: "¡Más agotado que tras el rodeo! ¿Te ayudo con las vacas para relajarte?" 
+        },
+        { 
+            interaccion: "¿Qué tal el forraje?", 
+            respuesta: "¡Fresco y listo para el hato! ¿Cómo manejas el forraje en tu rancho?" 
+        },
+        { 
+            interaccion: "¡Qué bello!", 
+            respuesta: "¡Más bello que un potrero con vacas! ¿Qué del ganado te gusta?" 
+        },
+        { 
+            interaccion: "¿Me das un dato final?", 
+            respuesta: "¡Claro! Las vacas duermen 4 horas al día. ¿Otro dato bovino?" 
+        },
+        { 
+            interaccion: "¡Qué helado está!", 
+            respuesta: "¡Más helado que un corral en invierno! ¿Te ayudo con el ganado?" 
+        },
+        { 
+            interaccion: "¿Qué tal el ganado?", 
+            respuesta: "¡Fuerte y sano, como debe ser! ¿Cómo está tu ganado hoy?" 
+        },
+        { 
+            interaccion: "¡Qué hambre otra vez!", 
+            respuesta: "¡Más hambre que un toro tras pastar! ¿Te ayudo con la dieta del hato?" 
+        },
+        { 
+            interaccion: "¿Me hablas de toros?", 
+            respuesta: "¡Claro! Los toros son los reyes del corral. ¿Qué del tuyo quieres saber?" 
+        },
+        { 
+            interaccion: "¡Qué increíble todo!", 
+            respuesta: "¡Más increíble que un hato en plena engorda! ¿En qué te ayudo hoy?" 
+        }
+            ];
+
+        const chatbox = document.getElementById("chatbox");
         const userInput = document.getElementById("userInput");
-        let sessionData = null; // ✅ Guardará la sugerencia si la hubo
-    
-        function addMessage(sender, message) {
-            const msg = document.createElement("p");
-            msg.innerHTML = `<strong>${sender}:</strong> ${message}`;
-            chatbox.appendChild(msg);
+        const sendBtn = document.getElementById("sendBtn");
+        const autocompleteSuggestions = document.getElementById("autocomplete-suggestions");
+
+        function showMessage(message, sender, isBold = false) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: ${message}`;
+            if (isBold) {
+                messageElement.style.fontWeight = "bold"; // Aplica negritas si es necesario
+            }
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight; // Desplaza hacia abajo automáticamente
+        }
+
+
+        function typingEffect(message, sender) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: `; // La respuesta se mantiene en una sola línea.
+            chatbox.appendChild(messageElement);
             chatbox.scrollTop = chatbox.scrollHeight;
-        }
-    
-        async function sendQuestion() {
-            const question = userInput.value.trim();
-            if (!question) return;
-    
-            addMessage("Tú", question);
-            userInput.value = "";
-    
-            try {
-                const response = await fetch('/preguntar', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        pregunta: question,
-                        session_data: sessionData // ✅ reenviamos si hay sugerencia pendiente
-                    })
-                });
-    
-                const data = await response.json();
-    
-                // ✅ Si el backend devuelve nueva session_data, la guardamos
-                if (data.session_data) {
-                    sessionData = data.session_data;
-                } else {
-                    sessionData = null;
-                }
-    
-                animateResponse("AgroAsistec", data.respuesta);
-            } catch (error) {
-                addMessage("AgroAsistec", "Hubo un error al conectar con el servidor.");
-            }
-        }
-    
-        function animateResponse(sender, message) {
-            const msg = document.createElement("p");
-            msg.innerHTML = `<strdong>${sender}:</strong><br>`;
-            chatbox.appendChild(msg);
-
-            // Formatea el mensaje antes de mostrarlo
-            let formatted = message
-                .replace(/•\s?(.*?)(?=\n|$)/g, '<li>$1</li>')  // convierte bullets a <li>
-                .replace(/\n\n/g, '</p><p>')                  // doble salto: nuevo párrafo
-                .replace(/\n/g, '<br>');                      // salto simple: <br>
-
-            // Si hay <li>, lo envolvemos en <ul>
-            if (formatted.includes('<li>')) {
-                formatted = formatted.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
-            }
-
-            // Prepara para la animación palabra por palabra
-            const tempDiv = document.createElement("div");
-            tempDiv.innerHTML = formatted;
-            const words = tempDiv.textContent.split(" ");
 
             let i = 0;
-            const displayWords = [];
-
-            const interval = setInterval(() => {
-                if (i < words.length) {
-                    displayWords.push(words[i++]);
-                    msg.innerHTML = `<strong>${sender}:</strong><br>` + displayWords.join(" ");
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                } else {
-                    clearInterval(interval);
-                    // Al final, reemplazamos con el texto bien formateado
-                    msg.innerHTML = `<strong>${sender}:</strong><br>` + formatted;
-                }
-            }, 0); // velocidad de animación (ajustable)
+            let interval = setInterval(() => {
+                messageElement.textContent = `${sender}: ${message.slice(0, i++)}`; // Agregar letra por letra en la misma línea.
+                if (i > message.length) clearInterval(interval);
+            }, 40); // 40ms para cada letra
         }
 
-    
-        userInput.addEventListener("keypress", function(e) {
-            if (e.key === "Enter") sendQuestion();
+        function getBestAnswer(userQuestion) {
+            // Buscar coincidencias exactas en preguntasRespuestas
+            for (let item of preguntasRespuestas) {
+                if (userQuestion.toLowerCase() === item.pregunta.toLowerCase()) {
+                    return item.respuesta; // Coincidencia exacta
+                }
+            }
+
+            // Buscar coincidencias con al menos un 70% de similitud en respuestasDivertidas
+            for (let item of respuestasDivertidas) {
+                let similarity = calculateSimilarity(userQuestion, item.interaccion);
+                if (similarity >= 0.7) { // Umbral de similitud del 70%
+                    return item.respuesta;
+                }
+            }
+
+            // Si no hay coincidencias, devolver la respuesta general
+            return "Lo siento, no tengo una respuesta para esa pregunta. Estamos trabajando para mejorar nuestras respuestas y ampliar el contenido. ¿Hay algo más en lo que pueda ayudarte?";
+        }
+
+        function calculateSimilarity(str1, str2) {
+            str1 = str1.toLowerCase();
+            str2 = str2.toLowerCase();
+
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+
+            const longerLength = longer.length;
+            if (longerLength === 0) return 1.0;
+
+            const editDistance = getEditDistance(longer, shorter);
+            return (longerLength - editDistance) / longerLength;
+        }
+
+        function getEditDistance(str1, str2) {
+            const matrix = Array.from({ length: str2.length + 1 }, () => Array(str1.length + 1).fill(0));
+
+            for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+            for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+            for (let j = 1; j <= str2.length; j++) {
+                for (let i = 1; i <= str1.length; i++) {
+                    const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                    matrix[j][i] = Math.min(
+                        matrix[j - 1][i] + 1, // Eliminación
+                        matrix[j][i - 1] + 1, // Inserción
+                        matrix[j - 1][i - 1] + cost // Sustitución
+                    );
+                }
+            }
+
+            return matrix[str2.length][str1.length];
+        }
+
+        /*Nueva funcion para mostrar posibles preguntas al chat, se reemplazo el div por un detalist con sus opciones*/
+        function updateDatalist(userQuestion) {
+            const datalist = document.getElementById("autocomplete-suggestions");
+            datalist.innerHTML = ""; // Limpiar opciones previas
+            if (userQuestion.trim() === "") return;
+        
+            // Dividir la pregunta en palabras y obtener la última
+            const words = userQuestion.split(" ");
+            const lastWord = words[words.length - 1].toLowerCase();
+        
+            // Filtrar las sugerencias basadas en la última palabra
+            const suggestions = preguntasRespuestas.filter(item =>
+                item.pregunta.toLowerCase().includes(lastWord)
+            );
+        
+            // Agregar hasta 5 opciones al datalist
+            suggestions.slice(0, 5).forEach(item => {
+                const option = document.createElement("option");
+                option.value = item.pregunta;
+                datalist.appendChild(option);
+            });
+        }        
+
+        sendBtn.addEventListener("click", () => {
+            const userQuestion = userInput.value.trim();
+            if (userQuestion) {
+                // Mostrar la pregunta del usuario primero
+                showMessage(userQuestion, "Usuario", true); // Pregunta en negritas
+
+                // Procesar la respuesta después de un breve retraso
+                setTimeout(() => {
+                    const response = getBestAnswer(userQuestion);
+                    typingEffect(response, "AgroAsistec"); // Mostrar la respuesta con efecto de escritura
+                }, 500); // Espera breve antes de mostrar la respuesta
+
+                // Limpiar el campo de entrada y sugerencias
+                userInput.value = "";
+                autocompleteSuggestions.innerHTML = "";
+            }
         });
+
+        userInput.addEventListener("input", () => {
+            updateDatalist(userInput.value);
+        });        
+
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendBtn.click();
+            }
+        });
+
+        // Mensaje de bienvenida
+        showMessage("Hola, bienvenido a AgroAsistec tu asistente inteligente. ¿Cómo puedo ayudarte hoy?", "AgroAsistec");
     </script>
-º    
 </body>
 </html>
