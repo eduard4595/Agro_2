@@ -75,3 +75,6 @@ cache/
 Pipfile*
 flask_session/
 uploads*/
+
+data/
+*csv
