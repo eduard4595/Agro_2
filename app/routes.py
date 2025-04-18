@@ -2157,7 +2157,8 @@ def register_routes(app):
             data = pd.read_csv(file_path)
 
             # Ordenar las fechas y obtener la más reciente
-            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y %H:%M', errors='coerce')
+            # data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y %H:%M', errors='coerce')
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'])
 
             # Verificar si hay fechas inválidas
             if data['fecha_captura'].isna().any():
@@ -2735,7 +2736,7 @@ def register_routes(app):
             data = pd.read_csv(file_path)
 
             # Ordenar las fechas y obtener la más reciente
-            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y', errors='coerce')
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'])
             data = data.sort_values(by='fecha_captura', ascending=False)
             fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
             fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
@@ -3211,7 +3212,7 @@ def register_routes(app):
             data = pd.read_csv(file_path)
 
             # Ordenar las fechas y obtener la más reciente
-            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y', errors='coerce')
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'])
             data = data.sort_values(by='fecha_captura', ascending=False)
             fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
             fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
@@ -3675,7 +3676,7 @@ def register_routes(app):
             data = pd.read_csv(file_path)
 
             # Ordenar las fechas y obtener la más reciente
-            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y', errors='coerce')
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'])
             data = data.sort_values(by='fecha_captura', ascending=False)
             fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
             fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
