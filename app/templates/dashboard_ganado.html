@@ -435,7 +435,7 @@
             userInput.value = "";
     
             try {
-                const response = await fetch('/preguntar', {
+                const response = await fetch("{{ url_for('preguntar') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -503,6 +503,5 @@
             if (e.key === "Enter") sendQuestion();
         });
     </script>
-º    
 </body>
 </html>
