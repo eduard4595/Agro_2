@@ -1,3 +1,8 @@
 username,telefono,email,password,fecha_nacimiento,genero,terminos
 Luis bovino,1,bovino34fse@gmail.com,pbkdf2:sha256:1000000$ZHJ8X60Tsxj0VfpF$bc67f0d5805b6620511bb0caaa8f419e6fdc6c3045d47120140436769c2f2c34,12/12/1999,mujer,Aceptado
 Juan 2,22332,juan.bovino3@qm.com,pbkdf2:sha256:1000000$OeeehpGc4Sb7S6zP$3668086f0974e726760f1211d132b15743d39a9bdc4f757c41fd2bcd36646394,12/12/2122,mujer,Aceptado
+maiz,4131,maiz2@gmail.com,pbkdf2:sha256:1000000$uDE58W7blwJACQ3d$bb97e592a6543c60d706da43033fdd61063e6fbf510301ef8eb205ac38817d4f,12/12/1990,mujer,Aceptado
+citricos,1231341,citricos@gmail.com,pbkdf2:sha256:1000000$OxoQEddBdPJp1864$a667a27a4a5d8697c74b38b0263498344d753792dcb5c521c80bdc66a1658eea,12/12/1990,mujer,Aceptado
+litchi,2424,litchi@gmial.com,pbkdf2:sha256:1000000$RcNKi1eZhHJ0RbEh$d7b0e545ab1cd6d5a360fede84e57949b32cfd9a62a364f1427345390dd3d91a,12/12/1900,mujer,Aceptado
+huevo,124455,huevo@gmail.com,pbkdf2:sha256:1000000$kMhdLw3u2BcuaCPG$df8acc041905c02fdadfe81a32603c6f1c58cb63ae8869a6eac44fe72daad7b8,12/12/1990,mujer,Aceptado
+cerdos,1345646,cerdos_mx@gmail.com,pbkdf2:sha256:1000000$EnrZeJELr3zgSWVx$5e86fab9932bf769f79f14c44a42efe04be7aec520d648eb9dd253976e33ece6,12/12/1990,mujer,Aceptado

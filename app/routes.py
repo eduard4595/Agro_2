@@ -2157,7 +2157,8 @@ def register_routes(app):
             data = pd.read_csv(file_path)
 
             # Ordenar las fechas y obtener la más reciente
-            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y %H:%M', errors='coerce')
+            # data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y %H:%M', errors='coerce')
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'])
 
             # Verificar si hay fechas inválidas
             if data['fecha_captura'].isna().any():
@@ -2735,7 +2736,7 @@ def register_routes(app):
             data = pd.read_csv(file_path)
 
             # Ordenar las fechas y obtener la más reciente
-            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y', errors='coerce')
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'])
             data = data.sort_values(by='fecha_captura', ascending=False)
             fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
             fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
@@ -3211,7 +3212,7 @@ def register_routes(app):
             data = pd.read_csv(file_path)
 
             # Ordenar las fechas y obtener la más reciente
-            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y', errors='coerce')
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'])
             data = data.sort_values(by='fecha_captura', ascending=False)
             fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
             fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
@@ -3675,7 +3676,7 @@ def register_routes(app):
             data = pd.read_csv(file_path)
 
             # Ordenar las fechas y obtener la más reciente
-            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'], format='%d/%m/%Y', errors='coerce')
+            data['fecha_captura'] = pd.to_datetime(data['fecha_captura'])
             data = data.sort_values(by='fecha_captura', ascending=False)
             fechas_disponibles = data['fecha_captura'].dt.strftime('%Y-%m-%d').unique()
             fecha_seleccionada = request.form.get('fecha_captura', fechas_disponibles[0])
@@ -3805,11 +3806,6 @@ def register_routes(app):
         except FileNotFoundError:
             flash('No se encontraron datos para generar el análisis.', 'danger')
             return render_template('my_analysis_citricos.html')
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
         
     @app.route('/dashboard_coffee')
     def dashboard_coffee():
@@ -3835,16 +3831,30 @@ def register_routes(app):
         
         return render_template('climatico.html')
 
+
     
     # Carga de modelo de embeddings
     embedder = SentenceTransformer('all-MiniLM-L6-v2')
 
-    # Cargar base de datos de preguntas y respuestas desde JSON
-    with open("faq_ganado.json", "r", encoding="utf-8") as f:
-        faq_data = json.load(f)
+    # Diccionario para mapear dashboards a archivos JSON
+    DASHBOARD_JSON_MAP = {
+        "dashboard_cafe": "faq_cafe.json",
+        "dashboard_cerdos": "faq_cerdo.json",
+        "dashboard_citricos": "faq_citricos.json",
+        "dashboard_huevos": "faq_huevo.json",
+        "dashboard_maiz": "faq_maiz.json",
+        "dashboard_litchi": "faq_litchi.json",
+        "dashboard_ganado": "faq_ganado.json"
+    }
 
-    # Precalcular embeddings de las preguntas
-    faq_embeddings = embedder.encode([item["pregunta"] for item in faq_data])
+    # Función para cargar datos desde un archivo JSON
+    def cargar_datos_json(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    # Función para precalcular embeddings de las preguntas
+    def precalcular_embeddings(faq_data):
+        return embedder.encode([item["pregunta"] for item in faq_data])
 
     # Lista de respuestas afirmativas
     AFFIRMATIVE_RESPONSES = {"sí", "si", "así es", "correcto", "exacto", "sí, eso es", "afirmativo", "claro", "claro que sí"}
@@ -3852,7 +3862,45 @@ def register_routes(app):
     # Lista de saludos
     GREETINGS = {"hola", "buenos días", "buenas tardes", "buenas noches", "qué tal", "hey"}
 
-    def buscar_respuesta(pregunta_usuario, session_data=None):
+    # Lista de despedidas
+    FAREWELLS = {"adiós", "hasta luego", "nos vemos", "chau", "hasta pronto", "cuídate"}
+
+    # Lista de agradecimientos
+    THANKS = {"gracias", "muchas gracias", "te agradezco", "agradecido", "muy amable"}
+
+    # Lista de preguntas sobre estado
+    HOW_ARE_YOU = {"cómo estás", "cómo te va", "qué tal", "cómo va todo"}
+
+    # Lista de preguntas sobre ayuda
+    HELP_REQUESTS = {"puedes ayudarme", "necesito ayuda", "me puedes ayudar", "ayúdame"}
+
+    # Lista de preguntas sobre información
+    INFO_REQUESTS = {"qué es", "puedes explicarme", "me puedes decir", "quiero saber"}
+
+    # Lista de preguntas sobre el sector agropecuario
+    AGRO_REQUESTS = {"qué es la ganadería", "cómo se cultiva maíz", "qué cuidados necesitan los cerdos", "cómo se produce café"}
+
+    def manejar_interaccion_general(pregunta_usuario):
+        pregunta_usuario_lower = pregunta_usuario.lower()
+
+        if pregunta_usuario_lower in GREETINGS:
+            return "¡Hola! ¿Cómo estás? ¿En qué puedo ayudarte hoy en el sector agropecuario?"
+        elif pregunta_usuario_lower in FAREWELLS:
+            return "¡Adiós! Espero haberte ayudado. ¡Cuídate y hasta pronto!"
+        elif pregunta_usuario_lower in THANKS:
+            return "¡De nada! Estoy aquí para ayudarte en lo que necesites."
+        elif pregunta_usuario_lower in HOW_ARE_YOU:
+            return "Estoy bien, gracias por preguntar. ¿Cómo estás tú? ¿En qué puedo asistirte hoy?"
+        elif pregunta_usuario_lower in HELP_REQUESTS:
+            return "Claro, estoy aquí para ayudarte. ¿Cuál es tu consulta sobre el sector agropecuario?"
+        elif pregunta_usuario_lower in INFO_REQUESTS:
+            return "Por supuesto, ¿qué información necesitas sobre el sector agropecuario?"
+        elif pregunta_usuario_lower in AGRO_REQUESTS:
+            return "Puedo ayudarte con información sobre ganadería, cultivo de maíz, cuidados de cerdos, producción de café y más. ¿Cuál es tu pregunta específica?"
+
+        #return "Disculpa, no entendí tu pregunta. ¿Podrías reformularla o especificar más detalles sobre el sector agropecuario?"
+
+    def buscar_respuesta(pregunta_usuario, faq_data, faq_embeddings, session_data=None):
         embedding_usuario = embedder.encode([pregunta_usuario])
         similitudes = cosine_similarity(embedding_usuario, faq_embeddings)[0]
 
@@ -3881,20 +3929,23 @@ def register_routes(app):
                 "session_data": None
             }
 
-    # Función para manejar interacciones generales como saludos
-    def manejar_interaccion_general(pregunta_usuario):
-        if pregunta_usuario.lower() in GREETINGS:
-            return "¡Hola! ¿Cómo estás? Entusiasta de la ganadería, ¿en qué puedo ayudarte hoy?"
-        return None
-
     @app.route('/preguntar', methods=['POST'])
     def preguntar():
         data = request.get_json()
         pregunta = data.get("pregunta")
         session_data = data.get("session_data")
+        dashboard = data.get("dashboard")  # Nueva categoría para diferenciar
 
-        if not pregunta:
-            return jsonify({"respuesta": "Por favor, escribe una pregunta válida."}), 400
+        if not pregunta or not dashboard:
+            return jsonify({"respuesta": "Por favor, escribe una pregunta válida y especifica el dashboard."}), 400
+
+        # Cargar datos según el dashboard
+        json_file = DASHBOARD_JSON_MAP.get(dashboard)
+        if not json_file:
+            return jsonify({"respuesta": "Dashboard no reconocido. Por favor, elige uno válido."}), 400
+
+        faq_data = cargar_datos_json(json_file)
+        faq_embeddings = precalcular_embeddings(faq_data)
 
         # Manejar interacciones generales
         respuesta_general = manejar_interaccion_general(pregunta)
@@ -3929,14 +3980,9 @@ def register_routes(app):
                 })
 
         # 🟢 CASO 1, 2 o 3: Primera vez que hace la pregunta
-        resultado = buscar_respuesta(pregunta)
+        resultado = buscar_respuesta(pregunta, faq_data, faq_embeddings)
         print("Resultado enviado:", resultado)  # Depuración
         return jsonify({
             "respuesta": resultado["respuesta"],
             "session_data": resultado["session_data"]
         })
-
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
