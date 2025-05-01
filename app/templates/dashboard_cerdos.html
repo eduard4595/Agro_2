@@ -251,6 +251,22 @@
                 flex: 1 1 100%;
                 max-width: none;
             }
+            
+        }
+        ul {
+        list-style-type: disc;
+        margin: 0;
+        padding-left: 20px;
+        }
+
+        li {
+            margin: 0;         /* Quita espacio entre bullets */
+            padding: 0;        /* Sin padding adicional */
+            line-height: 1.4;  /* Coincide con el resto del texto */
+        }
+
+        p {
+            margin: 0 0 10px 0; /* Margen entre párrafos */
         }
     </style>
 </head>
@@ -336,13 +352,13 @@
             </div>
             
             <div class="chat-container">
-                <h2>AI Chat Porcino AgroAsistec</h2>
-                <div class="chat-box" id="chat-box">
-                    <!-- Mensajes del chat aparecerán aquí -->
+                <h2> AI Chat Agropecuario AgroAsistec</h2>
+                <div id="chat-box">
+                    <p><strong>AgroAsistec:</strong> Hola 👋 ¿En qué puedo ayudarte hoy sobre tu crianza y manejo de cerdos?</p>
                 </div>
                 <div class="chat-input">
-                    <input type="text" id="chat-input" placeholder="Escribe tu mensaje aquí...">
-                    <button onclick="sendMessage()">Enviar</button>
+                    <input type="text" id="userInput" placeholder="Escribe tu pregunta aquí..." size="50">
+                    <button onclick="sendQuestion()">Enviar</button>
                 </div>
             </div>
         </div>
@@ -352,32 +368,93 @@
     </footer>
 
     <script>
-        function sendMessage() {
-            const chatBox = document.getElementById('chat-box');
-            const chatInput = document.getElementById('chat-input');
-            const message = chatInput.value.trim();
+        const chatbox = document.getElementById("chat-box");
+        const userInput = document.getElementById("userInput");
+        let sessionData = null; // ✅ Guardará la sugerencia si la hubo
+        const dashboard = "dashboard_cerdos"; // ✅ Cambia esto según el dashboard actual
     
-            if (message) {
-                // Mostrar el mensaje del usuario
-                const userMessage = document.createElement('div');
-                userMessage.textContent = "Tú: " + message;
-                userMessage.style.color = "#2e4a2d"; // Color verde oscuro para el mensaje del usuario
-                chatBox.appendChild(userMessage);
+        function addMessage(sender, message) {
+            const msg = document.createElement("p");
+            msg.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            chatbox.appendChild(msg);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
     
-                // Limpiar el campo de entrada
-                chatInput.value = '';
+        async function sendQuestion() {
+            const question = userInput.value.trim();
+            if (!question) return;
     
-                // Mostrar el mensaje automático de respuesta
-                const botMessage = document.createElement('div');
-                botMessage.textContent = "Por el momento este servicio no está disponible. Disculpa las molestias, estamos trabajando para mejorar el servicio.";
-                botMessage.style.color = "#D9534F"; // Color rojo para el mensaje del bot
-                botMessage.style.marginTop = "10px";
-                chatBox.appendChild(botMessage);
+            addMessage("Tú", question);
+            userInput.value = "";
     
-                // Desplazar el chat hacia abajo
-                chatBox.scrollTop = chatBox.scrollHeight;
+            try {
+                const response = await fetch("{{ url_for('preguntar') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pregunta: question,
+                        session_data: sessionData, // ✅ reenviamos si hay sugerencia pendiente
+                        dashboard: dashboard // ✅ enviamos el dashboard actual
+                    })
+                });
+    
+                const data = await response.json();
+    
+                // ✅ Si el backend devuelve nueva session_data, la guardamos
+                if (data.session_data) {
+                    sessionData = data.session_data;
+                } else {
+                    sessionData = null;
+                }
+    
+                animateResponse("AgroAsistec", data.respuesta);
+            } catch (error) {
+                addMessage("AgroAsistec", "Hubo un error al conectar con el servidor.");
             }
         }
+    
+        function animateResponse(sender, message) {
+            const msg = document.createElement("p");
+            msg.innerHTML = `<strong>${sender}:</strong><br>`;
+            chatbox.appendChild(msg);
+    
+            // Formatea el mensaje antes de mostrarlo
+            let formatted = message
+                .replace(/•\s?(.*?)(?=\n|$)/g, '<li>$1</li>')  // convierte bullets a <li>
+                .replace(/\n\n/g, '</p><p>')                  // doble salto: nuevo párrafo
+                .replace(/\n/g, '<br>');                      // salto simple: <br>
+    
+            // Si hay <li>, lo envolvemos en <ul>
+            if (formatted.includes('<li>')) {
+                formatted = formatted.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
+            }
+    
+            // Prepara para la animación palabra por palabra
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = formatted;
+            const words = tempDiv.textContent.split(" ");
+    
+            let i = 0;
+            const displayWords = [];
+    
+            const interval = setInterval(() => {
+                if (i < words.length) {
+                    displayWords.push(words[i++]);
+                    msg.innerHTML = `<strong>${sender}:</strong><br>` + displayWords.join(" ");
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                } else {
+                    clearInterval(interval);
+                    // Al final, reemplazamos con el texto bien formateado
+                    msg.innerHTML = `<strong>${sender}:</strong><br>` + formatted;
+                }
+            }, 0); // velocidad de animación (ajustable)
+        }
+    
+        userInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") sendQuestion();
+        });
     </script>
 </body>
 </html>

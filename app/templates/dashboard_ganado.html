@@ -419,6 +419,7 @@
         const chatbox = document.getElementById("chat-box");
         const userInput = document.getElementById("userInput");
         let sessionData = null; // ✅ Guardará la sugerencia si la hubo
+        const dashboard = "dashboard_ganado"; // ✅ Cambia esto según el dashboard actual
     
         function addMessage(sender, message) {
             const msg = document.createElement("p");
@@ -442,7 +443,8 @@
                     },
                     body: JSON.stringify({
                         pregunta: question,
-                        session_data: sessionData // ✅ reenviamos si hay sugerencia pendiente
+                        session_data: sessionData, // ✅ reenviamos si hay sugerencia pendiente
+                        dashboard: dashboard // ✅ enviamos el dashboard actual
                     })
                 });
     
@@ -463,28 +465,28 @@
     
         function animateResponse(sender, message) {
             const msg = document.createElement("p");
-            msg.innerHTML = `<strdong>${sender}:</strong><br>`;
+            msg.innerHTML = `<strong>${sender}:</strong><br>`;
             chatbox.appendChild(msg);
-
+    
             // Formatea el mensaje antes de mostrarlo
             let formatted = message
                 .replace(/•\s?(.*?)(?=\n|$)/g, '<li>$1</li>')  // convierte bullets a <li>
                 .replace(/\n\n/g, '</p><p>')                  // doble salto: nuevo párrafo
                 .replace(/\n/g, '<br>');                      // salto simple: <br>
-
+    
             // Si hay <li>, lo envolvemos en <ul>
             if (formatted.includes('<li>')) {
                 formatted = formatted.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
             }
-
+    
             // Prepara para la animación palabra por palabra
             const tempDiv = document.createElement("div");
             tempDiv.innerHTML = formatted;
             const words = tempDiv.textContent.split(" ");
-
+    
             let i = 0;
             const displayWords = [];
-
+    
             const interval = setInterval(() => {
                 if (i < words.length) {
                     displayWords.push(words[i++]);
@@ -497,7 +499,6 @@
                 }
             }, 0); // velocidad de animación (ajustable)
         }
-
     
         userInput.addEventListener("keypress", function(e) {
             if (e.key === "Enter") sendQuestion();
